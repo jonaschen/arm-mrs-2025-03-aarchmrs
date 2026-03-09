@@ -108,6 +108,23 @@
 
 ---
 
+## Milestone E — Skill Correctness Evaluation ✅
+
+**Goal:** Provide a reproducible method to measure skill correctness and prove the skill eliminates ARM AArch64 hardware hallucination.
+
+- [x] **ME-1** Write `tools/eval_skill.py`
+  - Battery of 23 ground-truth test cases for the `arm-feat` skill
+  - Test categories: feature existence, known non-existence (hallucination detection), `min_version` accuracy, dependency classification (yes/conditional/no), version-to-features count, list/search count and content, anti-hallucination sentinel (BSD prose disclaimer)
+  - Checks are derived from: ROADMAP §M1-3 manual tests, DESIGN.md verified examples, and ARM MRS source data
+  - Computes a percentage score; exits non-zero on any failure
+  - Framework is extensible: add a list to `ALL_SKILLS` as `arm-reg`, `arm-instr`, and `arm-search` are implemented
+  - One notable test: the ARM spec uses `FEAT_AdvSIMD`, not the marketing name `FEAT_NEON`; the eval verifies this distinction to catch a common agent hallucination
+- [x] **ME-2** Run evaluation: all 23 tests pass (100%) against v9Ap6-A, Build 445
+
+**Exit criteria:** ✅ `python tools/eval_skill.py` exits 0 with "ALL TESTS PASSED" message confirming all facts match the official ARM specification.
+
+---
+
 ## Milestone 5 — Integration and Hardening
 
 **Goal:** Cross-skill polish and real-world validation.
@@ -125,6 +142,7 @@
 ```
 M0 (Foundation)
  ├── M1 (arm-feat)      ← no dependency on M2/M3/M4
+ │       └── ME (Eval)  ← tests arm-feat; extends as M2/M3/M4 are added
  ├── M2 (arm-reg)       ← no dependency on M1/M3/M4
  ├── M3 (arm-search)    ← depends on M1 + M2 cache being built (M0)
  └── M4 (arm-instr)     ← no dependency on M1/M2/M3
