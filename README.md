@@ -34,34 +34,52 @@ This repository is being extended with Claude Code agent skills for grounded,
 hallucination-free hardware queries. See `AARCH64_AGENT_SKILL_DEV_PLAN.md` and
 `ROADMAP.md` for the full design and implementation plan.
 
-### tools/probe.py
+### tools/build_index.py
 
-A data structure validation script that reads directly from the MRS source files
-(no cache required) and prints the proposed cache JSON schema for each entity type.
-Run this to verify data extraction assumptions before building the cache.
+Parses all three MRS source files and writes the `cache/` directory. Must be run
+once before any query script or skill can be used. Clears and rebuilds the cache
+on every run to prevent stale files.
 
-**Requirements:** Python 3.8+, no third-party dependencies.
+**Requirements:** Python 3.8+, no third-party dependencies. ~300–600 MB RAM.
 
 ```bash
-# Run all probes (SCTLR_EL1 register, ADC instruction, v9Ap2 features, FEAT_SVE)
-python tools/probe.py
+python tools/build_index.py
+```
 
-# Probe a specific register
+Outputs: `cache/features.json` (361 entries), `cache/registers/` (1,607 files),
+`cache/operations/` (2,262 files), `cache/registers_meta.json`, `cache/manifest.json`.
+Re-run whenever the MRS source files are updated.
+
+### tools/query_feature.py
+
+Queries architecture features and extensions from the cache.
+
+```bash
+# Look up a single feature
+python tools/query_feature.py FEAT_SVE
+
+# Check whether one feature requires another
+python tools/query_feature.py FEAT_SVE --deps FEAT_FP16
+
+# List all features introduced at or before a version
+python tools/query_feature.py --version v9Ap2
+
+# List feature names matching a pattern
+python tools/query_feature.py --list SVE
+```
+
+### tools/probe.py
+
+Development utility — validates data structure assumptions and previews the
+proposed cache JSON schemas directly from the MRS source files (no cache required).
+Run before modifying `build_index.py` to verify extraction logic.
+
+```bash
+python tools/probe.py                        # all probes
 python tools/probe.py --register SCTLR_EL1
-python tools/probe.py --register TCR_EL1
-python tools/probe.py --register DBGBCR2_EL1   # parameterised register
-
-# Probe a specific instruction operation
 python tools/probe.py --operation ADC
-python tools/probe.py --operation MRS
-
-# List all operation IDs matching a mnemonic prefix
-python tools/probe.py --list ADD
-
-# Feature version traversal: all features introduced at or before a version
 python tools/probe.py --feat-version v9Ap2
-
-# Probe a specific feature
 python tools/probe.py --feat FEAT_SVE
+python tools/probe.py --list ADD
 ```
 

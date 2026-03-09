@@ -93,8 +93,9 @@ Probe result for SCTLR_EL1: 59 raw fields → 13 named (cached), 46 unnamed/rese
 ### Cache file naming
 
 - Non-parameterized: `SCTLR_EL1__AArch64.json`
-- Parameterized: replace `<n>` with `_n_` → `DBGBCR_n_EL1__AArch64.json`
+- Parameterized: `<param>` and any immediately following `_` are replaced with `_param_`, trailing `_` stripped. `DBGBCR<n>_EL1` → `DBGBCR_n_EL1`; `DBGBCR<n>` (no suffix) → `DBGBCR_n`.
 - Same name + different state = separate files: `DBGBCR_n_EL1__AArch64.json`, `DBGBCR_n_EL1__ext.json`
+- Actual counts: 1,607 register files across 1,514 unique names; 150 registers are parameterized.
 
 ### Cache schema
 
@@ -192,42 +193,44 @@ InstructionSet (A64)          ← broadest encoding class
 
 Each level reuses bit positions, with deeper levels being more specific. The leaf's `'000'` at `[31:29]` overrides the group's named `sf`/`op`/`S` fields at the same positions for this variant.
 
-### Merge algorithm
+### Merge algorithm (as implemented in `build_index.py`)
 
-Build the complete resolved encoding by walking the path **bottom-up** (leaf → root). Use a dict keyed by `start` bit position. **First write wins** (deepest level takes priority for overlapping positions).
+A simplified "first write wins by start key" approach produces overlapping fields (38 bits for a 32-bit instruction) because the leaf's multi-bit field (e.g., `[31:29]='000'`, start=29, width=3) and the group's individual named fields (sf[31], op[30], S[29]) have different `start` values and both get written. The actual implementation uses a **two-pass bit-level algorithm**:
 
-```python
-resolved = {}  # start -> field dict
-for node in reversed(path):   # leaf first, root last
-    for ef in node.get('encoding', {}).get('values', []):
-        start = ef['range']['start']
-        if start not in resolved:   # first write wins
-            resolved[start] = ef
-```
+**Pass 1 — Named fields (bottom-up, bit-range collision detection):**
+Walk from leaf to root. For each field with a name, add it to `named_fields` only if **none** of its bit positions are already claimed. This captures the most specific (deepest) named definition for each bit range.
+
+**Pass 2 — Fixed bits (bottom-up, per-bit-position):**
+Walk from leaf to root. For each bit position carrying a `'0'` or `'1'` value, record it only if not yet seen. The leaf's discriminating bits are recorded first.
+
+**Final construction:**
+- For each named field: reconstruct its actual value from the per-bit fixed map. All `'x'` → `kind='operand'`; any fixed bit → `kind='fixed'`.
+- For fixed bits **not** covered by any named field: group into contiguous ranges → `kind='class'` (encoding class identifiers, unnamed in source).
+- Sort all fields MSB first (descending `start`).
 
 ### Field classification
 
-After merging, classify each resolved field:
+- `"kind": "fixed"` — named field whose bits are fully determined (value has no `'x'`)
+- `"kind": "operand"` — named field whose bits are all variable (`'x'`; user-supplied operand)
+- `"kind": "class"` — unnamed fixed-value range (encoding class identifier)
 
-- `"kind": "fixed"` — value contains only `'0'` or `'1'` characters (opcode bits)
-- `"kind": "operand"` — value contains `'x'` characters AND field has a name (user-supplied operand)
-- `"kind": "class"` — value is fixed AND field has no name (encoding class identifier, e.g., `'010'` at `[25:23]`)
+### Resolved encoding for `ADD_32_addsub_imm` (verified against actual cache output)
 
-This `kind` field lets query scripts separate "bits that identify the instruction" from "bits the programmer supplies" without re-examining the source JSON.
-
-### Resolved encoding for `ADD_32_addsub_imm` (verified)
+The two-pass algorithm captures `op1[28:25]` from the `InstructionSet` level (bits 28–25 are unclaimed when that level is processed), then reconstructs its value as `'1000'` from the fixed-bit map. The remaining uncovered fixed bits [24:23] become a `class` field.
 
 ```
-[31:31] sf    = '0'            kind=fixed   (variant discriminator)
-[30:30] op    = '0'            kind=fixed   (variant discriminator)
-[29:29] S     = '0'            kind=fixed   (variant discriminator)
-[28:26] null  = '100'          kind=class   (dpimm encoding class)
-[25:23] null  = '010'          kind=class   (addsub_imm encoding class)
-[22:22] sh    = 'x'            kind=operand
+[31:31] sf    = '0'    kind=fixed   (discriminator: leaf '000' → bit 31='0')
+[30:30] op    = '0'    kind=fixed   (discriminator: leaf '000' → bit 30='0')
+[29:29] S     = '0'    kind=fixed   (discriminator: leaf '000' → bit 29='0')
+[28:25] op1   = '1000' kind=fixed   (named at InstructionSet level; value from dpimm+'010' at [25])
+[24:23] null  = '10'   kind=class   (residual encoding class bits)
+[22:22] sh    = 'x'    kind=operand
 [21:10] imm12 = 'xxxxxxxxxxxx' kind=operand
-[9:5]   Rn    = 'xxxxx'        kind=operand
-[4:0]   Rd    = 'xxxxx'        kind=operand
+[9:5]   Rn    = 'xxxxx'  kind=operand
+[4:0]   Rd    = 'xxxxx'  kind=operand
 ```
+
+Total: 32 bits exactly. The groupings differ from the conceptual description in §3 above (which anticipated `[28:26]='100'` and `[25:23]='010'` as separate class fields), but the bit values are correct and the `kind` classification is valid.
 
 ### Cache schema
 

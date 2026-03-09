@@ -4,42 +4,43 @@
 
 ---
 
-## Milestone 0 — Foundation
+## Milestone 0 — Foundation ✅
 
 **Goal:** Repo infrastructure required by all later milestones.
 
-- [ ] **M0-1** Create `.gitignore` with `cache/` entry
-- [ ] **M0-2** Create `tools/` directory
-- [ ] **M0-3** Write `tools/build_index.py`
+- [x] **M0-1** Create `.gitignore` with `cache/` entry
+- [x] **M0-2** Create `tools/` directory
+- [x] **M0-3** Write `tools/build_index.py`
   - Parse `Features.json` → `cache/features.json`
-  - Parse `Instructions.json` → `cache/operations/OPERATION_ID.json` (operation data merged with linked instruction node encodings)
-  - Parse `Registers.json` → `cache/registers/NAME__STATE.json` (sanitize `<n>` → `_n_` in filenames; include `index_variable` and `indexes`)
+  - Parse `Instructions.json` → `cache/operations/OPERATION_ID.json` (operation data merged with linked instruction node encodings via two-pass bit-level merge algorithm)
+  - Parse `Registers.json` → `cache/registers/NAME__STATE.json` (sanitize `<n>` with following `_` absorbed → `_n_`; include `index_variable` and `indexes`)
   - Write `cache/registers_meta.json` (name → [{state, cache_key}] index)
   - Write `cache/manifest.json` (SHA-256 hashes of all three source files)
-- [ ] **M0-4** Validate generated cache: spot-check `SCTLR_EL1__AArch64.json`, `ADC.json`, `cache/features.json`
-- [ ] **M0-5** Document cache rebuild command in `CLAUDE.md`
+  - Wipe and recreate `cache/` on each run to prevent stale files
+- [x] **M0-4** Validate generated cache: spot-check `SCTLR_EL1__AArch64.json`, `ADC.json`, `ADD_addsub_imm.json`, `cache/features.json`
+- [x] **M0-5** Document cache rebuild command in `CLAUDE.md`
 
-**Exit criteria:** Running `python tools/build_index.py` produces a complete `cache/` with no errors. All three source files are represented.
+**Exit criteria:** ✅ `python tools/build_index.py` produces 1,607 register files, 2,262 operation files, `features.json`, `registers_meta.json`, and `manifest.json` with no errors.
 
 ---
 
-## Milestone 1 — Feature Skill (`arm-feat`)
+## Milestone 1 — Feature Skill (`arm-feat`) ✅
 
 **Goal:** Ground feature/extension queries in spec data. First milestone because the data is small, complete, and foundational for capability-conditional code.
 
-- [ ] **M1-1** Write `tools/query_feature.py`
-  - `query_feature.py FEAT_SVE` — feature entry + raw constraints
-  - `query_feature.py FEAT_SVE --deps` — dependency tree (walk both `parameters[i].constraints` and top-level `constraints`; answer direct yes/no before showing tree)
-  - `query_feature.py --version v9Ap2` — AST traversal to find `FEAT_X --> vNApM` patterns, filtered by version ceiling
+- [x] **M1-1** Write `tools/query_feature.py`
+  - `query_feature.py FEAT_SVE` — feature entry + rendered constraints
+  - `query_feature.py FEAT_SVE --deps FEAT_FP16` — yes/conditional/no dependency answer + full constraint tree; handles compound RHS (`FEAT_X --> (A && B)`)
+  - `query_feature.py --version v9Ap2` — AST traversal for `FEAT_X --> vNApM` patterns, filtered by version ceiling
   - `query_feature.py --list SVE` — name pattern search
-  - On missing cache: print `Cache not found. Run: python tools/build_index.py` and exit non-zero
-  - On stale cache (manifest hash mismatch): print warning, continue
-- [ ] **M1-2** Write `.claude/skills/arm-feat.md`
-  - Include positive trigger examples and negative examples (routing guards)
-  - Path resolution: check `ARM_MRS_CACHE_DIR` env var, fall back to `git rev-parse --show-toplevel`
-- [ ] **M1-3** Manual test: "Does FEAT_SVE require FEAT_FP16?", "What features does v9Ap2 introduce?"
+  - On missing cache: prints error and exits non-zero
+  - On stale cache: prints warning, continues
+- [x] **M1-2** Write `.claude/skills/arm-feat.md`
+  - Positive/negative trigger examples; routing guards
+  - Path resolution via `ARM_MRS_CACHE_DIR` or `git rev-parse --show-toplevel`
+- [x] **M1-3** Manual test: `FEAT_SVE --deps FEAT_FP16` → Yes; `--deps FEAT_PMUv3p1` → Conditional; `--deps FEAT_NEON` → No; `--version v9Ap2` → 261 features; `--list SVE` → 19 results
 
-**Exit criteria:** Skill returns spec-grounded answers without loading full `Features.json` into context.
+**Exit criteria:** ✅ Skill returns spec-grounded answers without loading full `Features.json` into context.
 
 ---
 
