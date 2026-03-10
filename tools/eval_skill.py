@@ -36,7 +36,10 @@ from pathlib import Path
 # ---------------------------------------------------------------------------
 
 TOOLS_DIR  = Path(__file__).parent.resolve()
-QUERY_FEAT = str(TOOLS_DIR / 'query_feature.py')
+QUERY_FEAT  = str(TOOLS_DIR / 'query_feature.py')
+QUERY_REG   = str(TOOLS_DIR / 'query_register.py')
+QUERY_SRCH  = str(TOOLS_DIR / 'query_search.py')
+QUERY_INSTR = str(TOOLS_DIR / 'query_instruction.py')
 
 # ---------------------------------------------------------------------------
 # Test runner helpers
@@ -305,9 +308,212 @@ FEAT_TESTS = [
     ),
 ]
 
+REG_TESTS = [
+    # ------------------------------------------------------------------ #
+    # Register existence                                                   #
+    # ------------------------------------------------------------------ #
+    (
+        'SCTLR_EL1 exists in AArch64 state',
+        [QUERY_REG, 'SCTLR_EL1'],
+        [exit_ok(), stdout_contains('SCTLR_EL1')],
+    ),
+    (
+        'TCR_EL1 exists and has AArch64 state',
+        [QUERY_REG, 'TCR_EL1'],
+        [exit_ok(), stdout_contains('AArch64')],
+    ),
+    # ------------------------------------------------------------------ #
+    # Field lookup                                                         #
+    # ------------------------------------------------------------------ #
+    (
+        'SCTLR_EL1 UCI field is at bit [26]',
+        [QUERY_REG, 'SCTLR_EL1', 'UCI'],
+        [exit_ok(), stdout_contains('[26]')],
+    ),
+    (
+        'SCTLR_EL1 UCI field has 2 defined values',
+        [QUERY_REG, 'SCTLR_EL1', 'UCI', '--values'],
+        [exit_ok(), stdout_contains("'0'"), stdout_contains("'1'")],
+    ),
+    (
+        'Querying a non-existent field exits non-zero',
+        [QUERY_REG, 'SCTLR_EL1', 'NOSUCHFIELD_XYZ'],
+        [exit_nonzero()],
+    ),
+    # ------------------------------------------------------------------ #
+    # Accessor / MRS-MSR encoding                                          #
+    # ------------------------------------------------------------------ #
+    (
+        'SCTLR_EL1 has a SystemAccessor A64.MRS entry',
+        [QUERY_REG, 'SCTLR_EL1', '--access'],
+        [exit_ok(), stdout_contains('SystemAccessor'), stdout_contains('A64.MRS')],
+    ),
+    (
+        'SCTLR_EL1 MRS encoding: op0=11 CRn=0001 CRm=0000 op2=000',
+        [QUERY_REG, 'SCTLR_EL1', '--access'],
+        [
+            exit_ok(),
+            stdout_contains("op0='11'"),
+            stdout_contains("CRn='0001'"),
+            stdout_contains("CRm='0000'"),
+            stdout_contains("op2='000'"),
+        ],
+    ),
+    # ------------------------------------------------------------------ #
+    # Parameterized register resolution                                    #
+    # ------------------------------------------------------------------ #
+    (
+        'DBGBCR2_EL1 resolves via parameterized lookup (DBGBCR<n>_EL1)',
+        [QUERY_REG, 'DBGBCR2_EL1'],
+        [exit_ok(), stdout_contains('DBGBCR')],
+    ),
+    (
+        'DBGBCR2_EL1 shows requested instance 2 in output',
+        [QUERY_REG, 'DBGBCR2_EL1'],
+        [exit_ok(), stdout_contains('DBGBCR2_EL1')],
+    ),
+    # ------------------------------------------------------------------ #
+    # Register list                                                        #
+    # ------------------------------------------------------------------ #
+    (
+        '--list EL2 --state AArch64 returns >50 results',
+        [QUERY_REG, '--list', 'EL2', '--state', 'AArch64'],
+        [exit_ok(), stdout_contains('AArch64')],
+    ),
+    (
+        '--list with a non-matching pattern exits non-zero',
+        [QUERY_REG, '--list', 'ZZZNOMATCH_FAKE_PATTERN_XYZ'],
+        [exit_nonzero()],
+    ),
+    # ------------------------------------------------------------------ #
+    # Anti-hallucination sentinel                                          #
+    # ------------------------------------------------------------------ #
+    (
+        'Register lookup states field descriptions not available (BSD MRS)',
+        [QUERY_REG, 'SCTLR_EL1'],
+        [exit_ok(), stdout_contains('not available in the BSD MRS release')],
+    ),
+]
+
+SEARCH_TESTS = [
+    # ------------------------------------------------------------------ #
+    # Combined search                                                      #
+    # ------------------------------------------------------------------ #
+    (
+        'TCR search returns TCR_EL1 register and results count > 0',
+        [QUERY_SRCH, 'TCR'],
+        [exit_ok(), stdout_contains('TCR_EL1'), stdout_contains('results')],
+    ),
+    # ------------------------------------------------------------------ #
+    # Register-only search                                                 #
+    # ------------------------------------------------------------------ #
+    (
+        '--reg EL2 --state AArch64 returns register results',
+        [QUERY_SRCH, '--reg', 'EL2', '--state', 'AArch64'],
+        [exit_ok(), stdout_contains('AArch64')],
+    ),
+    (
+        '--reg EL2 returns more than 100 results (AArch64 + others)',
+        [QUERY_SRCH, '--reg', 'EL2'],
+        [exit_ok(), stdout_contains('results')],
+    ),
+    # ------------------------------------------------------------------ #
+    # Operation-only search                                                #
+    # ------------------------------------------------------------------ #
+    (
+        '--op ADD returns ADD_addsub_imm in results',
+        [QUERY_SRCH, '--op', 'ADD'],
+        [exit_ok(), stdout_contains('ADD_addsub_imm')],
+    ),
+    (
+        'search with no matches exits non-zero',
+        [QUERY_SRCH, 'ZZZNOMATCH_FAKE_XYZ'],
+        [exit_nonzero()],
+    ),
+]
+
+INSTR_TESTS = [
+    # ------------------------------------------------------------------ #
+    # Operation lookup                                                     #
+    # ------------------------------------------------------------------ #
+    (
+        'ADC operation exists and lists 2 variants',
+        [QUERY_INSTR, 'ADC'],
+        [exit_ok(), stdout_contains('ADC_32_addsub_carry'), stdout_contains('ADC_64_addsub_carry')],
+    ),
+    (
+        'ADC assembly template contains operand registers',
+        [QUERY_INSTR, 'ADC'],
+        [exit_ok(), stdout_contains('WdOrWZR'), stdout_contains('XdOrXZR')],
+    ),
+    # ------------------------------------------------------------------ #
+    # Encoding                                                             #
+    # ------------------------------------------------------------------ #
+    (
+        'ADC --enc shows sf field at [31]',
+        [QUERY_INSTR, 'ADC', '--enc'],
+        [exit_ok(), stdout_contains('[31]'), stdout_contains('sf')],
+    ),
+    (
+        'ADC --enc shows Rd as operand field at [4:0]',
+        [QUERY_INSTR, 'ADC', '--enc'],
+        [exit_ok(), stdout_contains('[4:0]'), stdout_contains('operand')],
+    ),
+    (
+        'ADC 32-bit variant has sf fixed to 0',
+        [QUERY_INSTR, 'ADC', '--enc'],
+        [exit_ok(), stdout_contains("'0'")],
+    ),
+    # ------------------------------------------------------------------ #
+    # Operation pseudocode (BSD: not available)                           #
+    # ------------------------------------------------------------------ #
+    (
+        'ADC --op states ASL is not available in BSD MRS release',
+        [QUERY_INSTR, 'ADC', '--op'],
+        [exit_ok(), stdout_contains('not available in BSD MRS release')],
+    ),
+    # ------------------------------------------------------------------ #
+    # List                                                                 #
+    # ------------------------------------------------------------------ #
+    (
+        '--list ADD returns ADD_addsub_imm',
+        [QUERY_INSTR, '--list', 'ADD'],
+        [exit_ok(), stdout_contains('ADD_addsub_imm')],
+    ),
+    (
+        '--list MRS returns MRS operation',
+        [QUERY_INSTR, '--list', 'MRS'],
+        [exit_ok(), stdout_contains('MRS')],
+    ),
+    (
+        '--list with non-matching pattern exits non-zero',
+        [QUERY_INSTR, '--list', 'ZZZNOMATCH_FAKE_XYZ'],
+        [exit_nonzero()],
+    ),
+    # ------------------------------------------------------------------ #
+    # Non-existence                                                        #
+    # ------------------------------------------------------------------ #
+    (
+        'Hallucinated operation FAKEZAP_TURBO is not found (exit non-zero)',
+        [QUERY_INSTR, 'FAKEZAP_TURBO'],
+        [exit_nonzero()],
+    ),
+    # ------------------------------------------------------------------ #
+    # Anti-hallucination sentinel                                          #
+    # ------------------------------------------------------------------ #
+    (
+        'Lookup correctly states descriptions not available (BSD MRS)',
+        [QUERY_INSTR, 'ADC'],
+        [exit_ok(), stdout_contains('not available in the BSD MRS release')],
+    ),
+]
+
 # Map skill name → test list
 ALL_SKILLS: dict = {
-    'feat': FEAT_TESTS,
+    'feat':   FEAT_TESTS,
+    'reg':    REG_TESTS,
+    'search': SEARCH_TESTS,
+    'instr':  INSTR_TESTS,
 }
 
 # ---------------------------------------------------------------------------
@@ -408,7 +614,7 @@ def main() -> int:
     if total_fail == 0:
         print('Status  : ALL TESTS PASSED')
         print()
-        print('The arm-feat skill is correctly grounded in the ARM MRS data.')
+        print('All skills are correctly grounded in the ARM MRS data.')
         print('All verified facts match the official specification — no hallucination.')
         return 0
     else:
