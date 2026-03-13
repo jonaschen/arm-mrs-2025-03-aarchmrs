@@ -1,0 +1,37 @@
+{
+  "_meta": {
+    "description": "Metadata for the GIC register data file",
+    "source_file": "gic/GIC.json",
+    "spec": "ARM Generic Interrupt Controller Architecture Specification (IHI0069H)",
+    "spec_version": "GICv3/v4",
+    "blocks": {
+      "GICD": {
+        "title": "Distributor",
+        "brief": "The GICD registers control interrupt distribution to CPU interfaces. One Distributor per GIC instance.",
+        "base_offset": "implementation-defined"
+      },
+      "GICR": {
+        "title": "Redistributor",
+        "brief": "The GICR registers control per-PE interrupt forwarding. One Redistributor per PE.",
+        "frames": ["RD_base (64KB)", "SGI_base (64KB)"],
+        "base_offset": "implementation-defined"
+      },
+      "GITS": {
+        "title": "Interrupt Translation Service",
+        "brief": "The GITS registers control message-based (LPI/MSI) interrupt translation. Optional component.",
+        "base_offset": "implementation-defined"
+      }
+    },
+    "gic_versions": {
+      "v3": {
+        "spec": "IHI0069 revision D or later",
+        "brief": "GICv3 — Adds affinity routing, Redistributors, system registers (ICC_*), LPI support"
+      },
+      "v4": {
+        "spec": "IHI0069 revision E or later",
+        "brief": "GICv4 — Adds direct injection of virtual LPIs; all GICv3 features present"
+      }
+    },
+    "icc_system_registers_note": "ICC_* registers are system registers accessed via MRS/MSR. They are documented in the ARM Architecture Reference Manual (AARCHMRS) and are cross-referenced here for discovery. Use arm-reg skill (query_register.py) to query their field layouts."
+  }
+}

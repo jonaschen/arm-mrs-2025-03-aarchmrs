@@ -40,6 +40,7 @@ QUERY_FEAT  = str(TOOLS_DIR / 'query_feature.py')
 QUERY_REG   = str(TOOLS_DIR / 'query_register.py')
 QUERY_SRCH  = str(TOOLS_DIR / 'query_search.py')
 QUERY_INSTR = str(TOOLS_DIR / 'query_instruction.py')
+QUERY_GIC   = str(TOOLS_DIR / 'query_gic.py')
 
 # ---------------------------------------------------------------------------
 # Test runner helpers
@@ -610,6 +611,120 @@ SEARCH_T32_TESTS = [
     ),
 ]
 
+# ---------------------------------------------------------------------------
+# EB tests: GIC skill (arm-gic cache — built by build_gic_index.py)
+# ---------------------------------------------------------------------------
+
+def _check_gic_cache_available() -> bool:
+    """Return True if the GIC cache exists."""
+    gic_meta = TOOLS_DIR.parent / 'cache' / 'gic' / 'gic_meta.json'
+    return gic_meta.exists()
+
+
+# EB: GIC register tests (require gic cache — built by build_gic_index.py)
+GIC_TESTS = [
+    # Register existence
+    (
+        'GICD_CTLR lookup succeeds (exit 0)',
+        [QUERY_GIC, 'GICD_CTLR'],
+        [exit_ok()],
+    ),
+    (
+        'GICD_CTLR output shows block GICD',
+        [QUERY_GIC, 'GICD_CTLR'],
+        [exit_ok(), stdout_contains('GICD')],
+    ),
+    # Field existence and bit position (exit criteria: EnableGrp0 at bit 0)
+    (
+        'GICD_CTLR EnableGrp0 field lookup succeeds (exit 0)',
+        [QUERY_GIC, 'GICD_CTLR', 'EnableGrp0'],
+        [exit_ok()],
+    ),
+    (
+        'GICD_CTLR EnableGrp0 field is at bit [0]',
+        [QUERY_GIC, 'GICD_CTLR', 'EnableGrp0'],
+        [exit_ok(), stdout_contains('[0]')],
+    ),
+    (
+        'GICD_CTLR EnableGrp0 field access type is RW',
+        [QUERY_GIC, 'GICD_CTLR', 'EnableGrp0'],
+        [exit_ok(), stdout_contains('RW')],
+    ),
+    (
+        'GICD_CTLR EnableGrp1S field is at bit [2]',
+        [QUERY_GIC, 'GICD_CTLR', 'EnableGrp1S'],
+        [exit_ok(), stdout_contains('[2]')],
+    ),
+    (
+        'GICD_CTLR EnableGrp1NS field is at bit [1]',
+        [QUERY_GIC, 'GICD_CTLR', 'EnableGrp1NS'],
+        [exit_ok(), stdout_contains('[1]')],
+    ),
+    # Block listing
+    (
+        '--block GICD lists registers',
+        [QUERY_GIC, '--block', 'GICD'],
+        [exit_ok(), stdout_contains('GICD_CTLR')],
+    ),
+    (
+        '--block GICR lists GICR_CTLR',
+        [QUERY_GIC, '--block', 'GICR'],
+        [exit_ok(), stdout_contains('GICR_CTLR')],
+    ),
+    (
+        '--block GITS lists GITS_CTLR',
+        [QUERY_GIC, '--block', 'GITS'],
+        [exit_ok(), stdout_contains('GITS_CTLR')],
+    ),
+    # Name listing
+    (
+        '--list CTLR finds GICD_CTLR',
+        [QUERY_GIC, '--list', 'CTLR'],
+        [exit_ok(), stdout_contains('GICD_CTLR')],
+    ),
+    # ICC cross-reference
+    (
+        '--icc-xref ICC_IAR1_EL1 returns cross-reference',
+        [QUERY_GIC, '--icc-xref', 'ICC_IAR1_EL1'],
+        [exit_ok(), stdout_contains('ICC_IAR1_EL1')],
+    ),
+    (
+        '--icc-xref ICC_PMR_EL1 redirects to arm-reg',
+        [QUERY_GIC, '--icc-xref', 'ICC_PMR_EL1'],
+        [exit_ok(), stdout_contains('query_register.py')],
+    ),
+    # Hallucination guard
+    (
+        'Hallucinated register GICD_FAKECTRL not found (exit non-zero)',
+        [QUERY_GIC, 'GICD_FAKECTRL'],
+        [exit_nonzero()],
+    ),
+    (
+        'Hallucinated ICC register returns error when used as GIC query',
+        [QUERY_GIC, 'ICC_NONEXISTENT_EL9'],
+        [exit_nonzero()],
+    ),
+]
+
+# GIC search integration tests
+GIC_SEARCH_TESTS = [
+    (
+        'search EnableGrp1 finds GIC registers',
+        [QUERY_SRCH, 'EnableGrp1'],
+        [exit_ok(), stdout_contains('GICD')],
+    ),
+    (
+        'search --spec gic EnableGrp1 returns GIC results',
+        [QUERY_SRCH, '--spec', 'gic', 'EnableGrp1'],
+        [exit_ok(), stdout_contains('GICD_CTLR')],
+    ),
+    (
+        'search --spec gic FAKECTRL returns no results (exit non-zero)',
+        [QUERY_SRCH, '--spec', 'gic', 'FAKECTRL_ZZZZ'],
+        [exit_nonzero()],
+    ),
+]
+
 # Map skill name → test list
 ALL_SKILLS: dict = {
     'feat':       FEAT_TESTS,
@@ -619,6 +734,8 @@ ALL_SKILLS: dict = {
     'instr_t32':  INSTR_T32_TESTS,
     'instr_a32':  INSTR_A32_TESTS,
     'search_t32': SEARCH_T32_TESTS,
+    'gic':        GIC_TESTS,
+    'gic_search': GIC_SEARCH_TESTS,
 }
 
 # ---------------------------------------------------------------------------
@@ -686,8 +803,10 @@ def main() -> int:
     print('=' * 60)
 
     # Validate cache — A64 cache is required for feat/reg/search/instr tests;
-    # arm_arm cache is required for instr_t32/instr_a32/search_t32 tests.
+    # arm_arm cache is required for instr_t32/instr_a32/search_t32 tests;
+    # gic cache is required for gic/gic_search tests.
     ARM_ARM_ONLY_SKILLS = frozenset(('instr_t32', 'instr_a32', 'search_t32'))
+    GIC_ONLY_SKILLS     = frozenset(('gic', 'gic_search'))
 
     # Select skills to test first (so we can decide which caches to require)
     if args.skill:
@@ -699,8 +818,9 @@ def main() -> int:
     else:
         skills_to_run = ALL_SKILLS
 
-    needs_a64_cache    = any(s not in ARM_ARM_ONLY_SKILLS for s in skills_to_run)
+    needs_a64_cache     = any(s not in ARM_ARM_ONLY_SKILLS.union(GIC_ONLY_SKILLS) for s in skills_to_run)
     needs_arm_arm_cache = any(s in ARM_ARM_ONLY_SKILLS for s in skills_to_run)
+    needs_gic_cache     = any(s in GIC_ONLY_SKILLS for s in skills_to_run)
 
     if needs_a64_cache and not _check_cache_available():
         print('\nERROR: A64 cache not found or incomplete.')
@@ -710,6 +830,11 @@ def main() -> int:
     if needs_arm_arm_cache and not _check_arm_arm_cache_available():
         print('\nERROR: ARM ARM cache (T32/A32) not found.')
         print('Build it first:  python tools/build_arm_arm_index.py')
+        return 1
+
+    if needs_gic_cache and not _check_gic_cache_available():
+        print('\nERROR: GIC cache not found.')
+        print('Build it first:  python tools/build_gic_index.py')
         return 1
 
     total_pass = 0

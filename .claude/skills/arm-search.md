@@ -6,14 +6,17 @@ without knowing the exact name:
 - "What registers are related to TCR?"
 - "List all ADD variants"
 - "Is there anything in the spec for 'memory tagging'?"
+- "Find GIC registers related to interrupt enable"
+- "Is there a GIC register for EnableGrp1?"
 
-After getting results, follow up with `arm-reg`, `arm-feat`, or `arm-instr` for the
+After getting results, follow up with `arm-reg`, `arm-feat`, `arm-instr`, or `arm-gic` for the
 specific entity the user is interested in.
 
 ## Do NOT use this skill when the user already knows the exact name:
 - "What are the fields of SCTLR_EL1?" -> use `arm-reg` directly
 - "How does FEAT_SVE work?" -> use `arm-feat` directly
 - "Show me the ADC encoding" -> use `arm-instr` directly
+- "What are the fields of GICD_CTLR?" -> use `arm-gic` directly
 
 ---
 
@@ -48,6 +51,17 @@ python3 "$SCRIPT" --op ADD
 ```
 Returns: all operation_id values containing the pattern (case-insensitive).
 
+### GIC register search (requires GIC cache)
+```bash
+python3 "$SCRIPT" EnableGrp1
+python3 "$SCRIPT" --spec gic EnableGrp1
+python3 "$SCRIPT" --spec gic CTLR
+```
+The combined search automatically includes GIC registers when the GIC cache is present.
+Use `--spec gic` to restrict results to GIC registers only.
+GIC results appear as `GIC Registers` with the block name (GICD/GICR/GITS).
+Follow up with `arm-gic` for field details.
+
 ---
 
 ## Workflow after search
@@ -61,6 +75,9 @@ python3 "$REPO/tools/query_register.py" TCR_EL1
 
 # User asked about ADD instructions -> found ADD_addsub_imm
 python3 "$REPO/tools/query_instruction.py" ADD_addsub_imm --enc
+
+# User asked about GIC registers -> found GICD_CTLR
+python3 "$REPO/tools/query_gic.py" GICD_CTLR
 ```
 
 ---
@@ -86,3 +103,15 @@ python3 "$SCRIPT" --op ADD
 ```
 Filter the results to those containing `advsimd` in the operation_id.
 Offer to show encoding details for any variant.
+
+**User:** "Is there a GIC register for EnableGrp1?"
+```bash
+python3 "$SCRIPT" EnableGrp1
+```
+GIC results appear in the `GIC Registers` section. Route the user to `arm-gic GICD_CTLR EnableGrp1S`.
+
+**User:** "Find all GICD control registers"
+```bash
+python3 "$SCRIPT" --spec gic GICD_C
+```
+Returns only GIC registers matching the pattern. Route any specific hit to `arm-gic`.

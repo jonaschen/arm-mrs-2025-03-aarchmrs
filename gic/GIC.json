@@ -1,0 +1,655 @@
+{
+  "_meta": {
+    "source": "ARM Generic Interrupt Controller Architecture Specification, GIC architecture version 3 and version 4 (IHI0069H)",
+    "spec_version": "GICv3/v4",
+    "schema_version": "1.0.0",
+    "generated_at": "2025-03-21T00:00:00Z",
+    "note": "Hand-curated from IHI0069H and cross-referenced with ARM System Register XML (SysReg_xml_A_profile-2023-03). Field descriptions derived from publicly available ARM Architecture documentation.",
+    "data_path": "gic/GIC.json",
+    "blocks": ["GICD", "GICR", "GITS"]
+  },
+  "icc_system_registers": [
+    {"name": "ICC_IAR0_EL1",  "brief": "Interrupt Controller Interrupt Acknowledge Register 0 (Group 0)"},
+    {"name": "ICC_IAR1_EL1",  "brief": "Interrupt Controller Interrupt Acknowledge Register 1 (Group 1)"},
+    {"name": "ICC_EOIR0_EL1", "brief": "Interrupt Controller End Of Interrupt Register 0 (Group 0)"},
+    {"name": "ICC_EOIR1_EL1", "brief": "Interrupt Controller End Of Interrupt Register 1 (Group 1)"},
+    {"name": "ICC_HPPIR0_EL1","brief": "Interrupt Controller Highest Priority Pending Interrupt Register 0"},
+    {"name": "ICC_HPPIR1_EL1","brief": "Interrupt Controller Highest Priority Pending Interrupt Register 1"},
+    {"name": "ICC_BPR0_EL1",  "brief": "Interrupt Controller Binary Point Register 0 (Group 0)"},
+    {"name": "ICC_BPR1_EL1",  "brief": "Interrupt Controller Binary Point Register 1 (Group 1)"},
+    {"name": "ICC_PMR_EL1",   "brief": "Interrupt Controller Interrupt Priority Mask Register"},
+    {"name": "ICC_RPR_EL1",   "brief": "Interrupt Controller Running Priority Register"},
+    {"name": "ICC_CTLR_EL1",  "brief": "Interrupt Controller Control Register (EL1)"},
+    {"name": "ICC_CTLR_EL3",  "brief": "Interrupt Controller Control Register (EL3)"},
+    {"name": "ICC_SRE_EL1",   "brief": "Interrupt Controller System Register Enable Register (EL1)"},
+    {"name": "ICC_SRE_EL2",   "brief": "Interrupt Controller System Register Enable Register (EL2)"},
+    {"name": "ICC_SRE_EL3",   "brief": "Interrupt Controller System Register Enable Register (EL3)"},
+    {"name": "ICC_IGRPEN0_EL1","brief": "Interrupt Controller Interrupt Group 0 Enable Register"},
+    {"name": "ICC_IGRPEN1_EL1","brief": "Interrupt Controller Interrupt Group 1 Enable Register"},
+    {"name": "ICC_IGRPEN1_EL3","brief": "Interrupt Controller Interrupt Group 1 Enable Register (EL3)"},
+    {"name": "ICC_SEIEN_EL1", "brief": "Interrupt Controller System Error Interrupt Enable Register"},
+    {"name": "ICC_AP0R0_EL1", "brief": "Interrupt Controller Active Priorities Register 0, Group 0"},
+    {"name": "ICC_AP1R0_EL1", "brief": "Interrupt Controller Active Priorities Register 0, Group 1"},
+    {"name": "ICC_DIR_EL1",   "brief": "Interrupt Controller Deactivate Interrupt Register"}
+  ],
+  "registers": [
+    {
+      "name": "GICD_CTLR",
+      "block": "GICD",
+      "offset": "0x0000",
+      "title": "Distributor Control Register",
+      "brief": "Controls the distribution of interrupts to processor interfaces. The format depends on the Security state of the access and whether the system supports two Security states.",
+      "width": 32,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": "Secure access in two-Security-state system",
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "RWP",         "bits": [{"start": 31, "width": 1}], "access": "RO",  "reset": "AU", "brief": "Register Write Pending. Indicates whether a write to GICD_CTLR or GICD_ICENABLER<n> is outstanding."},
+            {"name": "RES0_30_8",   "bits": [{"start": 8,  "width": 23}],"access": "RES0","reset": "0",  "brief": "Reserved."},
+            {"name": "E1NWF",       "bits": [{"start": 7,  "width": 1}], "access": "RW",  "reset": "AU", "brief": "Enable 1 of N Wakeup Functionality. Enables the 1 of N wakeup functionality."},
+            {"name": "DS",          "bits": [{"start": 6,  "width": 1}], "access": "RW",  "reset": "0",  "brief": "Disable Security. Controls whether a single or two Security states are supported."},
+            {"name": "ARE_NS",      "bits": [{"start": 5,  "width": 1}], "access": "RW",  "reset": "0",  "brief": "Affinity Routing Enable, Non-secure state. Enables affinity routing for the Non-secure state."},
+            {"name": "ARE_S",       "bits": [{"start": 4,  "width": 1}], "access": "RW",  "reset": "0",  "brief": "Affinity Routing Enable, Secure state. Enables affinity routing for the Secure state."},
+            {"name": "RES0_3",      "bits": [{"start": 3,  "width": 1}], "access": "RES0","reset": "0",  "brief": "Reserved."},
+            {"name": "EnableGrp1S", "bits": [{"start": 2,  "width": 1}], "access": "RW",  "reset": "0",  "brief": "Enable Secure Group 1 interrupts. Enables the forwarding of pending Secure Group 1 interrupts from the Distributor to the CPU interfaces."},
+            {"name": "EnableGrp1NS","bits": [{"start": 1,  "width": 1}], "access": "RW",  "reset": "0",  "brief": "Enable Non-secure Group 1 interrupts. Enables the forwarding of pending Non-secure Group 1 interrupts from the Distributor to the CPU interfaces."},
+            {"name": "EnableGrp0",  "bits": [{"start": 0,  "width": 1}], "access": "RW",  "reset": "0",  "brief": "Enable Group 0 interrupts. Enables the forwarding of pending Group 0 interrupts from the Distributor to the CPU interfaces."}
+          ]
+        },
+        {
+          "id": 1,
+          "condition": "Non-secure access in two-Security-state system",
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "RWP",         "bits": [{"start": 31, "width": 1}], "access": "RO",  "reset": "AU", "brief": "Register Write Pending. Indicates whether a write to GICD_CTLR or GICD_ICENABLER<n> is outstanding."},
+            {"name": "RES0_30_5",   "bits": [{"start": 5,  "width": 26}],"access": "RES0","reset": "0",  "brief": "Reserved."},
+            {"name": "ARE_NS",      "bits": [{"start": 4,  "width": 1}], "access": "RW",  "reset": "0",  "brief": "Affinity Routing Enable, Non-secure state. Enables affinity routing for the Non-secure state."},
+            {"name": "RES0_3_2",    "bits": [{"start": 2,  "width": 2}], "access": "RES0","reset": "0",  "brief": "Reserved."},
+            {"name": "EnableGrp1A", "bits": [{"start": 1,  "width": 1}], "access": "RW",  "reset": "0",  "brief": "Alias of GICD_CTLR.EnableGrp1NS. This bit is an alias of the EnableGrp1NS bit."},
+            {"name": "EnableGrp1",  "bits": [{"start": 0,  "width": 1}], "access": "RW",  "reset": "0",  "brief": "Enable Non-secure Group 1 interrupts (when ARE_NS==0)."}
+          ]
+        },
+        {
+          "id": 2,
+          "condition": "Single Security state system",
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "RWP",       "bits": [{"start": 31, "width": 1}], "access": "RO",  "reset": "AU", "brief": "Register Write Pending. Indicates whether a write to GICD_CTLR or GICD_ICENABLER<n> is outstanding."},
+            {"name": "RES0_30_9", "bits": [{"start": 9,  "width": 22}],"access": "RES0","reset": "0",  "brief": "Reserved."},
+            {"name": "nASSGIreq", "bits": [{"start": 8,  "width": 1}], "access": "RW",  "reset": "0",  "brief": "Non-Affinity Scheduled SGI. When FEAT_GICv4p1 is implemented: controls which SGIs can be forwarded to the IRQ or FIQ bypass outputs."},
+            {"name": "E1NWF",     "bits": [{"start": 7,  "width": 1}], "access": "RW",  "reset": "AU", "brief": "Enable 1 of N Wakeup Functionality."},
+            {"name": "DS",        "bits": [{"start": 6,  "width": 1}], "access": "RW",  "reset": "0",  "brief": "Disable Security. Always reads as 1 and can only be cleared by a hardware reset."},
+            {"name": "RES0_5",    "bits": [{"start": 5,  "width": 1}], "access": "RES0","reset": "0",  "brief": "Reserved."},
+            {"name": "ARE",       "bits": [{"start": 4,  "width": 1}], "access": "RW",  "reset": "0",  "brief": "Affinity Routing Enable. Enables affinity routing."},
+            {"name": "RES0_3_2",  "bits": [{"start": 2,  "width": 2}], "access": "RES0","reset": "0",  "brief": "Reserved."},
+            {"name": "EnableGrp1","bits": [{"start": 1,  "width": 1}], "access": "RW",  "reset": "0",  "brief": "Enable Group 1 interrupts. Enables the forwarding of pending Group 1 interrupts from the Distributor."},
+            {"name": "EnableGrp0","bits": [{"start": 0,  "width": 1}], "access": "RW",  "reset": "0",  "brief": "Enable Group 0 interrupts. Enables the forwarding of pending Group 0 interrupts from the Distributor."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GICD_TYPER",
+      "block": "GICD",
+      "offset": "0x0004",
+      "title": "Interrupt Controller Type Register",
+      "brief": "Provides information about the number of interrupts implemented and other GIC features.",
+      "width": 32,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "ESPI_range",  "bits": [{"start": 27, "width": 5}], "access": "RO", "reset": "IMP", "brief": "Extended SPI range. Indicates the maximum INTID of the Extended SPI range as (ESPI_range * 32) + 31."},
+            {"name": "RSS",         "bits": [{"start": 26, "width": 1}], "access": "RO", "reset": "IMP", "brief": "Indicates whether the implementation supports range selector support (RSS)."},
+            {"name": "No1N",        "bits": [{"start": 25, "width": 1}], "access": "RO", "reset": "IMP", "brief": "Indicates whether the implementation does not support 1 of N SPI targeting."},
+            {"name": "A3V",         "bits": [{"start": 24, "width": 1}], "access": "RO", "reset": "IMP", "brief": "Affinity 3 Valid. Indicates whether the GIC implementation supports non-zero values of Affinity level 3."},
+            {"name": "IDbits",      "bits": [{"start": 19, "width": 5}], "access": "RO", "reset": "IMP", "brief": "The number of interrupt identifier bits supported, minus one."},
+            {"name": "DVIS",        "bits": [{"start": 18, "width": 1}], "access": "RO", "reset": "IMP", "brief": "Direct Virtual LPI injection supported (GICv4)."},
+            {"name": "LPIS",        "bits": [{"start": 17, "width": 1}], "access": "RO", "reset": "IMP", "brief": "LPI support. Indicates whether the implementation supports LPIs."},
+            {"name": "MBIS",        "bits": [{"start": 16, "width": 1}], "access": "RO", "reset": "IMP", "brief": "Message Based Interrupt Support. Indicates whether the implementation supports message-based interrupts by writing to Distributor or Redistributor registers."},
+            {"name": "num_LPIs",    "bits": [{"start": 11, "width": 5}], "access": "RO", "reset": "IMP", "brief": "The number of supported LPIs (if nonzero: 2^(num_LPIs+1) LPIs)."},
+            {"name": "SecurityExtn","bits": [{"start": 10, "width": 1}], "access": "RO", "reset": "IMP", "brief": "Security Extension. Indicates whether the GIC implementation supports two Security states."},
+            {"name": "NMI",         "bits": [{"start": 9,  "width": 1}], "access": "RO", "reset": "IMP", "brief": "Non-maskable Interrupt support. Indicates whether the implementation supports NMI."},
+            {"name": "ESPI",        "bits": [{"start": 8,  "width": 1}], "access": "RO", "reset": "IMP", "brief": "Extended SPI. Indicates whether the implementation supports Extended SPI range."},
+            {"name": "ITLinesNumber","bits":[{"start": 0,  "width": 5}], "access": "RO", "reset": "IMP", "brief": "Indicates the maximum number of SPIs supported. If ITLinesNumber=N, the maximum number of SPIs supported is 32N."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GICD_IIDR",
+      "block": "GICD",
+      "offset": "0x0008",
+      "title": "Distributor Implementer Identification Register",
+      "brief": "Provides information about the implementer and revision of the Distributor component.",
+      "width": 32,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "ProductID",  "bits": [{"start": 24, "width": 8}], "access": "RO", "reset": "IMP", "brief": "Product identifier."},
+            {"name": "RES0_23_20", "bits": [{"start": 20, "width": 4}], "access": "RES0","reset": "0",  "brief": "Reserved."},
+            {"name": "Variant",    "bits": [{"start": 16, "width": 4}], "access": "RO", "reset": "IMP", "brief": "Implementation defined variant."},
+            {"name": "Revision",   "bits": [{"start": 12, "width": 4}], "access": "RO", "reset": "IMP", "brief": "Revision of the implementation."},
+            {"name": "Implementer","bits": [{"start": 0,  "width": 12}],"access": "RO", "reset": "IMP", "brief": "JEP106 implementer code. Bits[11:8] are the JEP106 continuation code; bits[7:0] are the JEP106 identity code."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GICD_STATUSR",
+      "block": "GICD",
+      "offset": "0x0010",
+      "title": "Error Reporting Status Register",
+      "brief": "Records error conditions detected by the Distributor. This register is optional.",
+      "width": 32,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "RES0_31_4", "bits": [{"start": 4, "width": 28}], "access": "RES0","reset": "0", "brief": "Reserved."},
+            {"name": "WROD",      "bits": [{"start": 3, "width": 1}],  "access": "RW1C","reset": "0", "brief": "Set to 1 when a write to a read-only location is detected."},
+            {"name": "RWOD",      "bits": [{"start": 2, "width": 1}],  "access": "RW1C","reset": "0", "brief": "Set to 1 when a read of a write-only location is detected."},
+            {"name": "WRD",       "bits": [{"start": 1, "width": 1}],  "access": "RW1C","reset": "0", "brief": "Set to 1 when a write to a reserved location is detected."},
+            {"name": "RRD",       "bits": [{"start": 0, "width": 1}],  "access": "RW1C","reset": "0", "brief": "Set to 1 when a read of a reserved location is detected."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GICD_IGROUPR<n>",
+      "block": "GICD",
+      "offset": "0x0080",
+      "offset_stride": "0x4",
+      "index_variable": "n",
+      "index_range": {"start": 0, "count": 32},
+      "title": "Interrupt Group Registers",
+      "brief": "Provides a Group status bit for each interrupt supported by the GIC. Each bit controls the group of the corresponding interrupt.",
+      "width": 32,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "Group_status","bits": [{"start": 0, "width": 32}], "access": "RW", "reset": "0", "brief": "Group status bits. Bit x controls interrupt ID (32n + x): 0 = Group 0, 1 = Group 1."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GICD_ISENABLER<n>",
+      "block": "GICD",
+      "offset": "0x0100",
+      "offset_stride": "0x4",
+      "index_variable": "n",
+      "index_range": {"start": 0, "count": 32},
+      "title": "Interrupt Set-Enable Registers",
+      "brief": "Enable bits for each interrupt. Writing 1 to a bit enables the corresponding interrupt; writing 0 has no effect.",
+      "width": 32,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "Set_enable", "bits": [{"start": 0, "width": 32}], "access": "RW", "reset": "0", "brief": "Set-enable bits. Writing 1 enables forwarding of the corresponding interrupt; writing 0 has no effect. Reads return the current enable state."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GICD_ICENABLER<n>",
+      "block": "GICD",
+      "offset": "0x0180",
+      "offset_stride": "0x4",
+      "index_variable": "n",
+      "index_range": {"start": 0, "count": 32},
+      "title": "Interrupt Clear-Enable Registers",
+      "brief": "Disable bits for each interrupt. Writing 1 to a bit disables the corresponding interrupt; writing 0 has no effect.",
+      "width": 32,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "Clear_enable","bits": [{"start": 0, "width": 32}], "access": "RW", "reset": "0", "brief": "Clear-enable bits. Writing 1 disables forwarding of the corresponding interrupt; writing 0 has no effect. Reads return the current enable state."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GICD_IPRIORITYR<n>",
+      "block": "GICD",
+      "offset": "0x0400",
+      "offset_stride": "0x4",
+      "index_variable": "n",
+      "index_range": {"start": 0, "count": 255},
+      "title": "Interrupt Priority Registers",
+      "brief": "Provides an 8-bit priority field for each interrupt supported by the GIC. These registers are byte-accessible.",
+      "width": 32,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "Priority_byte3","bits": [{"start": 24, "width": 8}], "access": "RW", "reset": "0", "brief": "Priority for interrupt ID (4n+3)."},
+            {"name": "Priority_byte2","bits": [{"start": 16, "width": 8}], "access": "RW", "reset": "0", "brief": "Priority for interrupt ID (4n+2)."},
+            {"name": "Priority_byte1","bits": [{"start": 8,  "width": 8}], "access": "RW", "reset": "0", "brief": "Priority for interrupt ID (4n+1)."},
+            {"name": "Priority_byte0","bits": [{"start": 0,  "width": 8}], "access": "RW", "reset": "0", "brief": "Priority for interrupt ID (4n+0)."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GICD_ICFGR<n>",
+      "block": "GICD",
+      "offset": "0x0C00",
+      "offset_stride": "0x4",
+      "index_variable": "n",
+      "index_range": {"start": 0, "count": 64},
+      "title": "Interrupt Configuration Registers",
+      "brief": "Provides 2-bit Int_config fields for each interrupt supported by the GIC. These fields indicate whether the corresponding interrupt is edge-triggered or level-sensitive.",
+      "width": 32,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "Int_config", "bits": [{"start": 0, "width": 32}], "access": "RW", "reset": "0", "brief": "2-bit configuration fields. Bits[2x+1:2x] configure interrupt 16n+x: bit[2x+1]=0 level-sensitive, bit[2x+1]=1 edge-triggered. Bit[2x] is RES0 for SPIs."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GICD_IGRPMODR<n>",
+      "block": "GICD",
+      "offset": "0x0D00",
+      "offset_stride": "0x4",
+      "index_variable": "n",
+      "index_range": {"start": 0, "count": 32},
+      "title": "Interrupt Group Modifier Registers",
+      "brief": "Provides the Group Modifier bit for each interrupt. Combined with GICD_IGROUPR<n>, this determines the security group of the interrupt.",
+      "width": 32,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "Grp_modifier","bits": [{"start": 0, "width": 32}], "access": "RW", "reset": "0", "brief": "Group Modifier bits. Combined with IGROUPR: IGROUPR=0/IGRPMODR=0 = Secure Group 0; IGROUPR=0/IGRPMODR=1 = Secure Group 1; IGROUPR=1/IGRPMODR=0 = Non-secure Group 1."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GICD_IROUTER<n>",
+      "block": "GICD",
+      "offset": "0x6000",
+      "offset_stride": "0x8",
+      "index_variable": "n",
+      "index_range": {"start": 32, "count": 988},
+      "title": "Interrupt Routing Registers",
+      "brief": "Provides the routing information for each SPI interrupt. Valid when affinity routing is enabled (ARE_S=1 or ARE_NS=1).",
+      "width": 64,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "IRM",        "bits": [{"start": 31, "width": 1}], "access": "RW", "reset": "0", "brief": "Interrupt Routing Mode. 0 = route to specific PE (Aff3.Aff2.Aff1.Aff0); 1 = route to any PE defined as a participating node."},
+            {"name": "Aff3",       "bits": [{"start": 24, "width": 8}], "access": "RW", "reset": "0", "brief": "Affinity level 3. Affinity 3 target for the SPI."},
+            {"name": "RES0_23_16", "bits": [{"start": 16, "width": 8}], "access": "RES0","reset": "0", "brief": "Reserved."},
+            {"name": "Aff2",       "bits": [{"start": 16, "width": 8}], "access": "RW", "reset": "0", "brief": "Affinity level 2."},
+            {"name": "Aff1",       "bits": [{"start": 8,  "width": 8}], "access": "RW", "reset": "0", "brief": "Affinity level 1."},
+            {"name": "Aff0",       "bits": [{"start": 0,  "width": 8}], "access": "RW", "reset": "0", "brief": "Affinity level 0."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GICR_CTLR",
+      "block": "GICR",
+      "offset": "0x0000",
+      "title": "Redistributor Control Register",
+      "brief": "Controls the operation of the Redistributor. This is a per-PE register located in the RD_base frame.",
+      "width": 32,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "UWP",     "bits": [{"start": 31, "width": 1}], "access": "RO",  "reset": "0",  "brief": "Upstream Write Pending. Reads as 1 when there are upstream writes pending and 0 when there are no upstream writes pending."},
+            {"name": "RES0_30_26","bits":[{"start": 26, "width": 5}], "access": "RES0","reset": "0",  "brief": "Reserved."},
+            {"name": "DPG1S",   "bits": [{"start": 25, "width": 1}], "access": "RW",  "reset": "0",  "brief": "Disable Processor selection for Group 1 Secure interrupts. Prevents Redistributor from including this PE when selecting target PEs for Group 1 Secure interrupts."},
+            {"name": "DPG1NS",  "bits": [{"start": 24, "width": 1}], "access": "RW",  "reset": "0",  "brief": "Disable Processor selection for Group 1 Non-secure interrupts. Prevents Redistributor from including this PE for Non-secure Group 1 selection."},
+            {"name": "DPG0",    "bits": [{"start": 23, "width": 1}], "access": "RW",  "reset": "0",  "brief": "Disable Processor selection for Group 0 interrupts. Prevents Redistributor from including this PE for Group 0 selection."},
+            {"name": "RES0_22_4","bits":[{"start": 4,  "width": 19}],"access": "RES0","reset": "0",  "brief": "Reserved."},
+            {"name": "RWP",     "bits": [{"start": 3,  "width": 1}], "access": "RO",  "reset": "0",  "brief": "Register Write Pending. Reads as 1 when GICR_CTLR write is outstanding."},
+            {"name": "RES0_2",  "bits": [{"start": 2,  "width": 1}], "access": "RES0","reset": "0",  "brief": "Reserved."},
+            {"name": "IR",      "bits": [{"start": 1,  "width": 1}], "access": "RO",  "reset": "IMP","brief": "Enable LPIs. When this bit is set to 1, this Redistributor will activate the LPI interrupt. This bit might be RAO/WI."},
+            {"name": "EnableLPIs","bits":[{"start": 0, "width": 1}], "access": "RW",  "reset": "0",  "brief": "Enable LPIs. Enables the Redistributor to cache and manage LPI pending state. Once set to 1, may only be cleared by reset."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GICR_IIDR",
+      "block": "GICR",
+      "offset": "0x0004",
+      "title": "Redistributor Implementer Identification Register",
+      "brief": "Provides information about the implementer and revision of the Redistributor component.",
+      "width": 32,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "ProductID",  "bits": [{"start": 24, "width": 8}], "access": "RO", "reset": "IMP", "brief": "Product identifier."},
+            {"name": "RES0_23_20", "bits": [{"start": 20, "width": 4}], "access": "RES0","reset": "0",  "brief": "Reserved."},
+            {"name": "Variant",    "bits": [{"start": 16, "width": 4}], "access": "RO", "reset": "IMP", "brief": "Implementation defined variant."},
+            {"name": "Revision",   "bits": [{"start": 12, "width": 4}], "access": "RO", "reset": "IMP", "brief": "Revision of the implementation."},
+            {"name": "Implementer","bits": [{"start": 0,  "width": 12}],"access": "RO", "reset": "IMP", "brief": "JEP106 implementer code."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GICR_TYPER",
+      "block": "GICR",
+      "offset": "0x0008",
+      "title": "Redistributor Type Register",
+      "brief": "Provides information about the configuration of the Redistributor.",
+      "width": 64,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "Affinity_Value","bits":[{"start": 32, "width": 32}],"access": "RO", "reset": "IMP", "brief": "The identity of the PE associated with this Redistributor. GICR_TYPER.Affinity_Value[7:0]=Aff0, [15:8]=Aff1, [23:16]=Aff2, [31:24]=Aff3."},
+            {"name": "CommonLPIAff", "bits":[{"start": 24, "width": 8}], "access": "RO", "reset": "IMP", "brief": "Indicates the affinity level at which LPI pending state is shared between Redistributors."},
+            {"name": "Processor_Number","bits":[{"start": 8, "width": 16}],"access": "RO", "reset": "IMP", "brief": "A unique identifier for the PE."},
+            {"name": "RVPEID",       "bits":[{"start": 7, "width": 1}],  "access": "RO", "reset": "IMP", "brief": "Set to 1 if this Redistributor supports receipt of direct LPIs."},
+            {"name": "MPAM",         "bits":[{"start": 6, "width": 1}],  "access": "RO", "reset": "IMP", "brief": "MPAM support. Set to 1 if MPAM extensions are implemented."},
+            {"name": "DPGS",         "bits":[{"start": 5, "width": 1}],  "access": "RO", "reset": "IMP", "brief": "Set to 1 if GICR_CTLR.DPG* bits are implemented."},
+            {"name": "Last",         "bits":[{"start": 4, "width": 1}],  "access": "RO", "reset": "IMP", "brief": "Indicates whether this Redistributor is the last in the series of Redistributors for this affinity level."},
+            {"name": "DirectLPI",    "bits":[{"start": 3, "width": 1}],  "access": "RO", "reset": "IMP", "brief": "Set to 1 if the Redistributor supports direct injection of LPIs."},
+            {"name": "Dirty",        "bits":[{"start": 2, "width": 1}],  "access": "RO", "reset": "0",   "brief": "Dirty. Set to 1 during LPI pending table initialization."},
+            {"name": "VLPIS",        "bits":[{"start": 1, "width": 1}],  "access": "RO", "reset": "IMP", "brief": "Virtual LPIs supported (GICv4). Set to 1 if the Redistributor supports virtual LPIs."},
+            {"name": "PLPIS",        "bits":[{"start": 0, "width": 1}],  "access": "RO", "reset": "IMP", "brief": "Physical LPIs supported. Set to 1 if the Redistributor supports physical LPIs."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GICR_STATUSR",
+      "block": "GICR",
+      "offset": "0x0010",
+      "title": "Redistributor Error Reporting Status Register",
+      "brief": "Records error conditions detected by the Redistributor. This register is optional.",
+      "width": 32,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "RES0_31_4", "bits": [{"start": 4, "width": 28}], "access": "RES0","reset": "0", "brief": "Reserved."},
+            {"name": "WROD",      "bits": [{"start": 3, "width": 1}],  "access": "RW1C","reset": "0", "brief": "Set to 1 when a write to a read-only location is detected."},
+            {"name": "RWOD",      "bits": [{"start": 2, "width": 1}],  "access": "RW1C","reset": "0", "brief": "Set to 1 when a read of a write-only location is detected."},
+            {"name": "WRD",       "bits": [{"start": 1, "width": 1}],  "access": "RW1C","reset": "0", "brief": "Set to 1 when a write to a reserved location is detected."},
+            {"name": "RRD",       "bits": [{"start": 0, "width": 1}],  "access": "RW1C","reset": "0", "brief": "Set to 1 when a read of a reserved location is detected."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GICR_WAKER",
+      "block": "GICR",
+      "offset": "0x0014",
+      "title": "Redistributor Wake Register",
+      "brief": "Provides information about the state of the connected PE and allows software to request that the PE is put into a state where it can receive interrupts.",
+      "width": 32,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "RES0_31_3",      "bits": [{"start": 3, "width": 29}],"access": "RES0","reset": "0",   "brief": "Reserved."},
+            {"name": "ChildrenAsleep", "bits": [{"start": 2, "width": 1}], "access": "RO",  "reset": "IMP", "brief": "Indicates that all connected interrupt groups are quiescent (sleeping)."},
+            {"name": "ProcessorSleep", "bits": [{"start": 1, "width": 1}], "access": "RW",  "reset": "1",   "brief": "Indicates that the PE associated with this Redistributor is in a low-power state. Software sets this bit to 1 when quiescing, and to 0 when waking."},
+            {"name": "RES0_0",         "bits": [{"start": 0, "width": 1}], "access": "RES0","reset": "0",   "brief": "Reserved."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GICR_PROPBASER",
+      "block": "GICR",
+      "offset": "0x0070",
+      "title": "Redistributor Properties Base Address Register",
+      "brief": "Specifies the base address and attributes of the LPI Configuration table. Valid only when LPI support is implemented.",
+      "width": 64,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "RES0_63_52",  "bits": [{"start": 52, "width": 12}],"access": "RES0","reset": "0",   "brief": "Reserved."},
+            {"name": "PA",          "bits": [{"start": 12, "width": 40}],"access": "RW",  "reset": "0",   "brief": "Physical Address. Specifies bits[51:12] of the physical address of the LPI Configuration table."},
+            {"name": "RES0_11",     "bits": [{"start": 11, "width": 1}], "access": "RES0","reset": "0",   "brief": "Reserved."},
+            {"name": "Shareability","bits": [{"start": 9,  "width": 2}], "access": "RW",  "reset": "0",   "brief": "Shareability of the LPI Configuration table walk. Bits [10:9]."},
+            {"name": "OuterCache",  "bits": [{"start": 6,  "width": 3}], "access": "RW",  "reset": "0",   "brief": "Outer cacheability of the LPI Configuration table walk. Bits [8:6]."},
+            {"name": "InnerCache",  "bits": [{"start": 3,  "width": 3}], "access": "RW",  "reset": "0",   "brief": "Inner cacheability of the LPI Configuration table walk. Bits [5:3]."},
+            {"name": "IDbits",      "bits": [{"start": 0,  "width": 3}], "access": "RW",  "reset": "0",   "brief": "Number of interrupt identifier bits, minus one. Bits [2:0]."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GICR_PENDBASER",
+      "block": "GICR",
+      "offset": "0x0078",
+      "title": "Redistributor LPI Pending Table Base Address Register",
+      "brief": "Specifies the base address and attributes of the LPI Pending table. Valid only when LPI support is implemented.",
+      "width": 64,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "PTZ",         "bits": [{"start": 63, "width": 1}], "access": "RW",  "reset": "0", "brief": "Pending Table Zero. When set to 1, the ITS treats the LPI Pending table as all-zeros regardless of the actual contents."},
+            {"name": "RES0_62_52",  "bits": [{"start": 52, "width": 11}],"access": "RES0","reset": "0", "brief": "Reserved."},
+            {"name": "PA",          "bits": [{"start": 16, "width": 36}],"access": "RW",  "reset": "0", "brief": "Physical Address. Specifies bits[51:16] of the physical address of the LPI Pending table."},
+            {"name": "RES0_15_12",  "bits": [{"start": 12, "width": 4}], "access": "RES0","reset": "0", "brief": "Reserved."},
+            {"name": "Shareability","bits": [{"start": 10, "width": 2}], "access": "RW",  "reset": "0", "brief": "Shareability attribute. Bits [11:10]."},
+            {"name": "InnerCache",  "bits": [{"start": 7,  "width": 3}], "access": "RW",  "reset": "0", "brief": "Inner cacheability. Bits [9:7]."},
+            {"name": "OuterCache",  "bits": [{"start": 4,  "width": 3}], "access": "RW",  "reset": "0", "brief": "Outer cacheability. Bits [6:4]."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GITS_CTLR",
+      "block": "GITS",
+      "offset": "0x0000",
+      "title": "ITS Control Register",
+      "brief": "Controls the operation of the ITS (Interrupt Translation Service).",
+      "width": 32,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "Quiesced", "bits": [{"start": 31, "width": 1}], "access": "RO",  "reset": "1",  "brief": "Indicates that the ITS is quiescent (not processing commands)."},
+            {"name": "RES0_30_8","bits": [{"start": 8,  "width": 23}],"access": "RES0","reset": "0",  "brief": "Reserved."},
+            {"name": "ITS_NUM",  "bits": [{"start": 4,  "width": 4}], "access": "RO",  "reset": "IMP","brief": "ITS Number. Provides a unique identifier for this ITS."},
+            {"name": "RES0_3_2", "bits": [{"start": 2,  "width": 2}], "access": "RES0","reset": "0",  "brief": "Reserved."},
+            {"name": "ImDe",     "bits": [{"start": 1,  "width": 1}], "access": "RW",  "reset": "0",  "brief": "Interrupt translation table de-assert. When set, the ITS de-asserts interrupts from tables in memory."},
+            {"name": "Enabled",  "bits": [{"start": 0,  "width": 1}], "access": "RW",  "reset": "0",  "brief": "Enables the ITS. When set to 0 the ITS is quiesced after outstanding translations are complete."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GITS_IIDR",
+      "block": "GITS",
+      "offset": "0x0004",
+      "title": "ITS Implementer Identification Register",
+      "brief": "Provides information about the implementer and revision of the ITS component.",
+      "width": 32,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "ProductID",  "bits": [{"start": 24, "width": 8}], "access": "RO", "reset": "IMP", "brief": "Product identifier."},
+            {"name": "RES0_23_20", "bits": [{"start": 20, "width": 4}], "access": "RES0","reset": "0",  "brief": "Reserved."},
+            {"name": "Variant",    "bits": [{"start": 16, "width": 4}], "access": "RO", "reset": "IMP", "brief": "Implementation defined variant."},
+            {"name": "Revision",   "bits": [{"start": 12, "width": 4}], "access": "RO", "reset": "IMP", "brief": "Revision of the implementation."},
+            {"name": "Implementer","bits": [{"start": 0,  "width": 12}],"access": "RO", "reset": "IMP", "brief": "JEP106 implementer code."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GITS_TYPER",
+      "block": "GITS",
+      "offset": "0x0008",
+      "title": "ITS Type Register",
+      "brief": "Provides information about the features supported by the ITS.",
+      "width": 64,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "RES0_63_37","bits": [{"start": 37, "width": 27}],"access": "RES0","reset": "0",   "brief": "Reserved."},
+            {"name": "VMOVP",    "bits": [{"start": 37, "width": 1}],  "access": "RO",  "reset": "IMP", "brief": "Indicates whether the ITS supports the VMOVP command."},
+            {"name": "VSGI",     "bits": [{"start": 36, "width": 1}],  "access": "RO",  "reset": "IMP", "brief": "Virtual SGI support. Indicates whether the ITS supports Virtual SGIs (GICv4.1)."},
+            {"name": "VMAPP",    "bits": [{"start": 35, "width": 1}],  "access": "RO",  "reset": "IMP", "brief": "VMAPP command support."},
+            {"name": "nID",      "bits": [{"start": 32, "width": 3}],  "access": "RO",  "reset": "IMP", "brief": "Number of interrupt ID bits."},
+            {"name": "HCC",      "bits": [{"start": 24, "width": 8}],  "access": "RO",  "reset": "IMP", "brief": "Hardware Collection Count. Indicates the number of hardware collections."},
+            {"name": "PTA",      "bits": [{"start": 19, "width": 1}],  "access": "RO",  "reset": "IMP", "brief": "Physical Target Address. Indicates whether the ITS supports physical target addresses."},
+            {"name": "RES0_18",  "bits": [{"start": 18, "width": 1}],  "access": "RES0","reset": "0",   "brief": "Reserved."},
+            {"name": "Devbits",  "bits": [{"start": 13, "width": 5}],  "access": "RO",  "reset": "IMP", "brief": "The number of device ID bits implemented, minus one."},
+            {"name": "ID_bits",  "bits": [{"start": 8,  "width": 5}],  "access": "RO",  "reset": "IMP", "brief": "The number of interrupt ID bits implemented, minus one."},
+            {"name": "ITT_entry_size","bits":[{"start": 4,"width": 4}],"access": "RO",  "reset": "IMP", "brief": "The number of bytes per entry in the interrupt translation table."},
+            {"name": "CCT",      "bits": [{"start": 1,  "width": 1}],  "access": "RO",  "reset": "IMP", "brief": "Collection Count Table. Indicates whether the ITS uses a Collection Table in memory."},
+            {"name": "Physical", "bits": [{"start": 0,  "width": 1}],  "access": "RO",  "reset": "IMP", "brief": "Physical LPIs. Indicates whether the ITS supports physical LPIs."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GITS_CBASER",
+      "block": "GITS",
+      "offset": "0x0080",
+      "title": "ITS Command Queue Descriptor Register",
+      "brief": "Provides the base address, size and attributes of the ITS command queue.",
+      "width": 64,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "Valid",       "bits": [{"start": 63, "width": 1}], "access": "RW",  "reset": "0",   "brief": "Valid. When set to 1, the contents of this register are valid."},
+            {"name": "RES0_62",     "bits": [{"start": 62, "width": 1}], "access": "RES0","reset": "0",   "brief": "Reserved."},
+            {"name": "InnerCache",  "bits": [{"start": 59, "width": 3}], "access": "RW",  "reset": "0",   "brief": "Inner cacheability of the command queue accesses."},
+            {"name": "Shareability","bits": [{"start": 10, "width": 2}], "access": "RW",  "reset": "0",   "brief": "Shareability of the command queue accesses."},
+            {"name": "OuterCache",  "bits": [{"start": 56, "width": 3}], "access": "RW",  "reset": "0",   "brief": "Outer cacheability of the command queue accesses."},
+            {"name": "PA",          "bits": [{"start": 12, "width": 40}],"access": "RW",  "reset": "0",   "brief": "Physical Address. Bits[51:12] of the physical address of the command queue."},
+            {"name": "RES0_11_8",   "bits": [{"start": 8,  "width": 4}], "access": "RES0","reset": "0",   "brief": "Reserved."},
+            {"name": "Size",        "bits": [{"start": 0,  "width": 8}], "access": "RW",  "reset": "0",   "brief": "Size of the command queue. Specifies the number of 4KB pages minus one."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GITS_CWRITER",
+      "block": "GITS",
+      "offset": "0x0088",
+      "title": "ITS Write Register",
+      "brief": "Provides the offset of the next entry to be written in the ITS command queue.",
+      "width": 64,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "RES0_63_21","bits": [{"start": 21, "width": 43}],"access": "RES0","reset": "0",   "brief": "Reserved."},
+            {"name": "Retry",    "bits": [{"start": 0,  "width": 1}],  "access": "RO",  "reset": "0",   "brief": "If 1, the previous write to GITS_CWRITER failed and the write must be retried."},
+            {"name": "Offset",   "bits": [{"start": 5,  "width": 16}], "access": "RW",  "reset": "0",   "brief": "The write offset into the ITS command queue, in units of 32 bytes."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GITS_CREADR",
+      "block": "GITS",
+      "offset": "0x0090",
+      "title": "ITS Read Register",
+      "brief": "Provides the offset of the next entry to be read from the ITS command queue. Read-only.",
+      "width": 64,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "RES0_63_20","bits": [{"start": 20, "width": 44}],"access": "RES0","reset": "0",   "brief": "Reserved."},
+            {"name": "Stalled",  "bits": [{"start": 0,  "width": 1}],  "access": "RO",  "reset": "0",   "brief": "Stalled. Set to 1 if the ITS has stalled processing commands."},
+            {"name": "Offset",   "bits": [{"start": 5,  "width": 15}], "access": "RO",  "reset": "0",   "brief": "The read offset from the ITS command queue, in units of 32 bytes."}
+          ]
+        }
+      ]
+    }
+  ]
+}

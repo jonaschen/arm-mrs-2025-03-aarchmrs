@@ -17,7 +17,7 @@
 | M5 | Integration and hardening | ✅ Complete |
 | E0 | `arm-pmu` — PMU events skill | 🔲 Pending |
 | EA | ARM ARM extension (ASL unlock + T32/A32) | ✅ Complete (EA-b; EA-a deferred — no ARM Architecture License) |
-| EB | `arm-gic` — GIC register skill | 🔲 Pending |
+| EB | `arm-gic` — GIC register skill | ✅ Complete |
 | EC | `arm-coresight` — CoreSight skill | 🔲 Pending |
 | EX | Cross-extension integration and eval | 🔲 Pending |
 
@@ -201,7 +201,7 @@
 
 ---
 
-## Milestone EB — GIC Skill (`arm-gic`) 🔲
+## Milestone EB — GIC Skill (`arm-gic`) ✅
 
 **Goal:** Ground GIC register queries in spec data. Adds the memory-mapped GICD/GICR/ITS registers absent from AARCHMRS, with cross-references to the ICC_* system registers already in `arm-reg`.
 
@@ -211,22 +211,22 @@
 
 ### EB-0 — Data Acquisition
 
-- [ ] **EB-0-1** Check for XML/SVD source: search `ARM-software/CMSIS_5` and community IP-XACT repos for a machine-readable GIC description with field-level coverage. If found, write `tools/convert_xml_to_json.py` and use it; skip HTML path.
-- [ ] **EB-0-2** If no XML source: confirm ARM's HTML documentation is parseable as static HTML (not JavaScript-rendered). Fetch a sample GICD_CTLR page and verify register tables are present without a headless browser. Do not proceed to EB-0-3 until confirmed.
-- [ ] **EB-0-3** Write `tools/fetch_gic.py`: downloads GIC spec HTML; parses register tables using `html.parser` (stdlib); rate-limits requests; writes staging JSON per register
-- [ ] **EB-0-4** Extract and organise GICD, GICR, ITS registers; document GICv3-vs-GICv4 field variants
-- [ ] **EB-0-5** Document `ICC_*` cross-references in `gic/GIC.json` `icc_system_registers` array — do NOT duplicate data already in AARCHMRS
-- [ ] **EB-0-6** Produce `gic/GIC.json` and `gic/GIC_meta.json`; define and validate `gic/schema/`
+- [x] **EB-0-1** Check for XML/SVD source: search `ARM-software/CMSIS_5` and community IP-XACT repos for a machine-readable GIC description with field-level coverage. If found, write `tools/convert_xml_to_json.py` and use it; skip HTML path.
+- [x] **EB-0-2** If no XML source: confirm ARM's HTML documentation is parseable as static HTML (not JavaScript-rendered). Fetch a sample GICD_CTLR page and verify register tables are present without a headless browser. Do not proceed to EB-0-3 until confirmed.
+- [x] **EB-0-3** Write `tools/fetch_gic.py`: downloads GIC spec HTML; parses register tables using `html.parser` (stdlib); rate-limits requests; writes staging JSON per register
+- [x] **EB-0-4** Extract and organise GICD, GICR, ITS registers; document GICv3-vs-GICv4 field variants
+- [x] **EB-0-5** Document `ICC_*` cross-references in `gic/GIC.json` `icc_system_registers` array — do NOT duplicate data already in AARCHMRS
+- [x] **EB-0-6** Produce `gic/GIC.json` and `gic/GIC_meta.json`; define and validate `gic/schema/`
 
 ### EB-1 — Cache Builder
 
-- [ ] **EB-1-1** Write `tools/build_gic_index.py`: reads `gic/GIC.json`; writes `cache/gic/GICD.json`, `cache/gic/GICR.json`, `cache/gic/GITS.json`, and `cache/gic/gic_meta.json`
-- [ ] **EB-1-2** Extend `cache/manifest.json` with SHA-256 of `gic/GIC.json`
-- [ ] **EB-1-3** Add `cache/gic/` to `.gitignore`
+- [x] **EB-1-1** Write `tools/build_gic_index.py`: reads `gic/GIC.json`; writes `cache/gic/GICD.json`, `cache/gic/GICR.json`, `cache/gic/GITS.json`, and `cache/gic/gic_meta.json`
+- [x] **EB-1-2** Extend `cache/manifest.json` with SHA-256 of `gic/GIC.json`
+- [x] **EB-1-3** Add `cache/gic/` to `.gitignore`
 
 ### EB-2 — Query Tool
 
-- [ ] **EB-2-1** Write `tools/query_gic.py`
+- [x] **EB-2-1** Write `tools/query_gic.py`
   - `GICD_CTLR` — all fields with bit ranges, access types, reset values
   - `GICD_CTLR EnableGrp1S` — single field detail
   - `--block GICD|GICR|GITS` — all registers in a component block
@@ -236,17 +236,17 @@
 
 ### EB-3 — Agent Skill
 
-- [ ] **EB-3-1** Write `.claude/skills/arm-gic.md`
+- [x] **EB-3-1** Write `.claude/skills/arm-gic.md`
   - Positive triggers: GICD/GICR/ITS registers, GIC initialisation, LPI/MSI configuration, vGIC
   - Negative examples: `ICC_*` system registers → `arm-reg`; CPU interrupt pending state → `arm-reg`
 
 ### EB-4 — Search Integration
 
-- [ ] **EB-4-1** Extend `tools/query_search.py`: add `--spec gic` filter; add `"gic_register"` result type; include GIC register names in default combined search
-- [ ] **EB-4-2** Update `.claude/skills/arm-search.md` to route GIC results to `arm-gic`
-- [ ] **EB-4-3** Extend `eval_skill.py` with `gic` test cases: register existence, field bit position, access type, `--icc-xref` output, hallucination guard
+- [x] **EB-4-1** Extend `tools/query_search.py`: add `--spec gic` filter; add `"gic_register"` result type; include GIC register names in default combined search
+- [x] **EB-4-2** Update `.claude/skills/arm-search.md` to route GIC results to `arm-gic`
+- [x] **EB-4-3** Extend `eval_skill.py` with `gic` test cases: register existence, field bit position, access type, `--icc-xref` output, hallucination guard
 
-**Exit criteria:** `python3 tools/query_gic.py GICD_CTLR EnableGrp0` returns correct bit position and access type. `arm-search EnableGrp1` returns GIC results. All gic eval tests pass.
+**Exit criteria:** ✅ `python3 tools/query_gic.py GICD_CTLR EnableGrp0` returns correct bit position and access type. `arm-search EnableGrp1` returns GIC results. All gic eval tests pass (15 gic + 3 gic_search = 18 total).
 
 ---
 

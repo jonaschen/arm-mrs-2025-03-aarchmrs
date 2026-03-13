@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "GIC Fieldset",
+  "description": "A conditional group of fields for a GIC register",
+  "type": "object",
+  "required": ["id", "gic_versions", "fields"],
+  "properties": {
+    "id": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Fieldset index within the register"
+    },
+    "condition": {
+      "type": ["string", "null"],
+      "description": "Human-readable condition string for when this fieldset applies (null means unconditional)"
+    },
+    "gic_versions": {
+      "type": "array",
+      "items": {"type": "string", "enum": ["v3", "v4"]},
+      "description": "GIC versions to which this fieldset applies"
+    },
+    "fields": {
+      "type": "array",
+      "description": "Fields in this fieldset",
+      "items": {"$ref": "Field.json"}
+    }
+  }
+}
