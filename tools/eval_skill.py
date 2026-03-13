@@ -42,6 +42,7 @@ QUERY_SRCH  = str(TOOLS_DIR / 'query_search.py')
 QUERY_INSTR = str(TOOLS_DIR / 'query_instruction.py')
 QUERY_GIC   = str(TOOLS_DIR / 'query_gic.py')
 QUERY_CS    = str(TOOLS_DIR / 'query_coresight.py')
+QUERY_PMU   = str(TOOLS_DIR / 'query_pmu.py')
 
 # ---------------------------------------------------------------------------
 # Test runner helpers
@@ -873,6 +874,96 @@ CORESIGHT_SEARCH_TESTS = [
     ),
 ]
 
+# ---------------------------------------------------------------------------
+# E0 tests: PMU skill (arm-pmu cache — built by build_pmu_index.py)
+# ---------------------------------------------------------------------------
+
+def _check_pmu_cache_available() -> bool:
+    """Return True if the PMU cache exists."""
+    pmu_meta = TOOLS_DIR.parent / 'cache' / 'pmu_meta.json'
+    return pmu_meta.exists()
+
+
+# E0: PMU event tests (require pmu cache — built by build_pmu_index.py)
+PMU_TESTS = [
+    # -- CPU existence -------------------------------------------------------
+    (
+        'cortex-a710 is present in the PMU cache',
+        [QUERY_PMU, 'cortex-a710'],
+        [exit_ok(), stdout_contains('Cortex-A710')],
+    ),
+    (
+        'cortex-a710 event count is reported',
+        [QUERY_PMU, 'cortex-a710'],
+        [exit_ok(), stdout_contains('Events')],
+    ),
+    (
+        'neoverse-n1 is present in the PMU cache',
+        [QUERY_PMU, 'neoverse-n1'],
+        [exit_ok(), stdout_contains('Neoverse N1')],
+    ),
+    # -- CPU_CYCLES event code for Cortex-A710 (exit criteria) ---------------
+    (
+        'cortex-a710 CPU_CYCLES returns correct code 17 (0x011)',
+        [QUERY_PMU, 'cortex-a710', 'CPU_CYCLES'],
+        [exit_ok(), stdout_contains('CPU_CYCLES'), stdout_contains('17 (0x011)')],
+    ),
+    (
+        'cortex-a710 CPU_CYCLES description is present',
+        [QUERY_PMU, 'cortex-a710', 'CPU_CYCLES'],
+        [exit_ok(), stdout_contains('Cycle')],
+    ),
+    # -- L1D_CACHE_REFILL event code -----------------------------------------
+    (
+        'cortex-a710 L1D_CACHE_REFILL code is 3 (0x003)',
+        [QUERY_PMU, 'cortex-a710', 'L1D_CACHE_REFILL'],
+        [exit_ok(), stdout_contains('L1D_CACHE_REFILL'), stdout_contains('3 (0x003)')],
+    ),
+    (
+        'cortex-a710 L1D_CACHE_REFILL description mentions L1',
+        [QUERY_PMU, 'cortex-a710', 'L1D_CACHE_REFILL'],
+        [exit_ok(), stdout_contains('L1')],
+    ),
+    # -- Cross-CPU search ----------------------------------------------------
+    (
+        '--search L1D_CACHE_REFILL finds multiple CPUs',
+        [QUERY_PMU, '--search', 'L1D_CACHE_REFILL'],
+        [exit_ok(), stdout_contains('cortex-a710'), stdout_contains('neoverse-n1')],
+    ),
+    (
+        '--search L1D_CACHE_REFILL consistently shows code 3 (0x003)',
+        [QUERY_PMU, '--search', 'L1D_CACHE_REFILL'],
+        [exit_ok(), stdout_contains('3 (0x003)')],
+    ),
+    (
+        '--search CYCLE finds CPU_CYCLES event',
+        [QUERY_PMU, '--search', 'CYCLE'],
+        [exit_ok(), stdout_contains('CPU_CYCLES')],
+    ),
+    # -- --list command -------------------------------------------------------
+    (
+        '--list shows all CPUs',
+        [QUERY_PMU, '--list'],
+        [exit_ok(), stdout_contains('cortex-a710'), stdout_contains('neoverse-n1')],
+    ),
+    (
+        '--list neoverse filters to Neoverse CPUs only',
+        [QUERY_PMU, '--list', 'neoverse'],
+        [exit_ok(), stdout_contains('neoverse-n1'), stdout_not_contains('cortex-a710')],
+    ),
+    # -- Hallucination guard -------------------------------------------------
+    (
+        'FAKE_CPU_ZZZZ is not found (hallucination guard)',
+        [QUERY_PMU, 'FAKE_CPU_ZZZZ'],
+        [exit_nonzero()],
+    ),
+    (
+        'cortex-a710 FAKE_EVENT_ZZZZ is not found (hallucination guard)',
+        [QUERY_PMU, 'cortex-a710', 'FAKE_EVENT_ZZZZ'],
+        [exit_nonzero()],
+    ),
+]
+
 # Map skill name → test list
 ALL_SKILLS: dict = {
     'feat':            FEAT_TESTS,
@@ -886,6 +977,7 @@ ALL_SKILLS: dict = {
     'gic_search':      GIC_SEARCH_TESTS,
     'coresight':       CORESIGHT_TESTS,
     'coresight_search': CORESIGHT_SEARCH_TESTS,
+    'pmu':             PMU_TESTS,
 }
 
 # ---------------------------------------------------------------------------
@@ -955,10 +1047,12 @@ def main() -> int:
     # Validate cache — A64 cache is required for feat/reg/search/instr tests;
     # arm_arm cache is required for instr_t32/instr_a32/search_t32 tests;
     # gic cache is required for gic/gic_search tests;
-    # coresight cache is required for coresight/coresight_search tests.
+    # coresight cache is required for coresight/coresight_search tests;
+    # pmu cache is required for pmu tests.
     ARM_ARM_ONLY_SKILLS  = frozenset(('instr_t32', 'instr_a32', 'search_t32'))
     GIC_ONLY_SKILLS      = frozenset(('gic', 'gic_search'))
     CS_ONLY_SKILLS       = frozenset(('coresight', 'coresight_search'))
+    PMU_ONLY_SKILLS      = frozenset(('pmu',))
 
     # Select skills to test first (so we can decide which caches to require)
     if args.skill:
@@ -970,11 +1064,12 @@ def main() -> int:
     else:
         skills_to_run = ALL_SKILLS
 
-    non_special = ARM_ARM_ONLY_SKILLS | GIC_ONLY_SKILLS | CS_ONLY_SKILLS
+    non_special = ARM_ARM_ONLY_SKILLS | GIC_ONLY_SKILLS | CS_ONLY_SKILLS | PMU_ONLY_SKILLS
     needs_a64_cache      = any(s not in non_special for s in skills_to_run)
     needs_arm_arm_cache  = any(s in ARM_ARM_ONLY_SKILLS for s in skills_to_run)
     needs_gic_cache      = any(s in GIC_ONLY_SKILLS for s in skills_to_run)
     needs_cs_cache       = any(s in CS_ONLY_SKILLS for s in skills_to_run)
+    needs_pmu_cache      = any(s in PMU_ONLY_SKILLS for s in skills_to_run)
 
     if needs_a64_cache and not _check_cache_available():
         print('\nERROR: A64 cache not found or incomplete.')
@@ -994,6 +1089,11 @@ def main() -> int:
     if needs_cs_cache and not _check_coresight_cache_available():
         print('\nERROR: CoreSight cache not found.')
         print('Build it first:  python tools/build_coresight_index.py')
+        return 1
+
+    if needs_pmu_cache and not _check_pmu_cache_available():
+        print('\nERROR: PMU cache not found.')
+        print('Build it first:  python tools/build_pmu_index.py')
         return 1
 
     total_pass = 0
