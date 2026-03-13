@@ -518,32 +518,6 @@ def _check_arm_arm_cache_available() -> bool:
     return arm_arm_t32_dir.exists() and any(arm_arm_t32_dir.iterdir())
 
 
-def _check_asl_available() -> bool:
-    """
-    EA-a-5: Return True only if the A64 cache has real ASL pseudocode
-    (i.e. --xml-dir was used when building the cache).
-    Skips when the BSD-only cache is present (decode/operation are null).
-    """
-    rc, stdout, _stderr = _run([QUERY_INSTR, 'ADC', '--op'])
-    if rc != 0:
-        return False
-    return 'not available in BSD MRS release' not in stdout
-
-
-def _arm_arm_skip_or_test(desc: str, args: list, checks: list):
-    """Return the test tuple; checks are marked skip-aware."""
-    return (desc, args, checks)
-
-
-# EA-a-5: Conditional ASL tests (always skip in BSD-only environment)
-INSTR_ASL_TESTS = [
-    (
-        'EA-a-5: A64 ADC --op returns real ASL (skip if BSD-only cache)',
-        [QUERY_INSTR, 'ADC', '--op'],
-        [exit_ok()],  # would also check non-null content if _check_asl_available()
-    ),
-]
-
 # EA-b: T32/A32 tests (require arm_arm cache — built by build_arm_arm_index.py)
 INSTR_T32_TESTS = [
     # Existence

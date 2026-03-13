@@ -93,10 +93,10 @@ def build_isa_cache(src_path: Path, op_dir: Path, isa: str) -> int:
 
     op_dir.mkdir(parents=True, exist_ok=True)
 
-    for op in operations:
+    for i, op in enumerate(operations):
         op_id = op.get('operation_id')
         if not op_id:
-            log(f'WARNING: skipping operation with no operation_id in {src_path.name}')
+            log(f'WARNING: skipping operation at index {i} with no operation_id in {src_path.name}')
             continue
         cache_entry = {
             'operation_id':         op_id,

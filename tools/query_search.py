@@ -41,9 +41,9 @@ A32_OP_DIR    = ARM_ARM_CACHE / 'a32_operations'
 # Cache loading
 # ---------------------------------------------------------------------------
 
-def load_meta() -> dict:
+def load_meta() -> dict | None:
     if not META_PATH.exists():
-        return {}
+        return None
     with open(META_PATH) as f:
         return json.load(f)
 
@@ -95,7 +95,7 @@ def check_staleness() -> None:
 # Search functions
 # ---------------------------------------------------------------------------
 
-def search_registers(pattern: str, state_filter: str | None, meta: dict) -> list:
+def search_registers(pattern: str, state_filter: str | None, meta: dict | None) -> list:
     if not meta:
         return []
     upper = pattern.upper()
@@ -192,7 +192,7 @@ Examples:
     a32_op_index = load_a32_op_index()
 
     # Warn if register search requested but A64 cache is absent
-    if (args.reg or args.query) and not meta:
+    if (args.reg or args.query) and meta is None:
         print(
             'Warning: register cache not found (A64 cache absent). '
             'Run: python3 tools/build_index.py',

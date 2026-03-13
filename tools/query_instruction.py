@@ -44,6 +44,11 @@ VALID_ISA = ('a64', 't32', 'a32')
 # Cache loading
 # ---------------------------------------------------------------------------
 
+def _builder_script(isa: str) -> str:
+    """Return the name of the cache builder script for the given ISA."""
+    return 'tools/build_arm_arm_index.py' if isa in ('t32', 'a32') else 'tools/build_index.py'
+
+
 def get_op_dir(isa: str) -> Path:
     """Return the operations cache directory for the given ISA."""
     isa = isa.lower()
@@ -57,14 +62,11 @@ def get_op_dir(isa: str) -> Path:
 def op_index(isa: str = 'a64') -> list:
     op_dir = get_op_dir(isa)
     if not op_dir.exists():
-        if isa in ('t32', 'a32'):
-            print(
-                f'ARM ARM cache not found for {isa.upper()}. '
-                'Run: python3 tools/build_arm_arm_index.py',
-                file=sys.stderr,
-            )
-        else:
-            print('Cache not found. Run: python3 tools/build_index.py', file=sys.stderr)
+        print(
+            f'Cache not found for {isa.upper()}. '
+            f'Run: python3 {_builder_script(isa)}',
+            file=sys.stderr,
+        )
         sys.exit(1)
     return sorted(p.stem for p in op_dir.iterdir() if p.suffix == '.json')
 
@@ -105,14 +107,9 @@ def check_staleness(isa: str = 'a64') -> None:
                 for chunk in iter(lambda: fh.read(65536), b''):
                     h.update(chunk)
             if h.hexdigest() != info.get('sha256'):
-                builder = (
-                    'tools/build_arm_arm_index.py'
-                    if isa in ('t32', 'a32')
-                    else 'tools/build_index.py'
-                )
                 print(
                     f'Warning: {fname} has changed since cache was built. '
-                    f'Consider re-running {builder}',
+                    f'Consider re-running {_builder_script(isa)}',
                     file=sys.stderr,
                 )
     except Exception:
