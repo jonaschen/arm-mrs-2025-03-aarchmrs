@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "CoreSight Register",
+  "description": "A single CoreSight memory-mapped register",
+  "type": "object",
+  "required": ["name", "component", "offset", "title", "width", "cs_arch_versions", "fieldsets"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Register name as used in the CoreSight spec (may include <n> for indexed registers)"
+    },
+    "component": {
+      "type": "string",
+      "enum": ["ETM", "CTI", "STM", "ITM", "ID_BLOCK"],
+      "description": "CoreSight component that contains this register"
+    },
+    "offset": {
+      "type": "string",
+      "description": "Byte offset from the component base address (hex string)"
+    },
+    "offset_stride": {
+      "type": "string",
+      "description": "Stride in bytes between indexed register instances (hex string)"
+    },
+    "index_variable": {
+      "type": "string",
+      "description": "Name of the index variable for parameterized registers (e.g. 'n')"
+    },
+    "index_range": {
+      "type": "object",
+      "description": "Range of valid index values",
+      "properties": {
+        "start": {"type": "integer"},
+        "count": {"type": "integer"}
+      }
+    },
+    "title": {
+      "type": "string",
+      "description": "Full register title as in the CoreSight spec"
+    },
+    "brief": {
+      "type": ["string", "null"],
+      "description": "Brief description of the register's purpose"
+    },
+    "width": {
+      "type": "integer",
+      "enum": [32, 64],
+      "description": "Register width in bits"
+    },
+    "cs_arch_versions": {
+      "type": "array",
+      "items": {"type": "string", "enum": ["v1", "v2", "v3"]},
+      "description": "CoreSight Architecture versions for which this register is defined"
+    },
+    "fieldsets": {
+      "type": "array",
+      "description": "One or more conditional fieldsets",
+      "items": {"$ref": "Fieldset.json"}
+    }
+  }
+}

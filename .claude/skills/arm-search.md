@@ -8,6 +8,8 @@ without knowing the exact name:
 - "Is there anything in the spec for 'memory tagging'?"
 - "Find GIC registers related to interrupt enable"
 - "Is there a GIC register for EnableGrp1?"
+- "Find all CoreSight ETM registers"
+- "Is there a CoreSight register for trace enable?"
 
 After getting results, follow up with `arm-reg`, `arm-feat`, `arm-instr`, or `arm-gic` for the
 specific entity the user is interested in.
@@ -62,6 +64,17 @@ Use `--spec gic` to restrict results to GIC registers only.
 GIC results appear as `GIC Registers` with the block name (GICD/GICR/GITS).
 Follow up with `arm-gic` for field details.
 
+### CoreSight register search (requires CoreSight cache)
+```bash
+python3 "$SCRIPT" TRC
+python3 "$SCRIPT" --spec coresight TRC
+python3 "$SCRIPT" --spec coresight CTI
+```
+The combined search automatically includes CoreSight registers when the CoreSight cache is present.
+Use `--spec coresight` to restrict results to CoreSight registers only.
+CoreSight results appear as `CoreSight Registers` with the component name (ETM/CTI/STM/ITM/ID_BLOCK).
+Follow up with `arm-coresight` for field details.
+
 ---
 
 ## Workflow after search
@@ -78,6 +91,9 @@ python3 "$REPO/tools/query_instruction.py" ADD_addsub_imm --enc
 
 # User asked about GIC registers -> found GICD_CTLR
 python3 "$REPO/tools/query_gic.py" GICD_CTLR
+
+# User asked about CoreSight registers -> found TRCPRGCTLR
+python3 "$REPO/tools/query_coresight.py" etm TRCPRGCTLR
 ```
 
 ---
@@ -115,3 +131,16 @@ GIC results appear in the `GIC Registers` section. Route the user to `arm-gic GI
 python3 "$SCRIPT" --spec gic GICD_C
 ```
 Returns only GIC registers matching the pattern. Route any specific hit to `arm-gic`.
+
+**User:** "Find all ETM trace registers"
+```bash
+python3 "$SCRIPT" TRC
+python3 "$SCRIPT" --spec coresight TRC
+```
+CoreSight results appear in the `CoreSight Registers` section. Route the user to `arm-coresight etm TRCPRGCTLR`.
+
+**User:** "Is there a CoreSight register that controls trace enable?"
+```bash
+python3 "$SCRIPT" --spec coresight EN
+```
+Returns TRCPRGCTLR (ETM) and others containing EN fields. Route to `arm-coresight etm TRCPRGCTLR EN`.

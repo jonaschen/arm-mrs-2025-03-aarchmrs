@@ -30,6 +30,7 @@ OP_DIR     = CACHE_DIR / 'operations'
 T32_OP_DIR = ARM_ARM_CACHE / 't32_operations'
 A32_OP_DIR = ARM_ARM_CACHE / 'a32_operations'
 GIC_META_PATH = CACHE_DIR / 'gic' / 'gic_meta.json'
+CS_META_PATH  = CACHE_DIR / 'coresight' / 'cs_meta.json'
 
 # ---------------------------------------------------------------------------
 # Cache loading
@@ -68,6 +69,14 @@ def load_gic_meta() -> dict | None:
     if not GIC_META_PATH.exists():
         return None
     with open(GIC_META_PATH) as f:
+        return json.load(f)
+
+
+def load_cs_meta() -> dict | None:
+    """Load CoreSight metadata (name index). Returns None if CoreSight cache not built."""
+    if not CS_META_PATH.exists():
+        return None
+    with open(CS_META_PATH) as f:
         return json.load(f)
 
 # ---------------------------------------------------------------------------
@@ -132,6 +141,42 @@ def search_gic_registers(pattern: str, gic_meta: dict | None) -> list:
 
     return results
 
+
+def search_cs_registers(pattern: str, cs_meta: dict | None) -> list:
+    """Search CoreSight register names and field names (ETM/CTI/STM/ITM/ID_BLOCK) for a pattern."""
+    if not cs_meta:
+        return []
+    upper  = pattern.upper()
+    idx    = cs_meta.get('name_index', {})
+    fidx   = cs_meta.get('field_index', {})
+    seen   = set()
+    results = []
+
+    # Search register names
+    for name, info in idx.items():
+        if upper in name.upper() and name not in seen:
+            seen.add(name)
+            results.append({
+                'type':      'cs_register',
+                'name':      name,
+                'component': info.get('component', ''),
+            })
+
+    # Search field names — return the register(s) that contain the field
+    for fname, reg_names in fidx.items():
+        if upper in fname.upper():
+            for reg_name in reg_names:
+                if reg_name not in seen:
+                    seen.add(reg_name)
+                    info = idx.get(reg_name, {})
+                    results.append({
+                        'type':      'cs_register',
+                        'name':      reg_name,
+                        'component': info.get('component', ''),
+                    })
+
+    return results
+
 # ---------------------------------------------------------------------------
 # Output
 # ---------------------------------------------------------------------------
@@ -140,6 +185,7 @@ def print_results(results: list, query: str) -> None:
     reg_results = [r for r in results if r['type'] == 'register']
     op_results  = [r for r in results if r['type'] == 'operation']
     gic_results = [r for r in results if r['type'] == 'gic_register']
+    cs_results  = [r for r in results if r['type'] == 'cs_register']
 
     print(f"Search: {query!r}  ({len(results)} results)\n")
 
@@ -157,6 +203,15 @@ def print_results(results: list, query: str) -> None:
             print(f"  {r['name']:{max_name}}  {r['block']}")
         print()
         print("  -> Use: python3 tools/query_gic.py <register_name>")
+        print()
+
+    if cs_results:
+        print(f"CoreSight Registers ({len(cs_results)}):")
+        max_name = max(len(r['name']) for r in cs_results)
+        for r in sorted(cs_results, key=lambda x: (x['component'], x['name'])):
+            print(f"  {r['name']:{max_name}}  {r['component']}")
+        print()
+        print("  -> Use: python3 tools/query_coresight.py <component> <register_name>")
         print()
 
     if op_results:
@@ -177,7 +232,6 @@ def print_results(results: list, query: str) -> None:
 
 # ---------------------------------------------------------------------------
 # Entry point
-# ---------------------------------------------------------------------------
 
 def main() -> int:
     parser = argparse.ArgumentParser(
@@ -193,9 +247,11 @@ Examples:
   query_search.py --op LDR --isa all
   query_search.py EnableGrp1
   query_search.py --spec gic EnableGrp1
+  query_search.py TRC
+  query_search.py --spec coresight TRC
 """,
     )
-    parser.add_argument('query',   nargs='?',         help='Search pattern (registers + operations + GIC)')
+    parser.add_argument('query',   nargs='?',         help='Search pattern (registers + operations + GIC + CoreSight)')
     parser.add_argument('--reg',   metavar='PATTERN', help='Search registers only')
     parser.add_argument('--op',    metavar='PATTERN', help='Search operations only')
     parser.add_argument('--state', metavar='STATE',   help='State filter for register search: AArch64, AArch32, ext')
@@ -209,8 +265,8 @@ Examples:
     parser.add_argument(
         '--spec',
         metavar='SPEC',
-        choices=('gic',),
-        help='Restrict search to a specific spec database: gic',
+        choices=('gic', 'coresight'),
+        help='Restrict search to a specific spec database: gic, coresight',
     )
     args = parser.parse_args()
 
@@ -224,6 +280,7 @@ Examples:
     t32_op_index = load_t32_op_index()
     a32_op_index = load_a32_op_index()
     gic_meta     = load_gic_meta()
+    cs_meta      = load_cs_meta()
 
     # Warn if register search requested but A64 cache is absent
     if (args.reg or args.query) and meta is None and not args.spec:
@@ -253,6 +310,11 @@ Examples:
         pattern   = args.query or args.reg or args.op or ''
         results   = search_gic_registers(pattern, gic_meta)
         query_str = pattern
+    elif args.spec == 'coresight':
+        # CoreSight-only search
+        pattern   = args.query or args.reg or args.op or ''
+        results   = search_cs_registers(pattern, cs_meta)
+        query_str = pattern
     elif args.reg:
         results = search_registers(args.reg, args.state, meta)
         query_str = args.reg
@@ -260,11 +322,12 @@ Examples:
         results = collect_op_results(args.op)
         query_str = args.op
     else:
-        # Combined search: AARCHMRS registers + operations + GIC registers
+        # Combined search: AARCHMRS registers + operations + GIC registers + CoreSight registers
         results = (
             search_registers(args.query, args.state, meta)
             + collect_op_results(args.query)
             + search_gic_registers(args.query, gic_meta)
+            + search_cs_registers(args.query, cs_meta)
         )
         query_str = args.query
 

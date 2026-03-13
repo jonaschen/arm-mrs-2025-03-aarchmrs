@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "CoreSight",
+  "description": "Top-level schema for the ARM CoreSight register data file (coresight/CoreSight.json)",
+  "type": "object",
+  "required": ["_meta", "registers"],
+  "properties": {
+    "_meta": {
+      "type": "object",
+      "description": "Metadata describing the source and version of this data",
+      "required": ["source", "spec_version", "schema_version"],
+      "properties": {
+        "source":         {"type": "string"},
+        "spec_version":   {"type": "string"},
+        "schema_version": {"type": "string"},
+        "generated_at":   {"type": "string"},
+        "note":           {"type": "string"},
+        "data_path":      {"type": "string"},
+        "components":     {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "registers": {
+      "type": "array",
+      "description": "All CoreSight component registers (ETM, CTI, STM, ITM, ID_BLOCK)",
+      "items": {"$ref": "Register.json"}
+    }
+  }
+}
