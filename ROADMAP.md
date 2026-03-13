@@ -19,7 +19,7 @@
 | EA | ARM ARM extension (ASL unlock + T32/A32) | ✅ Complete (EA-b; EA-a deferred — no ARM Architecture License) |
 | EB | `arm-gic` — GIC register skill | ✅ Complete |
 | EC | `arm-coresight` — CoreSight skill | ✅ Complete |
-| EX | Cross-extension integration and eval | 🔲 Pending |
+| EX | Cross-extension integration and eval | ✅ Complete |
 
 ---
 
@@ -297,18 +297,23 @@
 
 ---
 
-## Milestone EX — Cross-Extension Integration 🔲
+## Milestone EX — Cross-Extension Integration ✅
 
 **Goal:** Validate all six skills work together correctly; update all documentation.
 
 **Prerequisite:** E0 complete · EA complete · EB-3 complete · EC-3 complete
 
-- [ ] **EX-1** Test cross-skill routing for queries that span multiple specs (e.g., "How do I configure interrupt priority?" — involves GICD_CTLR + ICC_PMR_EL1)
-- [ ] **EX-2** Test `arm-search` with `--spec` flag across all specs
-- [ ] **EX-3** Run full eval suite across all six skills; confirm no regressions
-- [ ] **EX-4** Update `README.md`, `CLAUDE.md`, and `AARCH64_AGENT_SKILL_DEV_PLAN.md` with new build commands, supported specifications, and skill usage examples
+- [x] **EX-1** Test cross-skill routing for queries that span multiple specs (e.g., "How do I configure interrupt priority?" — involves GICD_CTLR + ICC_PMR_EL1)
+- [x] **EX-2** Test `arm-search` with `--spec` flag across all specs (`aarchmrs`, `gic`, `coresight`, `pmu`)
+- [x] **EX-3** Run full eval suite across all six skills; confirm no regressions (137/137 pass)
+- [x] **EX-4** Update `README.md`, `CLAUDE.md`, and `AARCH64_AGENT_SKILL_DEV_PLAN.md` with new build commands, supported specifications, and skill usage examples
 
 **Exit criteria:** All eval tests across all skills pass. Cross-spec routing is validated. Documentation is complete.
+
+**Implementation notes:**
+- `query_search.py --spec` extended from `{gic, coresight}` to `{aarchmrs, gic, coresight, pmu}`; `search_pmu_events()` function added
+- `eval_skill.py` now has 137 tests (added `CROSS_ROUTING_TESTS`, `SEARCH_SPEC_AARCHMRS_TESTS`, `SEARCH_SPEC_PMU_TESTS`)
+- Cross-routing finding: GICD_CTLR IS in AARCHMRS as `ext`-state (memory-mapped); `arm-gic` provides the GIC-specific view
 
 ---
 

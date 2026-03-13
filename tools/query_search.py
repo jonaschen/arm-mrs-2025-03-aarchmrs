@@ -10,6 +10,8 @@ Usage:
     query_search.py --op ADD               # operations only
     query_search.py EnableGrp1             # also searches GIC registers when GIC cache is present
     query_search.py --spec gic EnableGrp1  # GIC register names only
+    query_search.py --spec aarchmrs TCR    # AARCHMRS registers and operations only
+    query_search.py --spec pmu CPU_CYCLES  # PMU event names only
 
 Environment:
     ARM_MRS_CACHE_DIR  Override cache directory (default: <repo_root>/cache)
@@ -29,8 +31,9 @@ META_PATH  = CACHE_DIR / 'registers_meta.json'
 OP_DIR     = CACHE_DIR / 'operations'
 T32_OP_DIR = ARM_ARM_CACHE / 't32_operations'
 A32_OP_DIR = ARM_ARM_CACHE / 'a32_operations'
-GIC_META_PATH = CACHE_DIR / 'gic' / 'gic_meta.json'
-CS_META_PATH  = CACHE_DIR / 'coresight' / 'cs_meta.json'
+GIC_META_PATH  = CACHE_DIR / 'gic' / 'gic_meta.json'
+CS_META_PATH   = CACHE_DIR / 'coresight' / 'cs_meta.json'
+PMU_FLAT_PATH  = CACHE_DIR / 'pmu_events_flat.json'
 
 # ---------------------------------------------------------------------------
 # Cache loading
@@ -77,6 +80,14 @@ def load_cs_meta() -> dict | None:
     if not CS_META_PATH.exists():
         return None
     with open(CS_META_PATH) as f:
+        return json.load(f)
+
+
+def load_pmu_flat() -> dict | None:
+    """Load PMU flat event index. Returns None if PMU cache not built."""
+    if not PMU_FLAT_PATH.exists():
+        return None
+    with open(PMU_FLAT_PATH) as f:
         return json.load(f)
 
 # ---------------------------------------------------------------------------
@@ -177,6 +188,26 @@ def search_cs_registers(pattern: str, cs_meta: dict | None) -> list:
 
     return results
 
+
+def search_pmu_events(pattern: str, pmu_flat: dict | None) -> list:
+    """Search PMU event names across all CPUs for a pattern."""
+    if not pmu_flat:
+        return []
+    upper = pattern.upper()
+    events_index = pmu_flat.get('events', {})
+    results = []
+    for name, entries in events_index.items():
+        if upper in name.upper():
+            cpu_slugs = [e['cpu_slug'] for e in entries]
+            results.append({
+                'type':         'pmu_event',
+                'name':         name,
+                'cpus':         cpu_slugs,
+                'cpu_count':    len(cpu_slugs),
+                'architectural': any(e.get('architectural') for e in entries),
+            })
+    return results
+
 # ---------------------------------------------------------------------------
 # Output
 # ---------------------------------------------------------------------------
@@ -186,6 +217,7 @@ def print_results(results: list, query: str) -> None:
     op_results  = [r for r in results if r['type'] == 'operation']
     gic_results = [r for r in results if r['type'] == 'gic_register']
     cs_results  = [r for r in results if r['type'] == 'cs_register']
+    pmu_results = [r for r in results if r['type'] == 'pmu_event']
 
     print(f"Search: {query!r}  ({len(results)} results)\n")
 
@@ -212,6 +244,19 @@ def print_results(results: list, query: str) -> None:
             print(f"  {r['name']:{max_name}}  {r['component']}")
         print()
         print("  -> Use: python3 tools/query_coresight.py <component> <register_name>")
+        print()
+
+    if pmu_results:
+        print(f"PMU Events ({len(pmu_results)}):")
+        for r in sorted(pmu_results, key=lambda x: x['name']):
+            arch_marker = ' [arch]' if r.get('architectural') else ''
+            cpu_slugs = sorted(r['cpus'])
+            cpu_preview = ', '.join(cpu_slugs[:3])
+            if len(cpu_slugs) > 3:
+                cpu_preview += f', ... (+{len(cpu_slugs) - 3})'
+            print(f"  {r['name']}{arch_marker}  ({r['cpu_count']} CPU(s): {cpu_preview})")
+        print()
+        print("  -> Use: python3 tools/query_pmu.py <cpu_slug> <event_name>")
         print()
 
     if op_results:
@@ -249,9 +294,11 @@ Examples:
   query_search.py --spec gic EnableGrp1
   query_search.py TRC
   query_search.py --spec coresight TRC
+  query_search.py --spec aarchmrs TCR
+  query_search.py --spec pmu CPU_CYCLES
 """,
     )
-    parser.add_argument('query',   nargs='?',         help='Search pattern (registers + operations + GIC + CoreSight)')
+    parser.add_argument('query',   nargs='?',         help='Search pattern (registers + operations + GIC + CoreSight + PMU)')
     parser.add_argument('--reg',   metavar='PATTERN', help='Search registers only')
     parser.add_argument('--op',    metavar='PATTERN', help='Search operations only')
     parser.add_argument('--state', metavar='STATE',   help='State filter for register search: AArch64, AArch32, ext')
@@ -265,8 +312,8 @@ Examples:
     parser.add_argument(
         '--spec',
         metavar='SPEC',
-        choices=('gic', 'coresight'),
-        help='Restrict search to a specific spec database: gic, coresight',
+        choices=('aarchmrs', 'gic', 'coresight', 'pmu'),
+        help='Restrict search to a specific spec database: aarchmrs, gic, coresight, pmu',
     )
     args = parser.parse_args()
 
@@ -281,6 +328,7 @@ Examples:
     a32_op_index = load_a32_op_index()
     gic_meta     = load_gic_meta()
     cs_meta      = load_cs_meta()
+    pmu_flat     = load_pmu_flat()
 
     # Warn if register search requested but A64 cache is absent
     if (args.reg or args.query) and meta is None and not args.spec:
@@ -305,7 +353,12 @@ Examples:
 
     results = []
 
-    if args.spec == 'gic':
+    if args.spec == 'aarchmrs':
+        # AARCHMRS-only: registers + operations (no GIC/CoreSight/PMU)
+        pattern   = args.query or args.reg or args.op or ''
+        results   = search_registers(pattern, args.state, meta) + collect_op_results(pattern)
+        query_str = pattern
+    elif args.spec == 'gic':
         # GIC-only search
         pattern   = args.query or args.reg or args.op or ''
         results   = search_gic_registers(pattern, gic_meta)
@@ -315,6 +368,11 @@ Examples:
         pattern   = args.query or args.reg or args.op or ''
         results   = search_cs_registers(pattern, cs_meta)
         query_str = pattern
+    elif args.spec == 'pmu':
+        # PMU-only: event names across CPUs
+        pattern   = args.query or args.reg or args.op or ''
+        results   = search_pmu_events(pattern, pmu_flat)
+        query_str = pattern
     elif args.reg:
         results = search_registers(args.reg, args.state, meta)
         query_str = args.reg
@@ -322,12 +380,13 @@ Examples:
         results = collect_op_results(args.op)
         query_str = args.op
     else:
-        # Combined search: AARCHMRS registers + operations + GIC registers + CoreSight registers
+        # Combined search: AARCHMRS registers + operations + GIC registers + CoreSight registers + PMU events
         results = (
             search_registers(args.query, args.state, meta)
             + collect_op_results(args.query)
             + search_gic_registers(args.query, gic_meta)
             + search_cs_registers(args.query, cs_meta)
+            + search_pmu_events(args.query, pmu_flat)
         )
         query_str = args.query
 

@@ -10,15 +10,17 @@ without knowing the exact name:
 - "Is there a GIC register for EnableGrp1?"
 - "Find all CoreSight ETM registers"
 - "Is there a CoreSight register for trace enable?"
+- "What PMU events are named CACHE?"
 
-After getting results, follow up with `arm-reg`, `arm-feat`, `arm-instr`, or `arm-gic` for the
-specific entity the user is interested in.
+After getting results, follow up with `arm-reg`, `arm-feat`, `arm-instr`, `arm-gic`,
+`arm-coresight`, or `arm-pmu` for the specific entity the user is interested in.
 
 ## Do NOT use this skill when the user already knows the exact name:
 - "What are the fields of SCTLR_EL1?" -> use `arm-reg` directly
 - "How does FEAT_SVE work?" -> use `arm-feat` directly
 - "Show me the ADC encoding" -> use `arm-instr` directly
 - "What are the fields of GICD_CTLR?" -> use `arm-gic` directly
+- "What is the CPU_CYCLES event code on Cortex-A710?" -> use `arm-pmu` directly
 
 ---
 
@@ -33,11 +35,12 @@ SCRIPT="$REPO/tools/query_search.py"
 
 ## Commands
 
-### Combined search (registers + operations)
+### Combined search (AARCHMRS registers + operations + GIC + CoreSight + PMU)
 ```bash
 python3 "$SCRIPT" TCR
 ```
-Returns: matching registers (with state) and matching operation IDs.
+Returns: matching registers (with state), operation IDs, GIC registers, CoreSight registers,
+and PMU events across all CPUs. Available caches determine which result types appear.
 
 ### Registers only
 ```bash
@@ -52,6 +55,13 @@ Returns: all registers whose name contains the pattern, with their state.
 python3 "$SCRIPT" --op ADD
 ```
 Returns: all operation_id values containing the pattern (case-insensitive).
+
+### AARCHMRS-only search (requires A64 cache)
+```bash
+python3 "$SCRIPT" --spec aarchmrs TCR
+```
+Restricts results to AARCHMRS registers and operations only (no GIC/CoreSight/PMU).
+Useful when you want only the core ARM architecture spec data.
 
 ### GIC register search (requires GIC cache)
 ```bash
@@ -75,6 +85,17 @@ Use `--spec coresight` to restrict results to CoreSight registers only.
 CoreSight results appear as `CoreSight Registers` with the component name (ETM/CTI/STM/ITM/ID_BLOCK).
 Follow up with `arm-coresight` for field details.
 
+### PMU event search (requires PMU cache)
+```bash
+python3 "$SCRIPT" CPU_CYCLES
+python3 "$SCRIPT" --spec pmu CPU_CYCLES
+python3 "$SCRIPT" --spec pmu L1D_CACHE
+```
+The combined search automatically includes PMU events when the PMU cache is present.
+Use `--spec pmu` to restrict results to PMU event names only.
+PMU results appear as `PMU Events` with a CPU count and preview of which CPUs have the event.
+Follow up with `arm-pmu <cpu_slug> <event_name>` for code and description.
+
 ---
 
 ## Workflow after search
@@ -94,6 +115,9 @@ python3 "$REPO/tools/query_gic.py" GICD_CTLR
 
 # User asked about CoreSight registers -> found TRCPRGCTLR
 python3 "$REPO/tools/query_coresight.py" etm TRCPRGCTLR
+
+# User asked about PMU events -> found CPU_CYCLES on cortex-a710
+python3 "$REPO/tools/query_pmu.py" cortex-a710 CPU_CYCLES
 ```
 
 ---
@@ -144,3 +168,20 @@ CoreSight results appear in the `CoreSight Registers` section. Route the user to
 python3 "$SCRIPT" --spec coresight EN
 ```
 Returns TRCPRGCTLR (ETM) and others containing EN fields. Route to `arm-coresight etm TRCPRGCTLR EN`.
+
+**User:** "What PMU events are related to cache misses?"
+```bash
+python3 "$SCRIPT" --spec pmu CACHE_REFILL
+```
+PMU results appear in the `PMU Events` section with CPU count. Route the user to
+`arm-pmu cortex-a710 L1D_CACHE_REFILL` for full event detail and event code.
+
+**User:** "How do I configure interrupt priority?" (cross-spec query)
+```bash
+# Step 1: find GICD CTLR for distributor group enable
+python3 "$SCRIPT" --spec gic CTLR
+# Step 2: find ICC PMR for CPU-level priority mask
+python3 "$SCRIPT" --spec aarchmrs ICC_PMR
+```
+GIC registers (GICD_CTLR) appear under `GIC Registers`; ICC system registers (ICC_PMR_EL1)
+appear under `Registers`. Route to `arm-gic GICD_CTLR` and `arm-reg ICC_PMR_EL1` respectively.

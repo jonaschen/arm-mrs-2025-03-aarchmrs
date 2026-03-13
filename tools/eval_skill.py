@@ -964,20 +964,115 @@ PMU_TESTS = [
     ),
 ]
 
+# ---------------------------------------------------------------------------
+# EX tests: Cross-extension integration (arm-reg + arm-gic cross-routing)
+# ---------------------------------------------------------------------------
+
+# EX-1: Cross-skill routing tests — requires A64 cache AND GIC cache
+CROSS_ROUTING_TESTS = [
+    # ICC_PMR_EL1 is an AArch64 system register in AARCHMRS → query via arm-reg
+    (
+        'ICC_PMR_EL1 is in AARCHMRS and accessible via arm-reg (EX-1 cross-routing)',
+        [QUERY_REG, 'ICC_PMR_EL1'],
+        [exit_ok(), stdout_contains('ICC_PMR_EL1')],
+    ),
+    (
+        'ICC_PMR_EL1 state is AArch64 (system register, not GIC memory-mapped)',
+        [QUERY_REG, 'ICC_PMR_EL1'],
+        [exit_ok(), stdout_contains('AArch64')],
+    ),
+    # GICD_CTLR is in AARCHMRS as an ext-state memory-mapped register;
+    # arm-gic provides the GIC-specific field view and routing
+    (
+        'GICD_CTLR in AARCHMRS is ext-state (memory-mapped); arm-gic gives GIC-specific view',
+        [QUERY_REG, 'GICD_CTLR'],
+        [exit_ok(), stdout_contains('ext')],
+    ),
+    # arm-gic cross-reference: ICC_PMR_EL1 redirects to arm-reg
+    (
+        'arm-gic --icc-xref ICC_PMR_EL1 routes to arm-reg (cross-routing)',
+        [QUERY_GIC, '--icc-xref', 'ICC_PMR_EL1'],
+        [exit_ok(), stdout_contains('query_register.py')],
+    ),
+    # Combined search finds AARCHMRS ICC registers
+    (
+        'Combined search "PMR" finds ICC_PMR_EL1 (AARCHMRS system register)',
+        [QUERY_SRCH, 'PMR'],
+        [exit_ok(), stdout_contains('ICC_PMR_EL1')],
+    ),
+    # Combined search finds both AARCHMRS and GIC registers — full cross-spec view
+    (
+        'Combined search "CTLR" finds SCTLR_EL1 (AARCHMRS) and GICD_CTLR (GIC)',
+        [QUERY_SRCH, 'CTLR'],
+        [exit_ok(), stdout_contains('SCTLR_EL1'), stdout_contains('GICD_CTLR')],
+    ),
+]
+
+# EX-2: --spec aarchmrs tests — requires A64 cache only
+SEARCH_SPEC_AARCHMRS_TESTS = [
+    (
+        '--spec aarchmrs TCR returns AARCHMRS TCR_EL1 register (EX-2)',
+        [QUERY_SRCH, '--spec', 'aarchmrs', 'TCR'],
+        [exit_ok(), stdout_contains('TCR_EL1')],
+    ),
+    (
+        '--spec aarchmrs ADD finds ADD_addsub_imm A64 operation',
+        [QUERY_SRCH, '--spec', 'aarchmrs', 'ADD'],
+        [exit_ok(), stdout_contains('ADD_addsub_imm')],
+    ),
+    (
+        '--spec aarchmrs CPU_CYCLES finds nothing (PMU event, not an AARCHMRS name)',
+        [QUERY_SRCH, '--spec', 'aarchmrs', 'CPU_CYCLES'],
+        [exit_nonzero()],
+    ),
+    (
+        '--spec aarchmrs with no match exits non-zero',
+        [QUERY_SRCH, '--spec', 'aarchmrs', 'FAKE_ZZZ_NOEXIST'],
+        [exit_nonzero()],
+    ),
+]
+
+# EX-2: --spec pmu tests — requires PMU cache only
+SEARCH_SPEC_PMU_TESTS = [
+    (
+        '--spec pmu CPU_CYCLES finds PMU event (EX-2)',
+        [QUERY_SRCH, '--spec', 'pmu', 'CPU_CYCLES'],
+        [exit_ok(), stdout_contains('CPU_CYCLES')],
+    ),
+    (
+        '--spec pmu L1D_CACHE finds L1D_CACHE_REFILL event',
+        [QUERY_SRCH, '--spec', 'pmu', 'L1D_CACHE'],
+        [exit_ok(), stdout_contains('L1D_CACHE_REFILL')],
+    ),
+    (
+        '--spec pmu shows CPU count for CPU_CYCLES',
+        [QUERY_SRCH, '--spec', 'pmu', 'CPU_CYCLES'],
+        [exit_ok(), stdout_contains('CPU(s)')],
+    ),
+    (
+        '--spec pmu FAKE_EVENT_ZZZZ exits non-zero',
+        [QUERY_SRCH, '--spec', 'pmu', 'FAKE_EVENT_ZZZZ'],
+        [exit_nonzero()],
+    ),
+]
+
 # Map skill name → test list
 ALL_SKILLS: dict = {
-    'feat':            FEAT_TESTS,
-    'reg':             REG_TESTS,
-    'search':          SEARCH_TESTS,
-    'instr':           INSTR_TESTS,
-    'instr_t32':       INSTR_T32_TESTS,
-    'instr_a32':       INSTR_A32_TESTS,
-    'search_t32':      SEARCH_T32_TESTS,
-    'gic':             GIC_TESTS,
-    'gic_search':      GIC_SEARCH_TESTS,
-    'coresight':       CORESIGHT_TESTS,
-    'coresight_search': CORESIGHT_SEARCH_TESTS,
-    'pmu':             PMU_TESTS,
+    'feat':                  FEAT_TESTS,
+    'reg':                   REG_TESTS,
+    'search':                SEARCH_TESTS,
+    'instr':                 INSTR_TESTS,
+    'instr_t32':             INSTR_T32_TESTS,
+    'instr_a32':             INSTR_A32_TESTS,
+    'search_t32':            SEARCH_T32_TESTS,
+    'gic':                   GIC_TESTS,
+    'gic_search':            GIC_SEARCH_TESTS,
+    'coresight':             CORESIGHT_TESTS,
+    'coresight_search':      CORESIGHT_SEARCH_TESTS,
+    'pmu':                   PMU_TESTS,
+    'cross_routing':         CROSS_ROUTING_TESTS,
+    'search_spec_aarchmrs':  SEARCH_SPEC_AARCHMRS_TESTS,
+    'search_spec_pmu':       SEARCH_SPEC_PMU_TESTS,
 }
 
 # ---------------------------------------------------------------------------
@@ -1044,15 +1139,16 @@ def main() -> int:
     print('Architecture: v9Ap6-A, Build 445, March 2025')
     print('=' * 60)
 
-    # Validate cache — A64 cache is required for feat/reg/search/instr tests;
+    # Validate cache — A64 cache is required for feat/reg/search/instr/cross_routing/search_spec_aarchmrs tests;
     # arm_arm cache is required for instr_t32/instr_a32/search_t32 tests;
-    # gic cache is required for gic/gic_search tests;
+    # gic cache is required for gic/gic_search/cross_routing tests;
     # coresight cache is required for coresight/coresight_search tests;
-    # pmu cache is required for pmu tests.
+    # pmu cache is required for pmu/search_spec_pmu tests.
     ARM_ARM_ONLY_SKILLS  = frozenset(('instr_t32', 'instr_a32', 'search_t32'))
     GIC_ONLY_SKILLS      = frozenset(('gic', 'gic_search'))
+    GIC_ALSO_SKILLS      = frozenset(('cross_routing',))   # needs A64 + GIC
     CS_ONLY_SKILLS       = frozenset(('coresight', 'coresight_search'))
-    PMU_ONLY_SKILLS      = frozenset(('pmu',))
+    PMU_ONLY_SKILLS      = frozenset(('pmu', 'search_spec_pmu'))
 
     # Select skills to test first (so we can decide which caches to require)
     if args.skill:
@@ -1064,10 +1160,12 @@ def main() -> int:
     else:
         skills_to_run = ALL_SKILLS
 
-    non_special = ARM_ARM_ONLY_SKILLS | GIC_ONLY_SKILLS | CS_ONLY_SKILLS | PMU_ONLY_SKILLS
-    needs_a64_cache      = any(s not in non_special for s in skills_to_run)
+    # NON_A64_SKILLS: skills that do NOT require the A64 cache.
+    # cross_routing and search_spec_aarchmrs are NOT here — they need A64.
+    NON_A64_SKILLS       = ARM_ARM_ONLY_SKILLS | GIC_ONLY_SKILLS | CS_ONLY_SKILLS | PMU_ONLY_SKILLS
+    needs_a64_cache      = any(s not in NON_A64_SKILLS for s in skills_to_run)
     needs_arm_arm_cache  = any(s in ARM_ARM_ONLY_SKILLS for s in skills_to_run)
-    needs_gic_cache      = any(s in GIC_ONLY_SKILLS for s in skills_to_run)
+    needs_gic_cache      = any(s in GIC_ONLY_SKILLS | GIC_ALSO_SKILLS for s in skills_to_run)
     needs_cs_cache       = any(s in CS_ONLY_SKILLS for s in skills_to_run)
     needs_pmu_cache      = any(s in PMU_ONLY_SKILLS for s in skills_to_run)
 
