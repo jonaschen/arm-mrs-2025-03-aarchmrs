@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "CoreSight Register Field",
+  "description": "A single field within a CoreSight register fieldset",
+  "type": "object",
+  "required": ["name", "bits", "access"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Field name as used in the CoreSight specification"
+    },
+    "bits": {
+      "type": "array",
+      "description": "Bit ranges occupied by this field",
+      "items": {
+        "type": "object",
+        "required": ["start", "width"],
+        "properties": {
+          "start": {"type": "integer", "minimum": 0, "description": "LSB of the bit range"},
+          "width": {"type": "integer", "minimum": 1, "description": "Width in bits"}
+        }
+      }
+    },
+    "access": {
+      "type": "string",
+      "description": "Access type",
+      "enum": ["RO", "RW", "WO", "RW1C", "RES0", "RES1", "RAZ", "RAO", "IMP", "UNK"]
+    },
+    "reset": {
+      "type": "string",
+      "description": "Reset value; 0/1 for a fixed value, AU for architecturally undefined, IMP for implementation defined"
+    },
+    "brief": {
+      "type": ["string", "null"],
+      "description": "Brief field description"
+    }
+  }
+}

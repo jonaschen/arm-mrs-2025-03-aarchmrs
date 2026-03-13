@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "CoreSight Register Fieldset",
+  "description": "A conditional fieldset within a CoreSight register",
+  "type": "object",
+  "required": ["id", "fields"],
+  "properties": {
+    "id":         {"type": "integer", "description": "Fieldset index (0-based)"},
+    "condition":  {"type": ["string", "null"], "description": "Optional condition when this fieldset applies"},
+    "cs_arch_versions": {
+      "type": "array",
+      "items": {"type": "string", "enum": ["v1", "v2", "v3"]},
+      "description": "CoreSight Architecture versions for which this fieldset applies"
+    },
+    "fields": {
+      "type": "array",
+      "description": "Fields within this fieldset",
+      "items": {"$ref": "Field.json"}
+    }
+  }
+}

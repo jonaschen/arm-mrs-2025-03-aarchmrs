@@ -1,0 +1,49 @@
+{
+  "_meta": {
+    "description": "Metadata for the CoreSight register data file",
+    "source_file": "coresight/CoreSight.json",
+    "spec": "ARM CoreSight Architecture Specification (IHI0029)",
+    "spec_version": "CoreSight Architecture v3.0",
+    "components": {
+      "ETM": {
+        "title": "Embedded Trace Macrocell",
+        "brief": "ETMv4 (ETE) registers control instruction and data trace generation. One ETM per PE.",
+        "base_offset": "implementation-defined"
+      },
+      "CTI": {
+        "title": "Cross-Trigger Interface",
+        "brief": "CTI registers control cross-trigger channels connecting debug and trace components.",
+        "base_offset": "implementation-defined"
+      },
+      "STM": {
+        "title": "System Trace Macrocell",
+        "brief": "STM registers control system-level software-generated trace via stimulus ports.",
+        "base_offset": "implementation-defined"
+      },
+      "ITM": {
+        "title": "Instrumentation Trace Macrocell",
+        "brief": "ITM stimulus port and control registers for software trace on Cortex-M profiles.",
+        "base_offset": "0xE0000000"
+      },
+      "ID_BLOCK": {
+        "title": "Common Identification Block",
+        "brief": "Standard CoreSight identification registers present in every 4 KB component frame (offsets 0xF00–0xFFC).",
+        "base_offset": "frame_base + 0xF00"
+      }
+    },
+    "cs_arch_versions": {
+      "v1": {
+        "spec": "IHI0029 revision A/B",
+        "brief": "CoreSight Architecture v1 — Original cross-trigger and trace bus architecture"
+      },
+      "v2": {
+        "spec": "IHI0029 revision C/D",
+        "brief": "CoreSight Architecture v2 — Adds ATB topology and memory-mapped ROM table"
+      },
+      "v3": {
+        "spec": "IHI0029 revision E or later",
+        "brief": "CoreSight Architecture v3 — Adds DEVARCH, SelfHosted trace, ETE support"
+      }
+    }
+  }
+}

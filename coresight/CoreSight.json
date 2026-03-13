@@ -1,0 +1,866 @@
+{
+  "_meta": {
+    "source": "ARM CoreSight Architecture Specification (IHI0029)",
+    "spec_version": "CoreSight Architecture v3.0",
+    "schema_version": "1.0.0",
+    "note": "Hand-curated data based on IHI0029. Priority components: ETM v4/ETE, CTI, STM, ITM. Common ID block included.",
+    "data_path": "coresight/CoreSight.json",
+    "components": ["ETM", "CTI", "STM", "ITM", "ID_BLOCK"]
+  },
+  "registers": [
+    {
+      "name": "TRCPRGCTLR",
+      "component": "ETM",
+      "offset": "0x004",
+      "title": "Programming Control Register",
+      "brief": "Controls whether the ETM trace unit is enabled. Must be programmed only when TRCSTATR.IDLE=1.",
+      "width": 32,
+      "cs_arch_versions": ["v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v3"],
+          "fields": [
+            {"name": "RES0_31_1", "bits": [{"start": 1,  "width": 31}], "access": "RES0", "reset": "0",  "brief": "Reserved."},
+            {"name": "EN",        "bits": [{"start": 0,  "width": 1}],  "access": "RW",   "reset": "0",  "brief": "Trace Enable. Enables trace when 1. Trace only occurs when TRCSTATR.IDLE=0."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "TRCSTATR",
+      "component": "ETM",
+      "offset": "0x00C",
+      "title": "Trace Status Register",
+      "brief": "Read-only status of the trace unit. Poll IDLE before programming the ETM.",
+      "width": 32,
+      "cs_arch_versions": ["v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v3"],
+          "fields": [
+            {"name": "RES0_31_2",  "bits": [{"start": 2, "width": 30}], "access": "RES0", "reset": "0",  "brief": "Reserved."},
+            {"name": "PMSTABLE",   "bits": [{"start": 1, "width": 1}],  "access": "RO",   "reset": null, "brief": "Power Management Stable. Power management state is stable. Poll before programming the ETM."},
+            {"name": "IDLE",       "bits": [{"start": 0, "width": 1}],  "access": "RO",   "reset": null, "brief": "Trace Unit Idle. Indicates trace unit is idle (not tracing). Read before programming."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "TRCCONFIGR",
+      "component": "ETM",
+      "offset": "0x010",
+      "title": "Trace Configuration Register",
+      "brief": "Configures the ETM trace options including branch broadcast, cycle counting, context ID, VMID, and timestamps.",
+      "width": 32,
+      "cs_arch_versions": ["v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v3"],
+          "fields": [
+            {"name": "RES0_31_16", "bits": [{"start": 16, "width": 16}], "access": "RES0", "reset": "0", "brief": "Reserved."},
+            {"name": "DV",         "bits": [{"start": 15, "width": 1}],  "access": "RW",   "reset": "0", "brief": "Data Value Tracing Enable. Enable data value tracing (ETMv4 only)."},
+            {"name": "DA",         "bits": [{"start": 14, "width": 1}],  "access": "RW",   "reset": "0", "brief": "Data Address Tracing Enable. Enable data address tracing (ETMv4 only)."},
+            {"name": "RS",         "bits": [{"start": 13, "width": 1}],  "access": "RW",   "reset": "0", "brief": "Return Stack Enable. Enable the return stack for function return prediction."},
+            {"name": "RES0_12",    "bits": [{"start": 12, "width": 1}],  "access": "RES0", "reset": "0", "brief": "Reserved."},
+            {"name": "TS",         "bits": [{"start": 8,  "width": 4}],  "access": "RW",   "reset": "0", "brief": "Timestamp Period. Timestamp frequency: 0b0000=disabled, other values set period."},
+            {"name": "VMID",       "bits": [{"start": 7,  "width": 1}],  "access": "RW",   "reset": "0", "brief": "VMID Trace Enable. Enable VMID comparator tracing."},
+            {"name": "CID",        "bits": [{"start": 6,  "width": 1}],  "access": "RW",   "reset": "0", "brief": "Context ID Trace Enable. Enable Context ID comparator tracing."},
+            {"name": "RES0_5",     "bits": [{"start": 5,  "width": 1}],  "access": "RES0", "reset": "0", "brief": "Reserved."},
+            {"name": "CCI",        "bits": [{"start": 4,  "width": 1}],  "access": "RW",   "reset": "0", "brief": "Cycle Count Instruction Enable. Enable cycle count instruction trace."},
+            {"name": "RES0_3_2",   "bits": [{"start": 2,  "width": 2}],  "access": "RES0", "reset": "0", "brief": "Reserved."},
+            {"name": "BB",         "bits": [{"start": 1,  "width": 1}],  "access": "RW",   "reset": "0", "brief": "Branch Broadcast Enable. Enable branch broadcast mode. All taken branches are traced."},
+            {"name": "RES0_0",     "bits": [{"start": 0,  "width": 1}],  "access": "RES0", "reset": "0", "brief": "Reserved."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "TRCAUXCTLR",
+      "component": "ETM",
+      "offset": "0x018",
+      "title": "Auxiliary Control Register",
+      "brief": "Implementation-defined auxiliary control. Usage varies by ETM implementation.",
+      "width": 32,
+      "cs_arch_versions": ["v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v3"],
+          "fields": [
+            {"name": "IMP", "bits": [{"start": 0, "width": 32}], "access": "IMP", "reset": null, "brief": "Implementation-defined auxiliary control bits."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "TRCVICTLR",
+      "component": "ETM",
+      "offset": "0x080",
+      "title": "ViewInst Main Control Register",
+      "brief": "Controls which instruction trace is included in the ViewInst filter, including exception level masking.",
+      "width": 32,
+      "cs_arch_versions": ["v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v3"],
+          "fields": [
+            {"name": "RES0_31_24",  "bits": [{"start": 24, "width": 8}], "access": "RES0", "reset": "0",   "brief": "Reserved."},
+            {"name": "EXLEVEL_S",   "bits": [{"start": 20, "width": 4}], "access": "RW",   "reset": "0xF", "brief": "Exception Level Control S. Bit mask of Secure exception levels to trace: [0]=EL0, [1]=EL1, [2]=EL2, [3]=EL3."},
+            {"name": "EXLEVEL_NS",  "bits": [{"start": 16, "width": 4}], "access": "RW",   "reset": "0xF", "brief": "Exception Level Control NS. Bit mask of NS exception levels to trace: [0]=EL0, [1]=EL1, [2]=EL2, [3]=EL3."},
+            {"name": "RES0_15_10",  "bits": [{"start": 10, "width": 6}], "access": "RES0", "reset": "0",   "brief": "Reserved."},
+            {"name": "TRCEXC",      "bits": [{"start": 9,  "width": 1}], "access": "RW",   "reset": "0",   "brief": "Trace Exception Entry. Enable tracing of exception entry."},
+            {"name": "TRCRESET",    "bits": [{"start": 8,  "width": 1}], "access": "RW",   "reset": "0",   "brief": "Trace Reset. Enable tracing of resets."},
+            {"name": "TRCERR",      "bits": [{"start": 7,  "width": 1}], "access": "RW",   "reset": "0",   "brief": "Trace System Error. Enable tracing of system errors."},
+            {"name": "RES0_6_1",    "bits": [{"start": 1,  "width": 6}], "access": "RES0", "reset": "0",   "brief": "Reserved."},
+            {"name": "SSSTATUS",    "bits": [{"start": 0,  "width": 1}], "access": "RW",   "reset": "0",   "brief": "Start/Stop Status. Start/stop logic status: 0=stopped, 1=started."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "TRCIDR0",
+      "component": "ETM",
+      "offset": "0x1E0",
+      "title": "ID Register 0",
+      "brief": "Read-only register identifying ETM features including P0 tracing, data tracing, and timestamp size.",
+      "width": 32,
+      "cs_arch_versions": ["v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v3"],
+          "fields": [
+            {"name": "RES0_31_29", "bits": [{"start": 29, "width": 3}], "access": "RES0", "reset": "0",  "brief": "Reserved."},
+            {"name": "TSSIZE",     "bits": [{"start": 24, "width": 5}], "access": "RO",   "reset": null, "brief": "Timestamp Size. Size of global timestamp in bits minus 1."},
+            {"name": "RES0_23_5",  "bits": [{"start": 5,  "width": 19}], "access": "RES0", "reset": "0",  "brief": "Reserved."},
+            {"name": "TRCDATA",    "bits": [{"start": 3,  "width": 2}], "access": "RO",   "reset": null, "brief": "Data Tracing. Indicates data tracing support."},
+            {"name": "INSTP0",     "bits": [{"start": 1,  "width": 2}], "access": "RO",   "reset": null, "brief": "P0 Instructions. Indicates P0 instruction tracing support."},
+            {"name": "RES0_0",     "bits": [{"start": 0,  "width": 1}], "access": "RES0", "reset": "0",  "brief": "Reserved."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CTICONTROL",
+      "component": "CTI",
+      "offset": "0x000",
+      "title": "CTI Control Register",
+      "brief": "Globally enables or disables the CTI. When disabled all cross-trigger propagation is suppressed.",
+      "width": 32,
+      "cs_arch_versions": ["v2", "v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v2", "v3"],
+          "fields": [
+            {"name": "RES0_31_1", "bits": [{"start": 1, "width": 31}], "access": "RES0", "reset": "0", "brief": "Reserved."},
+            {"name": "GLBEN",     "bits": [{"start": 0, "width": 1}],  "access": "RW",   "reset": "0", "brief": "Global Enable. Enables the CTI. When 0, all cross-triggers are disabled."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CTIINTACK",
+      "component": "CTI",
+      "offset": "0x010",
+      "title": "CTI Interrupt Acknowledge Register",
+      "brief": "Write-only register to acknowledge (clear) latched trigger inputs.",
+      "width": 32,
+      "cs_arch_versions": ["v2", "v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v2", "v3"],
+          "fields": [
+            {"name": "RES0_31_8", "bits": [{"start": 8, "width": 24}], "access": "RES0", "reset": "0",  "brief": "Reserved."},
+            {"name": "INTACK",    "bits": [{"start": 0, "width": 8}],  "access": "WO",   "reset": null, "brief": "Interrupt Acknowledge. Write 1 to bit n to acknowledge trigger input n."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CTIAPPSET",
+      "component": "CTI",
+      "offset": "0x014",
+      "title": "CTI Application Channel Set Register",
+      "brief": "Write 1 to bit n to assert channel n from software. Read returns currently asserted channels.",
+      "width": 32,
+      "cs_arch_versions": ["v2", "v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v2", "v3"],
+          "fields": [
+            {"name": "RES0_31_4", "bits": [{"start": 4, "width": 28}], "access": "RES0", "reset": "0", "brief": "Reserved."},
+            {"name": "APPSET",    "bits": [{"start": 0, "width": 4}],  "access": "RW",   "reset": "0", "brief": "Application Channel Set. Write 1 to bit n to set channel n. Read returns current set channels."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CTIAPPCLEAR",
+      "component": "CTI",
+      "offset": "0x018",
+      "title": "CTI Application Channel Clear Register",
+      "brief": "Write 1 to bit n to deassert software-asserted channel n.",
+      "width": 32,
+      "cs_arch_versions": ["v2", "v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v2", "v3"],
+          "fields": [
+            {"name": "RES0_31_4", "bits": [{"start": 4, "width": 28}], "access": "RES0", "reset": "0",  "brief": "Reserved."},
+            {"name": "APPCLEAR",  "bits": [{"start": 0, "width": 4}],  "access": "WO",   "reset": null, "brief": "Application Channel Clear. Write 1 to bit n to clear channel n."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CTIAPPPULSE",
+      "component": "CTI",
+      "offset": "0x01C",
+      "title": "CTI Application Pulse Register",
+      "brief": "Write 1 to bit n to generate a single-cycle pulse on channel n.",
+      "width": 32,
+      "cs_arch_versions": ["v2", "v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v2", "v3"],
+          "fields": [
+            {"name": "RES0_31_4", "bits": [{"start": 4, "width": 28}], "access": "RES0", "reset": "0",  "brief": "Reserved."},
+            {"name": "APPULSE",   "bits": [{"start": 0, "width": 4}],  "access": "WO",   "reset": null, "brief": "Application Pulse. Write 1 to bit n to pulse channel n for one clock cycle."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CTIINEN<n>",
+      "component": "CTI",
+      "offset": "0x020",
+      "offset_stride": "0x004",
+      "index_variable": "n",
+      "index_range": {"start": 0, "count": 8},
+      "title": "CTI Trigger In to Channel Enable Register n",
+      "brief": "Maps trigger input n to one or more channels. Bit k enables channel k for input n.",
+      "width": 32,
+      "cs_arch_versions": ["v2", "v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v2", "v3"],
+          "fields": [
+            {"name": "RES0_31_4", "bits": [{"start": 4, "width": 28}], "access": "RES0", "reset": "0", "brief": "Reserved."},
+            {"name": "TRIGINEN",  "bits": [{"start": 0, "width": 4}],  "access": "RW",   "reset": "0", "brief": "Trigger In Enable. Bit mask of channels enabled for trigger input n: [0]=CH0, [1]=CH1, [2]=CH2, [3]=CH3."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CTIOUTEN<n>",
+      "component": "CTI",
+      "offset": "0x0A0",
+      "offset_stride": "0x004",
+      "index_variable": "n",
+      "index_range": {"start": 0, "count": 8},
+      "title": "CTI Trigger Out from Channel Enable Register n",
+      "brief": "Maps channels to trigger output n. Bit k enables channel k to drive output n.",
+      "width": 32,
+      "cs_arch_versions": ["v2", "v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v2", "v3"],
+          "fields": [
+            {"name": "RES0_31_4", "bits": [{"start": 4, "width": 28}], "access": "RES0", "reset": "0", "brief": "Reserved."},
+            {"name": "TRIGOUTEN", "bits": [{"start": 0, "width": 4}],  "access": "RW",   "reset": "0", "brief": "Trigger Out Enable. Bit mask of channels enabled for trigger output n."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CTITRIGINSTATUS",
+      "component": "CTI",
+      "offset": "0x130",
+      "title": "CTI Trigger In Status Register",
+      "brief": "Read-only, unlatched view of the current state of each trigger input line.",
+      "width": 32,
+      "cs_arch_versions": ["v2", "v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v2", "v3"],
+          "fields": [
+            {"name": "RES0_31_8",      "bits": [{"start": 8, "width": 24}], "access": "RES0", "reset": "0",  "brief": "Reserved."},
+            {"name": "TRIGINSTATUS",   "bits": [{"start": 0, "width": 8}],  "access": "RO",   "reset": null, "brief": "Trigger In Status. Current status of trigger inputs (unlatched)."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CTITRIGOUTSTATUS",
+      "component": "CTI",
+      "offset": "0x134",
+      "title": "CTI Trigger Out Status Register",
+      "brief": "Read-only view of each trigger output after channel-to-output enable masking.",
+      "width": 32,
+      "cs_arch_versions": ["v2", "v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v2", "v3"],
+          "fields": [
+            {"name": "RES0_31_8",      "bits": [{"start": 8, "width": 24}], "access": "RES0", "reset": "0",  "brief": "Reserved."},
+            {"name": "TRIGOUTSTATUS",  "bits": [{"start": 0, "width": 8}],  "access": "RO",   "reset": null, "brief": "Trigger Out Status. Current status of trigger outputs (after enable masking)."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CTICHINSTATUS",
+      "component": "CTI",
+      "offset": "0x138",
+      "title": "CTI Channel In Status Register",
+      "brief": "Read-only view of the current state of each internal channel input.",
+      "width": 32,
+      "cs_arch_versions": ["v2", "v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v2", "v3"],
+          "fields": [
+            {"name": "RES0_31_4", "bits": [{"start": 4, "width": 28}], "access": "RES0", "reset": "0",  "brief": "Reserved."},
+            {"name": "CTICHIN",   "bits": [{"start": 0, "width": 4}],  "access": "RO",   "reset": null, "brief": "Channel In Status. Current status of channel inputs."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CTICHOUTSTATUS",
+      "component": "CTI",
+      "offset": "0x13C",
+      "title": "CTI Channel Out Status Register",
+      "brief": "Read-only view of the current state of each internal channel output.",
+      "width": 32,
+      "cs_arch_versions": ["v2", "v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v2", "v3"],
+          "fields": [
+            {"name": "RES0_31_4",  "bits": [{"start": 4, "width": 28}], "access": "RES0", "reset": "0",  "brief": "Reserved."},
+            {"name": "CTICHOUT",   "bits": [{"start": 0, "width": 4}],  "access": "RO",   "reset": null, "brief": "Channel Out Status. Current status of channel outputs."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CTIGATE",
+      "component": "CTI",
+      "offset": "0x140",
+      "title": "CTI Channel Gate Enable Register",
+      "brief": "Controls propagation of each channel. Clear a bit to prevent that channel from activating trigger outputs.",
+      "width": 32,
+      "cs_arch_versions": ["v2", "v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v2", "v3"],
+          "fields": [
+            {"name": "RES0_31_4",   "bits": [{"start": 4, "width": 28}], "access": "RES0", "reset": "0",   "brief": "Reserved."},
+            {"name": "CTIGATEEN",   "bits": [{"start": 0, "width": 4}],  "access": "RW",   "reset": "0xF", "brief": "Channel Gate Enable. Enable propagation of each channel: 1=enabled, 0=gated off."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "STMSPER",
+      "component": "STM",
+      "offset": "0xE00",
+      "title": "STM Stimulus Port Enable Register",
+      "brief": "Bit n enables stimulus port n (ports 0-31). Write 1 to enable a port.",
+      "width": 32,
+      "cs_arch_versions": ["v2", "v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v2", "v3"],
+          "fields": [
+            {"name": "SPER", "bits": [{"start": 0, "width": 32}], "access": "RW", "reset": "0", "brief": "Stimulus Port Enable. Bit n enables stimulus port n (0-31). Write 1 to enable."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "STMSPMSCR",
+      "component": "STM",
+      "offset": "0xE04",
+      "title": "STM Stimulus Port Master Select Control Register",
+      "brief": "Selects the master ID inserted into trace packets when STMSPOVERIDER.SPOVERRIDE=1.",
+      "width": 32,
+      "cs_arch_versions": ["v2", "v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v2", "v3"],
+          "fields": [
+            {"name": "RES0_31_7", "bits": [{"start": 7, "width": 25}], "access": "RES0", "reset": "0", "brief": "Reserved."},
+            {"name": "MASTSEL",   "bits": [{"start": 0, "width": 7}],  "access": "RW",   "reset": "0", "brief": "Master Select. Master ID used when SPOVERRIDE=1 in STMSPOVERIDER."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "STMSPOVERIDER",
+      "component": "STM",
+      "offset": "0xE08",
+      "title": "STM Stimulus Port Override Register",
+      "brief": "Overrides the master ID for all stimulus ports to the value in STMSPMSCR.MASTSEL.",
+      "width": 32,
+      "cs_arch_versions": ["v2", "v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v2", "v3"],
+          "fields": [
+            {"name": "RES0_31_2",  "bits": [{"start": 2, "width": 30}], "access": "RES0", "reset": "0", "brief": "Reserved."},
+            {"name": "MSTREN",     "bits": [{"start": 1, "width": 1}],  "access": "RW",   "reset": "0", "brief": "Master Enable. Enable master ID override."},
+            {"name": "SPOVERRIDE", "bits": [{"start": 0, "width": 1}],  "access": "RW",   "reset": "0", "brief": "Override Enable. When 1, use MASTSEL from STMSPMSCR for all stimulus ports."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "STMHEMCR",
+      "component": "STM",
+      "offset": "0xE80",
+      "title": "STM HW Event Master Control Register",
+      "brief": "Master control register for the STM. Controls enable, compression, synchronization, and timestamp insertion.",
+      "width": 32,
+      "cs_arch_versions": ["v2", "v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v2", "v3"],
+          "fields": [
+            {"name": "RES0_31_4", "bits": [{"start": 4, "width": 28}], "access": "RES0", "reset": "0", "brief": "Reserved."},
+            {"name": "TSEN",      "bits": [{"start": 3, "width": 1}],  "access": "RW",   "reset": "0", "brief": "Global Timestamp Enable. Enable global timestamp insertion."},
+            {"name": "SYNCEN",    "bits": [{"start": 2, "width": 1}],  "access": "RW",   "reset": "0", "brief": "Synchronization Enable. Enable periodic synchronization packets."},
+            {"name": "COMPEN",    "bits": [{"start": 1, "width": 1}],  "access": "RW",   "reset": "0", "brief": "Compression Enable. Enable timestamp compression."},
+            {"name": "EN",        "bits": [{"start": 0, "width": 1}],  "access": "RW",   "reset": "0", "brief": "Enable. Enable the STM. When 0, no trace is generated."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "STMFEAT0",
+      "component": "STM",
+      "offset": "0xEA0",
+      "title": "STM Features Register 0",
+      "brief": "Read-only register indicating STM capabilities including protection, timestamp, synchronization, and tracing modes.",
+      "width": 32,
+      "cs_arch_versions": ["v2", "v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v2", "v3"],
+          "fields": [
+            {"name": "RES0_31_16", "bits": [{"start": 16, "width": 16}], "access": "RES0", "reset": "0",  "brief": "Reserved."},
+            {"name": "TRACING",    "bits": [{"start": 12, "width": 4}],  "access": "RO",   "reset": null, "brief": "Tracing Mode. Indicates tracing mode support."},
+            {"name": "SYNC",       "bits": [{"start": 8,  "width": 4}],  "access": "RO",   "reset": null, "brief": "Synchronization. Indicates synchronization support."},
+            {"name": "TS",         "bits": [{"start": 4,  "width": 4}],  "access": "RO",   "reset": null, "brief": "Timestamp Encoding. Indicates timestamp encoding support."},
+            {"name": "PROT",       "bits": [{"start": 0,  "width": 4}],  "access": "RO",   "reset": null, "brief": "Protection Level. Indicates stimulus port protection level support."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "STIM<n>",
+      "component": "ITM",
+      "offset": "0x000",
+      "offset_stride": "0x004",
+      "index_variable": "n",
+      "index_range": {"start": 0, "count": 256},
+      "title": "Stimulus Register n",
+      "brief": "Write to generate a software trace packet. Read returns FIFO status: 1=ready to accept data, 0=busy.",
+      "width": 32,
+      "cs_arch_versions": ["v1", "v2", "v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v1", "v2", "v3"],
+          "fields": [
+            {"name": "STIMULUS", "bits": [{"start": 0, "width": 32}], "access": "RW", "reset": null, "brief": "Stimulus Data. Write data to generate trace packet. Read returns FIFO status: 1=ready, 0=busy."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "TER",
+      "component": "ITM",
+      "offset": "0xE00",
+      "title": "Trace Enable Register",
+      "brief": "Enables individual ITM stimulus ports. Bit n enables port n.",
+      "width": 32,
+      "cs_arch_versions": ["v1", "v2", "v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v1", "v2", "v3"],
+          "fields": [
+            {"name": "STIMENA", "bits": [{"start": 0, "width": 32}], "access": "RW", "reset": "0", "brief": "Stimulus Enable. Bit n enables stimulus port n: 1=enabled, 0=disabled."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "TPR",
+      "component": "ITM",
+      "offset": "0xE40",
+      "title": "Trace Privilege Register",
+      "brief": "Controls unprivileged access to groups of 8 stimulus ports. Bit n gates ports 8n–8n+7.",
+      "width": 32,
+      "cs_arch_versions": ["v1", "v2", "v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v1", "v2", "v3"],
+          "fields": [
+            {"name": "RES0_31_8", "bits": [{"start": 8, "width": 24}], "access": "RES0", "reset": "0", "brief": "Reserved."},
+            {"name": "PRIVMASK",  "bits": [{"start": 0, "width": 8}],  "access": "RW",   "reset": "0", "brief": "Privilege Mask. Bit n controls unprivileged access to stimulus ports 8n–8n+7: 0=privileged only, 1=unprivileged allowed."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "TCR",
+      "component": "ITM",
+      "offset": "0xE80",
+      "title": "Trace Control Register",
+      "brief": "Master control for the ITM including enable, timestamps, DWT forwarding, SWO mode, and ATB bus ID.",
+      "width": 32,
+      "cs_arch_versions": ["v1", "v2", "v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v1", "v2", "v3"],
+          "fields": [
+            {"name": "RES0_31_23",  "bits": [{"start": 23, "width": 9}], "access": "RES0", "reset": "0", "brief": "Reserved."},
+            {"name": "TraceBusID",  "bits": [{"start": 16, "width": 7}], "access": "RW",   "reset": "0", "brief": "ATB Bus ID. 7-bit ATB bus ID for this ITM. Must be unique across the trace system."},
+            {"name": "RES0_15_10",  "bits": [{"start": 10, "width": 6}], "access": "RES0", "reset": "0", "brief": "Reserved."},
+            {"name": "TSPrescale",  "bits": [{"start": 8,  "width": 2}], "access": "RW",   "reset": "0", "brief": "Timestamp Prescaler. Local timestamp prescaler: 0b00=no prescale, 0b01=÷4, 0b10=÷16, 0b11=÷64."},
+            {"name": "RES0_7_5",    "bits": [{"start": 5,  "width": 3}], "access": "RES0", "reset": "0", "brief": "Reserved."},
+            {"name": "SWOENA",      "bits": [{"start": 4,  "width": 1}], "access": "RW",   "reset": "0", "brief": "SWO Encoding Enable. Enable SWO (Single Wire Output) encoding."},
+            {"name": "TXENA",       "bits": [{"start": 3,  "width": 1}], "access": "RW",   "reset": "0", "brief": "DWT Packet Forwarding Enable. Enable DWT stimulus to ITM forwarding."},
+            {"name": "SYNCENA",     "bits": [{"start": 2,  "width": 1}], "access": "RW",   "reset": "0", "brief": "Sync Packet Enable. Enable synchronization packet transmission."},
+            {"name": "TSENA",       "bits": [{"start": 1,  "width": 1}], "access": "RW",   "reset": "0", "brief": "Timestamp Enable. Enable local timestamp generation."},
+            {"name": "ITMENA",      "bits": [{"start": 0,  "width": 1}], "access": "RW",   "reset": "0", "brief": "ITM Enable. Master enable for ITM. Must be 1 for any trace."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "DEVARCH",
+      "component": "ID_BLOCK",
+      "offset": "0xFBC",
+      "title": "Device Architecture Register",
+      "brief": "Identifies the CoreSight architecture of the component. Only present in CoreSight Architecture v3.",
+      "width": 32,
+      "cs_arch_versions": ["v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v3"],
+          "fields": [
+            {"name": "ARCHITECT", "bits": [{"start": 21, "width": 11}], "access": "RO", "reset": null, "brief": "Architect. JEP106 code of the architect (0x23B=ARM)."},
+            {"name": "PRESENT",   "bits": [{"start": 20, "width": 1}],  "access": "RO", "reset": null, "brief": "Architecture Present. 1=DEVARCH is implemented."},
+            {"name": "REVISION",  "bits": [{"start": 16, "width": 4}],  "access": "RO", "reset": null, "brief": "Revision. Architecture revision."},
+            {"name": "ARCHID",    "bits": [{"start": 0,  "width": 16}], "access": "RO", "reset": null, "brief": "Architecture ID. CoreSight architecture ID for this component."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "DEVID",
+      "component": "ID_BLOCK",
+      "offset": "0xFC8",
+      "title": "Device ID Register",
+      "brief": "Implementation-defined device identification. Content varies by component.",
+      "width": 32,
+      "cs_arch_versions": ["v1", "v2", "v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v1", "v2", "v3"],
+          "fields": [
+            {"name": "IMP", "bits": [{"start": 0, "width": 32}], "access": "IMP", "reset": null, "brief": "Implementation Defined. Device-specific identification information."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "DEVTYPE",
+      "component": "ID_BLOCK",
+      "offset": "0xFCC",
+      "title": "Device Type Identifier Register",
+      "brief": "Classifies the component by major and sub type to allow ROM table parsers to identify the component.",
+      "width": 32,
+      "cs_arch_versions": ["v1", "v2", "v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v1", "v2", "v3"],
+          "fields": [
+            {"name": "RES0_31_8", "bits": [{"start": 8, "width": 24}], "access": "RES0", "reset": "0",  "brief": "Reserved."},
+            {"name": "SUB",       "bits": [{"start": 4, "width": 4}],  "access": "RO",   "reset": null, "brief": "Sub Type. Sub-type qualification of major type."},
+            {"name": "MAJOR",     "bits": [{"start": 0, "width": 4}],  "access": "RO",   "reset": null, "brief": "Major Type. Major component type: 0x1=Trace sink, 0x2=Trace link, 0x3=Trace source, 0x4=Debug control, 0x5=Debug logic."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "AUTHSTATUS",
+      "component": "ID_BLOCK",
+      "offset": "0xFB8",
+      "title": "Authentication Status Register",
+      "brief": "Reports the current debug authentication state for invasive and non-invasive, secure and non-secure debug.",
+      "width": 32,
+      "cs_arch_versions": ["v1", "v2", "v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v1", "v2", "v3"],
+          "fields": [
+            {"name": "RES0_31_8", "bits": [{"start": 8, "width": 24}], "access": "RES0", "reset": "0",  "brief": "Reserved."},
+            {"name": "SNID",      "bits": [{"start": 6, "width": 2}],  "access": "RO",   "reset": null, "brief": "Secure Non-Invasive Debug. 0b00=not implemented, 0b10=disabled, 0b11=enabled."},
+            {"name": "SID",       "bits": [{"start": 4, "width": 2}],  "access": "RO",   "reset": null, "brief": "Secure Invasive Debug. 0b00=not implemented, 0b10=disabled, 0b11=enabled."},
+            {"name": "NSNID",     "bits": [{"start": 2, "width": 2}],  "access": "RO",   "reset": null, "brief": "Non-Secure Non-Invasive Debug. 0b00=not implemented, 0b10=disabled, 0b11=enabled."},
+            {"name": "NSID",      "bits": [{"start": 0, "width": 2}],  "access": "RO",   "reset": null, "brief": "Non-Secure Invasive Debug. 0b00=not implemented, 0b10=disabled, 0b11=enabled."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "PIDR4",
+      "component": "ID_BLOCK",
+      "offset": "0xFD0",
+      "title": "Peripheral ID Register 4",
+      "brief": "Contains the JEP106 continuation code and the 4 KB page count for this component.",
+      "width": 32,
+      "cs_arch_versions": ["v1", "v2", "v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v1", "v2", "v3"],
+          "fields": [
+            {"name": "RES0_31_8", "bits": [{"start": 8, "width": 24}], "access": "RES0", "reset": "0",  "brief": "Reserved."},
+            {"name": "SIZE",      "bits": [{"start": 4, "width": 4}],  "access": "RO",   "reset": null, "brief": "Memory size. Number of 4 KB pages used: 0=1 page."},
+            {"name": "DES_2",     "bits": [{"start": 0, "width": 4}],  "access": "RO",   "reset": null, "brief": "JEP106 continuation code."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "PIDR0",
+      "component": "ID_BLOCK",
+      "offset": "0xFE0",
+      "title": "Peripheral ID Register 0",
+      "brief": "Contains bits[7:0] of the 12-bit part number for this component.",
+      "width": 32,
+      "cs_arch_versions": ["v1", "v2", "v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v1", "v2", "v3"],
+          "fields": [
+            {"name": "RES0_31_8", "bits": [{"start": 8, "width": 24}], "access": "RES0", "reset": "0",  "brief": "Reserved."},
+            {"name": "PART_0",    "bits": [{"start": 0, "width": 8}],  "access": "RO",   "reset": null, "brief": "Part Number[7:0]. Bits[7:0] of the part number."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "PIDR1",
+      "component": "ID_BLOCK",
+      "offset": "0xFE4",
+      "title": "Peripheral ID Register 1",
+      "brief": "Contains bits[11:8] of the part number and bits[3:0] of the JEP106 identity code.",
+      "width": 32,
+      "cs_arch_versions": ["v1", "v2", "v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v1", "v2", "v3"],
+          "fields": [
+            {"name": "RES0_31_8", "bits": [{"start": 8, "width": 24}], "access": "RES0", "reset": "0",  "brief": "Reserved."},
+            {"name": "DES_0",     "bits": [{"start": 4, "width": 4}],  "access": "RO",   "reset": null, "brief": "JEP106 ID[3:0]. Bits[3:0] of the JEP106 identity code."},
+            {"name": "PART_1",    "bits": [{"start": 0, "width": 4}],  "access": "RO",   "reset": null, "brief": "Part Number[11:8]. Bits[11:8] of the part number."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "PIDR2",
+      "component": "ID_BLOCK",
+      "offset": "0xFE8",
+      "title": "Peripheral ID Register 2",
+      "brief": "Contains bits[6:4] of the JEP106 identity code, the JEDEC flag, and the component revision.",
+      "width": 32,
+      "cs_arch_versions": ["v1", "v2", "v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v1", "v2", "v3"],
+          "fields": [
+            {"name": "RES0_31_8", "bits": [{"start": 8, "width": 24}], "access": "RES0", "reset": "0",  "brief": "Reserved."},
+            {"name": "REVISION",  "bits": [{"start": 4, "width": 4}],  "access": "RO",   "reset": null, "brief": "Revision. Component revision."},
+            {"name": "JEDEC",     "bits": [{"start": 3, "width": 1}],  "access": "RO",   "reset": null, "brief": "JEDEC Assigned. 1=JEP106 used."},
+            {"name": "DES_1",     "bits": [{"start": 0, "width": 3}],  "access": "RO",   "reset": null, "brief": "JEP106 ID[6:4]. Bits[6:4] of the JEP106 identity code."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "PIDR3",
+      "component": "ID_BLOCK",
+      "offset": "0xFEC",
+      "title": "Peripheral ID Register 3",
+      "brief": "Contains the customer modification field and metal-fix revision.",
+      "width": 32,
+      "cs_arch_versions": ["v1", "v2", "v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v1", "v2", "v3"],
+          "fields": [
+            {"name": "RES0_31_8", "bits": [{"start": 8, "width": 24}], "access": "RES0", "reset": "0",  "brief": "Reserved."},
+            {"name": "REVAND",    "bits": [{"start": 4, "width": 4}],  "access": "RO",   "reset": null, "brief": "Revision And. Metal fix revision."},
+            {"name": "CMOD",      "bits": [{"start": 0, "width": 4}],  "access": "RO",   "reset": null, "brief": "Customer Modified. Customer modification."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CIDR0",
+      "component": "ID_BLOCK",
+      "offset": "0xFF0",
+      "title": "Component ID Register 0",
+      "brief": "Preamble byte 0. Fixed value 0x0D identifies a valid CoreSight component.",
+      "width": 32,
+      "cs_arch_versions": ["v1", "v2", "v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v1", "v2", "v3"],
+          "fields": [
+            {"name": "RES0_31_8", "bits": [{"start": 8, "width": 24}], "access": "RES0", "reset": "0",    "brief": "Reserved."},
+            {"name": "PRMBL_0",   "bits": [{"start": 0, "width": 8}],  "access": "RO",   "reset": "0x0D", "brief": "Preamble[7:0]. Value 0x0D identifies a valid CoreSight component."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CIDR1",
+      "component": "ID_BLOCK",
+      "offset": "0xFF4",
+      "title": "Component ID Register 1",
+      "brief": "Preamble byte 1 and component class. CLASS=0x9 for CoreSight components.",
+      "width": 32,
+      "cs_arch_versions": ["v1", "v2", "v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v1", "v2", "v3"],
+          "fields": [
+            {"name": "RES0_31_8", "bits": [{"start": 8, "width": 24}], "access": "RES0", "reset": "0",   "brief": "Reserved."},
+            {"name": "CLASS",     "bits": [{"start": 4, "width": 4}],  "access": "RO",   "reset": null,  "brief": "Component Class. 0x1=ROM table, 0x9=CoreSight, 0xF=PrimeCell or non-standard."},
+            {"name": "PRMBL_1",   "bits": [{"start": 0, "width": 4}],  "access": "RO",   "reset": "0x0", "brief": "Preamble[11:8]. Must be 0x0."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CIDR2",
+      "component": "ID_BLOCK",
+      "offset": "0xFF8",
+      "title": "Component ID Register 2",
+      "brief": "Preamble byte 2. Fixed value 0x05.",
+      "width": 32,
+      "cs_arch_versions": ["v1", "v2", "v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v1", "v2", "v3"],
+          "fields": [
+            {"name": "RES0_31_8", "bits": [{"start": 8, "width": 24}], "access": "RES0", "reset": "0",    "brief": "Reserved."},
+            {"name": "PRMBL_2",   "bits": [{"start": 0, "width": 8}],  "access": "RO",   "reset": "0x05", "brief": "Preamble[19:12]. Value 0x05."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CIDR3",
+      "component": "ID_BLOCK",
+      "offset": "0xFFC",
+      "title": "Component ID Register 3",
+      "brief": "Preamble byte 3. Fixed value 0xB1.",
+      "width": 32,
+      "cs_arch_versions": ["v1", "v2", "v3"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": ["v1", "v2", "v3"],
+          "fields": [
+            {"name": "RES0_31_8", "bits": [{"start": 8, "width": 24}], "access": "RES0", "reset": "0",    "brief": "Reserved."},
+            {"name": "PRMBL_3",   "bits": [{"start": 0, "width": 8}],  "access": "RO",   "reset": "0xB1", "brief": "Preamble[27:20]. Value 0xB1."}
+          ]
+        }
+      ]
+    }
+  ]
+}
