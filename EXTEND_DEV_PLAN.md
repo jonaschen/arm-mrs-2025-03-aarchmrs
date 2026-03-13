@@ -47,9 +47,13 @@ interrupt programming model that links ICC system registers to GICD/GICR operati
 
 **Latest public release:** IHI0069H (GICv3/v4, including GICv4.1 for direct vLPI injection)
 
-**Data availability:** PDF only — Arm does not publish a machine-readable (JSON/XML)
-format for IHI0069. The register tables must be extracted from the PDF and encoded into
-a structured JSON format as part of this project.
+**Data availability:** Arm does not publish an official machine-readable JSON or XML
+release for IHI0069. However, before resorting to PDF extraction, check whether an XML
+source exists via community projects (e.g., CMSIS-SVD at
+`https://github.com/ARM-software/CMSIS_5`, IP-XACT distributions) — an XML source is
+significantly easier to parse reliably than a PDF. If no XML source is found, the
+register tables must be extracted from the PDF and encoded into structured JSON as part
+of this project.
 
 ### 2.2 CoreSight — IHI0029
 
@@ -70,8 +74,11 @@ the existing AARCHMRS. This is a purely additive new dataset.
 
 **Latest public release:** IHI0029F (CoreSight Architecture Specification v3.0)
 
-**Data availability:** PDF only — same situation as GIC. Register tables must be
-extracted and encoded into JSON.
+**Data availability:** Same situation as GIC — no official JSON/XML release from Arm.
+Before resorting to PDF extraction, check whether an IP-XACT or SVD description exists
+for CoreSight components in community repositories. If an XML source is available,
+prefer it over PDF parsing. Otherwise, register tables must be extracted and encoded
+into JSON manually.
 
 ### 2.3 ARM Architecture Reference Manual — DDI0487
 
@@ -152,6 +159,7 @@ arm-mrs-2025-03-aarchmrs/
 │   ├── build_gic_index.py     # NEW — GIC-specific cache builder
 │   ├── build_coresight_index.py  # NEW — CoreSight cache builder
 │   ├── build_arm_arm_index.py # NEW — T32/A32 ISA cache builder
+│   ├── convert_xml_to_json.py # NEW — converts ARM XML spec releases to the project JSON schema
 │   ├── query_feature.py       # Existing
 │   ├── query_register.py      # Extended — add --spec gic|coresight flag
 │   ├── query_instruction.py   # Extended — add --isa t32|a32 flag
@@ -346,8 +354,9 @@ the full T32Instructions.json into context.
 
 | Step | Task |
 |------|------|
-| B-0-1 | Download IHI0069H (latest GICv3/v4 spec PDF) from developer.arm.com |
-| B-0-2 | Extract all GICD, GICR, and ITS register tables into a machine-readable representation. Options: (a) PDF text extraction + parser script; (b) manual JSON authoring; (c) scrape the HTML online documentation version if available |
+| B-0-1 | Check for XML/SVD sources: search `https://github.com/ARM-software/CMSIS_5` and community IP-XACT repositories for a machine-readable GIC register description. If found, proceed to B-0-2x (XML path). If not, proceed to B-0-2 (PDF path). |
+| B-0-2x *(XML path)* | Use `tools/convert_xml_to_json.py` to convert the XML/SVD source into the project JSON schema. Validate output and skip B-0-2. |
+| B-0-2 *(PDF path)* | Download IHI0069H (latest GICv3/v4 spec PDF) from developer.arm.com and extract all GICD, GICR, and ITS register tables. Options: (a) PDF text extraction + parser script; (b) manual JSON authoring; (c) scrape the HTML online documentation version if available. |
 | B-0-3 | Extract ICC_* system register cross-references (already in AARCHMRS `Registers.json`; document the cross-reference, do not duplicate) |
 | B-0-4 | Produce `gic/GIC.json` and `gic/GIC_meta.json` |
 | B-0-5 | Define JSON schema in `gic/schema/` and validate `gic/GIC.json` against it |
@@ -359,7 +368,7 @@ the full T32Instructions.json into context.
     "spec": "GIC",
     "doc_id": "IHI0069H",
     "version": "GICv3/v4",
-    "build_date": "TBD"
+    "build_date": "ISO 8601 timestamp (set by the cache builder at index time, e.g. 2025-03-21T17:42:54Z)"
   },
   "components": {
     "GICD": { "description": "Distributor", "registers": [...] },
@@ -424,8 +433,8 @@ register results.
 
 | Step | Task |
 |------|------|
-| C-0-1 | Download IHI0029F (latest CoreSight Architecture Specification PDF) |
-| C-0-2 | Extract register tables for each component type: ETM, CTI, STM, ITM, ROM Table, DAP, etc. |
+| C-0-1 | Check for XML/SVD sources: search community IP-XACT and SVD repositories for machine-readable CoreSight component descriptions. If found, use `tools/convert_xml_to_json.py` to convert them and proceed to C-0-3. If not, proceed to C-0-2. |
+| C-0-2 *(PDF path)* | Download IHI0029F (latest CoreSight Architecture Specification PDF) and extract register tables for each component type: ETM, CTI, STM, ITM, ROM Table, DAP, etc. |
 | C-0-3 | Extract Component ID / Peripheral ID block (common to all CoreSight components) |
 | C-0-4 | Produce `coresight/CoreSight.json` organized by component type |
 | C-0-5 | Define JSON schema in `coresight/schema/` and validate the data |
@@ -437,7 +446,7 @@ register results.
     "spec": "CoreSight",
     "doc_id": "IHI0029F",
     "version": "v3.0",
-    "build_date": "TBD"
+    "build_date": "ISO 8601 timestamp (set by the cache builder at index time, e.g. 2025-03-21T17:42:54Z)"
   },
   "common_identification_block": {
     "description": "32 word-aligned 32-bit registers at the top of each 4 KB component frame",
@@ -676,8 +685,7 @@ also adds immediate value with no new data.
 | 7-1 | Extend `tools/eval_skill.py` with test cases for `arm-gic`, `arm-coresight`, and T32/A32 `arm-instr` |
 | 7-2 | Test cross-skill routing: queries that span AARCHMRS + GIC (e.g., "How do I configure interrupt priority?") |
 | 7-3 | Validate all skills emit spec-accurate descriptions (no hallucination) |
-| 7-4 | Update `CLAUDE.md` with new build commands and skill usage examples |
-| 7-5 | Update `ROADMAP.md` with milestone status for all new phases |
+| 7-4 | Update `README.md`, `CLAUDE.md`, and `ROADMAP.md` with new build commands, supported specifications, and skill usage examples |
 
 ---
 
@@ -748,11 +756,12 @@ extensions and query tool changes.
 
 ## 14. Open Questions
 
-1. **GIC data acquisition method:** Is there a structured HTML or SVD (System View
-   Description) version of the GIC register set published by Arm or the community
-   that would make extraction more reliable than PDF parsing?
-   - Candidate: CMSIS-SVD files for GIC from `https://github.com/ARM-software/CMSIS_5`
-   - Action: Evaluate CMSIS-SVD GIC coverage; if sufficient, use as primary source
+1. **GIC and CoreSight XML source quality:** Phase B-0 and C-0 direct implementers to
+   check for CMSIS-SVD / IP-XACT sources before falling back to PDF extraction. The
+   open question is coverage completeness: does the CMSIS-SVD GIC description at
+   `https://github.com/ARM-software/CMSIS_5` cover all GICD, GICR, and ITS registers
+   at the level of detail needed (field names, widths, access types)? Evaluate before
+   committing to the XML or PDF path.
 
 2. **ARM ARM MRS licensing:** Can the full proprietary ARM ARM MRS JSON package be
    used under the same BSD 3-clause terms as the AARCHMRS, or does it require a
