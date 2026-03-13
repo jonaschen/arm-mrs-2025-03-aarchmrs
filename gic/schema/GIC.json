@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "GIC",
+  "description": "Top-level schema for the ARM Generic Interrupt Controller register data file (gic/GIC.json)",
+  "type": "object",
+  "required": ["_meta", "icc_system_registers", "registers"],
+  "properties": {
+    "_meta": {
+      "type": "object",
+      "description": "Metadata describing the source and version of this data",
+      "required": ["source", "spec_version", "schema_version"],
+      "properties": {
+        "source":         {"type": "string"},
+        "spec_version":   {"type": "string"},
+        "schema_version": {"type": "string"},
+        "generated_at":   {"type": "string"},
+        "note":           {"type": "string"},
+        "data_path":      {"type": "string"},
+        "blocks":         {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "icc_system_registers": {
+      "type": "array",
+      "description": "Cross-reference list of ICC_* system registers that complement the GIC memory-mapped interface. Field data is in AARCHMRS; do not duplicate here.",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name":  {"type": "string"},
+          "brief": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "registers": {
+      "type": "array",
+      "description": "All GICD, GICR, and GITS registers",
+      "items": {"$ref": "Register.json"}
+    }
+  }
+}

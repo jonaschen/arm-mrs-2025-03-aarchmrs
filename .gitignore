@@ -1,2 +1,6 @@
 # AArch64 agent skills cache (generated)
 cache/
+
+# Python bytecode
+__pycache__/
+*.pyc
