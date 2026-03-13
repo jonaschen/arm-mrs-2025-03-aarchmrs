@@ -15,7 +15,7 @@
 | M4 | `arm-instr` — Instruction skill | ✅ Complete |
 | ME | Skill correctness evaluation (51 tests) | ✅ Complete |
 | M5 | Integration and hardening | ✅ Complete |
-| E0 | `arm-pmu` — PMU events skill | 🔲 Pending |
+| E0 | `arm-pmu` — PMU events skill | ✅ Complete |
 | EA | ARM ARM extension (ASL unlock + T32/A32) | ✅ Complete (EA-b; EA-a deferred — no ARM Architecture License) |
 | EB | `arm-gic` — GIC register skill | ✅ Complete |
 | EC | `arm-coresight` — CoreSight skill | ✅ Complete |
@@ -145,32 +145,32 @@
 
 # Phase 2 — Extensions
 
-## Milestone E0 — PMU Events Skill (`arm-pmu`) 🔲
+## Milestone E0 — PMU Events Skill (`arm-pmu`) ✅
 
 **Goal:** Ground PMU performance counter queries in ARM-official data. Highest-priority extension: natively machine-readable, Apache 2.0, no license barrier, real prose descriptions.
 
 **Source:** `https://github.com/ARM-software/data` (pmu/ directory)
 **Prerequisite:** M5 (cache_utils.py must exist)
 
-- [ ] **E0-1** Probe `ARM-software/data/pmu/` — confirm field names (`ArchitectureName`, `Code`, `PublicDescription`), measure CPU coverage, identify any null description fields; document schema
-- [ ] **E0-2** Write `tools/build_pmu_index.py`
+- [x] **E0-1** Probe `ARM-software/data/pmu/` — confirmed field names (`name`, `code`, `description`, `architectural`, `type`, `component`); 56 CPU files; descriptions present for all events; Apache 2.0 license; starter set of 8 representative CPUs committed to `pmu/`
+- [x] **E0-2** Write `tools/build_pmu_index.py`
   - Reads all `pmu/*.json` from a cloned/downloaded snapshot
   - Writes `cache/pmu/<cpu>.json` per CPU
   - Writes `cache/pmu_meta.json` (cpu_name → {file, event_count})
   - Writes `cache/pmu_events_flat.json` (flat cross-CPU search index)
-  - Updates `cache/manifest.json` with PMU source commit SHA
-- [ ] **E0-3** Write `tools/query_pmu.py`
+  - Updates `cache/manifest.json` with PMU source file SHA-256 hashes
+- [x] **E0-3** Write `tools/query_pmu.py`
   - `cortex-a710` — all events with codes and truncated description
   - `cortex-a710 CPU_CYCLES` — single event full detail
   - `--search L1D_CACHE` — cross-CPU event name search
   - `--list` — all CPUs with event counts
-- [ ] **E0-4** Write `.claude/skills/arm-pmu.md`
+- [x] **E0-4** Write `.claude/skills/arm-pmu.md`
   - Positive triggers: PMU event codes, PMEVTYPER programming, cross-CPU event comparison
   - Negative examples: `PMCCNTR_EL0` programming → `arm-reg`; instruction throughput → out of scope
   - Note: descriptions ARE available in this dataset (unlike BSD AARCHMRS)
-- [ ] **E0-5** Extend `eval_skill.py` with `pmu` test cases: CPU existence, `CPU_CYCLES` code for Cortex-A710, cross-CPU `L1D_CACHE_REFILL` search, hallucination guard
+- [x] **E0-5** Extend `eval_skill.py` with `pmu` test cases: CPU existence, `CPU_CYCLES` code for Cortex-A710, cross-CPU `L1D_CACHE_REFILL` search, hallucination guard (14 tests, all pass)
 
-**Exit criteria:** `python3 tools/query_pmu.py cortex-a710 CPU_CYCLES` returns the ARM-official event code and description. All pmu eval tests pass.
+**Exit criteria:** ✅ `python3 tools/query_pmu.py cortex-a710 CPU_CYCLES` returns the ARM-official event code and description. All pmu eval tests pass.
 
 ---
 
