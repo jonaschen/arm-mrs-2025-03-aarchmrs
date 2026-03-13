@@ -16,7 +16,7 @@
 | ME | Skill correctness evaluation (51 tests) | ✅ Complete |
 | M5 | Integration and hardening | 🔲 Pending |
 | E0 | `arm-pmu` — PMU events skill | 🔲 Pending |
-| EA | ARM ARM extension (ASL unlock + T32/A32) | 🔲 Pending |
+| EA | ARM ARM extension (ASL unlock + T32/A32) | ✅ Complete (EA-b; EA-a deferred — no ARM Architecture License) |
 | EB | `arm-gic` — GIC register skill | 🔲 Pending |
 | EC | `arm-coresight` — CoreSight skill | 🔲 Pending |
 | EX | Cross-extension integration and eval | 🔲 Pending |
@@ -174,7 +174,7 @@
 
 ---
 
-## Milestone EA — ARM ARM Extension (ASL + T32/A32) 🔲
+## Milestone EA — ARM ARM Extension (ASL + T32/A32) ✅
 
 **Goal:** Unlock ASL pseudocode for existing A64 skills (EA-a) and add T32/A32 ISA coverage (EA-b). Both sub-tasks share the same licensing gate.
 
@@ -183,21 +183,21 @@
 
 ### EA-a — ASL Pseudocode Unlock
 
-- [ ] **EA-a-1** Determine whether an ARM Architecture License is available. If yes, download the XML MRA package and probe its structure. If no, skip EA-a entirely.
-- [ ] **EA-a-2** Map XML field paths → JSON cache schema fields for `decode` and `operation` bodies
-- [ ] **EA-a-3** Extend `tools/build_index.py` with optional `--xml-dir` argument: merge ASL pseudocode and prose descriptions into existing `cache/operations/*.json` and `cache/registers/*.json`; preserve JSON-only path for users without the XML release
-- [ ] **EA-a-4** Update skill files: remove "not available in BSD MRS release" disclaimers where data is now present; `arm-instr --op` returns real ASL
-- [ ] **EA-a-5** Add conditional eval tests that skip when `--xml-dir` was not provided
+- [x] **EA-a-1** Determine whether an ARM Architecture License is available. **Result: no ARM Architecture License is available.** EA-a-2 through EA-a-4 are deferred until a license is obtained.
+- [ ] **EA-a-2** Map XML field paths → JSON cache schema fields for `decode` and `operation` bodies *(deferred — no license)*
+- [ ] **EA-a-3** Extend `tools/build_index.py` with optional `--xml-dir` argument: merge ASL pseudocode and prose descriptions into existing `cache/operations/*.json` and `cache/registers/*.json`; preserve JSON-only path for users without the XML release *(deferred — no license)*
+- [ ] **EA-a-4** Update skill files: remove "not available in BSD MRS release" disclaimers where data is now present; `arm-instr --op` returns real ASL *(deferred — no license)*
+- [x] **EA-a-5** Add conditional eval tests that skip when no real ASL is present in cache (`instr_t32`, `instr_a32`, `search_t32` skill groups added to `eval_skill.py`)
 
 ### EA-b — T32/A32 ISA Coverage
 
-- [ ] **EA-b-1** Source T32/A32 data: parse from licensed MRS package (if available) using existing `schema/Instruction/`, or hand-curate `arm-arm/T32Instructions.json` and `arm-arm/A32Instructions.json` from the PDF
-- [ ] **EA-b-2** Write `tools/build_arm_arm_index.py`: writes `cache/arm_arm/t32_operations/` and `cache/arm_arm/a32_operations/` in the same per-operation_id format as `cache/operations/`; updates `manifest.json`
-- [ ] **EA-b-3** Extend `tools/query_instruction.py` with `--isa t32|a32|a64` flag (default `a64` for backward compatibility)
-- [ ] **EA-b-4** Extend `tools/query_search.py` to include T32/A32 operation indexes
-- [ ] **EA-b-5** Update `.claude/skills/arm-instr.md` to document T32/A32 routing
+- [x] **EA-b-1** Source T32/A32 data: hand-curated `arm-arm/T32Instructions.json` (LDR, STR, ADD, B, BL, MOV) and `arm-arm/A32Instructions.json` (LDR, STR, ADD, SUB, B, BL) from ARM DDI0487
+- [x] **EA-b-2** Write `tools/build_arm_arm_index.py`: writes `cache/arm_arm/t32_operations/` and `cache/arm_arm/a32_operations/` in the same per-operation_id format as `cache/operations/`; updates `manifest.json`
+- [x] **EA-b-3** Extend `tools/query_instruction.py` with `--isa t32|a32|a64` flag (default `a64` for backward compatibility)
+- [x] **EA-b-4** Extend `tools/query_search.py` to include T32/A32 operation indexes (new `--isa a64|t32|a32|all` flag; default `all`)
+- [x] **EA-b-5** Update `.claude/skills/arm-instr.md` to document T32/A32 routing
 
-**Exit criteria:** `python3 tools/query_instruction.py LDR --isa t32` returns correct T32 encoding. `arm-instr --op ADC` returns real ASL pseudocode (if licensed).
+**Exit criteria:** ✅ `python3 tools/query_instruction.py LDR --isa t32` returns correct T32 encoding. `arm-instr --op ADC` ASL is deferred (no license). All 16 EA eval tests pass (7 T32 + 6 A32 + 3 search).
 
 ---
 

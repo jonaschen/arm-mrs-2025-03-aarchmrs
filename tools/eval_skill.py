@@ -508,12 +508,117 @@ INSTR_TESTS = [
     ),
 ]
 
+# ---------------------------------------------------------------------------
+# EA tests: T32 / A32 instruction skill (arm_arm cache)
+# ---------------------------------------------------------------------------
+
+def _check_arm_arm_cache_available() -> bool:
+    """Return True if the arm_arm T32 cache exists."""
+    arm_arm_t32_dir = TOOLS_DIR.parent / 'cache' / 'arm_arm' / 't32_operations'
+    return arm_arm_t32_dir.exists() and any(arm_arm_t32_dir.iterdir())
+
+
+# EA-b: T32/A32 tests (require arm_arm cache — built by build_arm_arm_index.py)
+INSTR_T32_TESTS = [
+    # Existence
+    (
+        'T32 LDR lookup succeeds (exit 0)',
+        [QUERY_INSTR, 'LDR', '--isa', 't32'],
+        [exit_ok()],
+    ),
+    (
+        'T32 LDR output shows ISA: T32',
+        [QUERY_INSTR, 'LDR', '--isa', 't32'],
+        [exit_ok(), stdout_contains('T32')],
+    ),
+    (
+        'T32 LDR encoding contains Rn operand field',
+        [QUERY_INSTR, 'LDR', '--isa', 't32', '--enc'],
+        [exit_ok(), stdout_contains('Rn')],
+    ),
+    (
+        'T32 LDR encoding contains imm12 operand field',
+        [QUERY_INSTR, 'LDR', '--isa', 't32', '--enc'],
+        [exit_ok(), stdout_contains('imm12')],
+    ),
+    (
+        'T32 BL lookup succeeds',
+        [QUERY_INSTR, 'BL', '--isa', 't32'],
+        [exit_ok(), stdout_contains('BL')],
+    ),
+    (
+        'T32 --list LDR finds LDR',
+        [QUERY_INSTR, '--list', 'LDR', '--isa', 't32'],
+        [exit_ok(), stdout_contains('LDR')],
+    ),
+    (
+        'T32 hallucinated FAKEZAP not found (exit non-zero)',
+        [QUERY_INSTR, 'FAKEZAP', '--isa', 't32'],
+        [exit_nonzero()],
+    ),
+]
+
+INSTR_A32_TESTS = [
+    # Existence
+    (
+        'A32 LDR lookup succeeds (exit 0)',
+        [QUERY_INSTR, 'LDR', '--isa', 'a32'],
+        [exit_ok()],
+    ),
+    (
+        'A32 LDR output shows ISA: A32',
+        [QUERY_INSTR, 'LDR', '--isa', 'a32'],
+        [exit_ok(), stdout_contains('A32')],
+    ),
+    (
+        'A32 LDR encoding contains cond operand field',
+        [QUERY_INSTR, 'LDR', '--isa', 'a32', '--enc'],
+        [exit_ok(), stdout_contains('cond')],
+    ),
+    (
+        'A32 B encoding contains imm24 operand field',
+        [QUERY_INSTR, 'B', '--isa', 'a32', '--enc'],
+        [exit_ok(), stdout_contains('imm24')],
+    ),
+    (
+        'A32 SUB lookup succeeds',
+        [QUERY_INSTR, 'SUB', '--isa', 'a32'],
+        [exit_ok(), stdout_contains('SUB')],
+    ),
+    (
+        'A32 --list LDR finds LDR',
+        [QUERY_INSTR, '--list', 'LDR', '--isa', 'a32'],
+        [exit_ok(), stdout_contains('LDR')],
+    ),
+]
+
+SEARCH_T32_TESTS = [
+    (
+        'search --op LDR --isa t32 finds T32 LDR',
+        [QUERY_SRCH, '--op', 'LDR', '--isa', 't32'],
+        [exit_ok(), stdout_contains('LDR')],
+    ),
+    (
+        'search --op ADD --isa all finds both T32 and A32 ADD',
+        [QUERY_SRCH, '--op', 'ADD', '--isa', 'all'],
+        [exit_ok(), stdout_contains('T32'), stdout_contains('A32')],
+    ),
+    (
+        'search --op B --isa a32 finds A32 branch',
+        [QUERY_SRCH, '--op', 'B', '--isa', 'a32'],
+        [exit_ok(), stdout_contains('A32')],
+    ),
+]
+
 # Map skill name → test list
 ALL_SKILLS: dict = {
-    'feat':   FEAT_TESTS,
-    'reg':    REG_TESTS,
-    'search': SEARCH_TESTS,
-    'instr':  INSTR_TESTS,
+    'feat':       FEAT_TESTS,
+    'reg':        REG_TESTS,
+    'search':     SEARCH_TESTS,
+    'instr':      INSTR_TESTS,
+    'instr_t32':  INSTR_T32_TESTS,
+    'instr_a32':  INSTR_A32_TESTS,
+    'search_t32': SEARCH_T32_TESTS,
 }
 
 # ---------------------------------------------------------------------------
@@ -580,13 +685,11 @@ def main() -> int:
     print('Architecture: v9Ap6-A, Build 445, March 2025')
     print('=' * 60)
 
-    # Validate cache
-    if not _check_cache_available():
-        print('\nERROR: Cache not found or incomplete.')
-        print('Build the cache first:  python tools/build_index.py')
-        return 1
+    # Validate cache — A64 cache is required for feat/reg/search/instr tests;
+    # arm_arm cache is required for instr_t32/instr_a32/search_t32 tests.
+    ARM_ARM_ONLY_SKILLS = frozenset(('instr_t32', 'instr_a32', 'search_t32'))
 
-    # Select skills to test
+    # Select skills to test first (so we can decide which caches to require)
     if args.skill:
         if args.skill not in ALL_SKILLS:
             print(f'Unknown skill "{args.skill}". Available: {", ".join(ALL_SKILLS.keys())}',
@@ -595,6 +698,19 @@ def main() -> int:
         skills_to_run = {args.skill: ALL_SKILLS[args.skill]}
     else:
         skills_to_run = ALL_SKILLS
+
+    needs_a64_cache    = any(s not in ARM_ARM_ONLY_SKILLS for s in skills_to_run)
+    needs_arm_arm_cache = any(s in ARM_ARM_ONLY_SKILLS for s in skills_to_run)
+
+    if needs_a64_cache and not _check_cache_available():
+        print('\nERROR: A64 cache not found or incomplete.')
+        print('Build the A64 cache first:  python tools/build_index.py')
+        return 1
+
+    if needs_arm_arm_cache and not _check_arm_arm_cache_available():
+        print('\nERROR: ARM ARM cache (T32/A32) not found.')
+        print('Build it first:  python tools/build_arm_arm_index.py')
+        return 1
 
     total_pass = 0
     total_fail = 0

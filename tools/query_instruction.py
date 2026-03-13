@@ -32,28 +32,54 @@ REPO_ROOT  = SCRIPT_DIR.parent
 CACHE_DIR  = Path(os.environ.get('ARM_MRS_CACHE_DIR', str(REPO_ROOT / 'cache')))
 OP_DIR     = CACHE_DIR / 'operations'
 
+ARM_ARM_CACHE = CACHE_DIR / 'arm_arm'
+T32_OP_DIR    = ARM_ARM_CACHE / 't32_operations'
+A32_OP_DIR    = ARM_ARM_CACHE / 'a32_operations'
+
 DEFAULT_OP_LINES = 60
+
+VALID_ISA = ('a64', 't32', 'a32')
 
 # ---------------------------------------------------------------------------
 # Cache loading
 # ---------------------------------------------------------------------------
 
-def op_index() -> list:
-    if not OP_DIR.exists():
-        print('Cache not found. Run: python3 tools/build_index.py', file=sys.stderr)
+def _builder_script(isa: str) -> str:
+    """Return the name of the cache builder script for the given ISA."""
+    return 'tools/build_arm_arm_index.py' if isa in ('t32', 'a32') else 'tools/build_index.py'
+
+
+def get_op_dir(isa: str) -> Path:
+    """Return the operations cache directory for the given ISA."""
+    isa = isa.lower()
+    if isa == 't32':
+        return T32_OP_DIR
+    if isa == 'a32':
+        return A32_OP_DIR
+    return OP_DIR
+
+
+def op_index(isa: str = 'a64') -> list:
+    op_dir = get_op_dir(isa)
+    if not op_dir.exists():
+        print(
+            f'Cache not found for {isa.upper()}. '
+            f'Run: python3 {_builder_script(isa)}',
+            file=sys.stderr,
+        )
         sys.exit(1)
-    return sorted(p.stem for p in OP_DIR.iterdir() if p.suffix == '.json')
+    return sorted(p.stem for p in op_dir.iterdir() if p.suffix == '.json')
 
 
-def load_op(op_id: str) -> dict:
-    path = OP_DIR / f'{op_id}.json'
+def load_op(op_id: str, isa: str = 'a64') -> dict:
+    path = get_op_dir(isa) / f'{op_id}.json'
     if not path.exists():
         return None
     with open(path) as f:
         return json.load(f)
 
 
-def check_staleness() -> None:
+def check_staleness(isa: str = 'a64') -> None:
     manifest_path = CACHE_DIR / 'manifest.json'
     if not manifest_path.exists():
         return
@@ -61,7 +87,18 @@ def check_staleness() -> None:
         import hashlib
         with open(manifest_path) as f:
             manifest = json.load(f)
-        for fname, info in manifest.get('sources', {}).items():
+        # For T32/A32, also check the arm_arm manifest if available
+        if isa in ('t32', 'a32'):
+            arm_arm_manifest_path = ARM_ARM_CACHE / 'manifest.json'
+            if arm_arm_manifest_path.exists():
+                with open(arm_arm_manifest_path) as f:
+                    arm_arm_manifest = json.load(f)
+                sources = arm_arm_manifest.get('sources', {})
+            else:
+                sources = manifest.get('sources', {})
+        else:
+            sources = manifest.get('sources', {})
+        for fname, info in sources.items():
             src = Path(info.get('path', REPO_ROOT / fname))
             if not src.exists():
                 continue
@@ -70,8 +107,11 @@ def check_staleness() -> None:
                 for chunk in iter(lambda: fh.read(65536), b''):
                     h.update(chunk)
             if h.hexdigest() != info.get('sha256'):
-                print(f'Warning: {fname} has changed since cache was built. '
-                      f'Consider re-running tools/build_index.py', file=sys.stderr)
+                print(
+                    f'Warning: {fname} has changed since cache was built. '
+                    f'Consider re-running {_builder_script(isa)}',
+                    file=sys.stderr,
+                )
     except Exception:
         pass
 
@@ -127,12 +167,14 @@ def render_encoding_table(fields: list) -> str:
 def cmd_lookup(op: dict) -> int:
     """Display summary for an operation."""
     op_id = op['operation_id']
+    isa   = op.get('isa', 'A64').upper()
     title = op.get('title') or '(not available in BSD MRS release)'
     brief = op.get('brief') or '(not available in BSD MRS release)'
     if brief == '.':
         brief = '(not available in BSD MRS release)'
 
     print(f"Operation    : {op_id}")
+    print(f"ISA          : {isa}")
     print(f"Title        : {title}")
     print(f"Brief        : {brief}")
     print()
@@ -150,16 +192,18 @@ def cmd_lookup(op: dict) -> int:
         print(f"  {name}")
         print(f"    asm: {asm}")
     print()
-    print("Note: Descriptions are not available in the BSD MRS release.")
+    if isa == 'A64':
+        print("Note: Descriptions are not available in the BSD MRS release.")
     return 0
 
 
 def cmd_enc(op: dict) -> int:
     """Display encoding bit fields for all variants."""
-    op_id = op['operation_id']
+    op_id    = op['operation_id']
+    isa      = op.get('isa', 'A64').upper()
     variants = op.get('instruction_variants') or []
 
-    print(f"Operation : {op_id}  ({len(variants)} variants)\n")
+    print(f"Operation : {op_id}  ISA: {isa}  ({len(variants)} variants)\n")
 
     for iv in variants:
         name   = iv['name']
@@ -216,12 +260,12 @@ def cmd_op(op: dict, full: bool, max_lines: int) -> int:
     return 0
 
 
-def cmd_list(pattern: str, index: list) -> int:
+def cmd_list(pattern: str, index: list, isa: str = 'a64') -> int:
     """List operation_id values matching a pattern."""
     upper = pattern.upper()
     matches = [op_id for op_id in index if upper in op_id.upper()]
     if not matches:
-        print(f"No operations matching '{pattern}'.", file=sys.stderr)
+        print(f"No {isa.upper()} operations matching '{pattern}'.", file=sys.stderr)
         return 1
     for m in matches:
         print(m)
@@ -232,19 +276,19 @@ def cmd_list(pattern: str, index: list) -> int:
 # Resolution
 # ---------------------------------------------------------------------------
 
-def resolve_op(name: str, index: list) -> dict:
+def resolve_op(name: str, index: list, isa: str = 'a64') -> dict:
     """Find and load an operation by exact or case-insensitive match."""
     upper = name.upper()
     # Exact match
     if name in index:
-        return load_op(name)
+        return load_op(name, isa)
     # Case-insensitive
     for op_id in index:
         if op_id.upper() == upper:
-            return load_op(op_id)
+            return load_op(op_id, isa)
     # Partial — suggest
     suggestions = [op_id for op_id in index if upper in op_id.upper()]
-    print(f"Operation '{name}' not found.", file=sys.stderr)
+    print(f"{isa.upper()} operation '{name}' not found.", file=sys.stderr)
     if suggestions:
         print(f"Similar: {', '.join(suggestions[:10])}", file=sys.stderr)
         print(f"Use --list {name} to see all matches.", file=sys.stderr)
@@ -265,26 +309,37 @@ Examples:
   query_instruction.py ADC --op
   query_instruction.py ADC --op --full
   query_instruction.py --list ADD
+  query_instruction.py LDR --isa t32
+  query_instruction.py LDR --isa a32 --enc
+  query_instruction.py --list LDR --isa t32
 """,
     )
-    parser.add_argument('operation', nargs='?',          help='Operation ID (e.g. ADC, ADD_addsub_imm)')
+    parser.add_argument('operation', nargs='?',          help='Operation ID (e.g. ADC, ADD_addsub_imm, LDR)')
     parser.add_argument('--enc',     action='store_true', help='Show encoding bit fields for all variants')
     parser.add_argument('--op',      action='store_true', help='Show ASL pseudocode blocks')
     parser.add_argument('--full',    action='store_true', help='Show full pseudocode (no line cap)')
     parser.add_argument('--list',    metavar='PATTERN',   help='List operation_ids matching pattern')
+    parser.add_argument(
+        '--isa',
+        metavar='ISA',
+        default='a64',
+        choices=VALID_ISA,
+        help='Instruction set architecture: a64 (default), t32, a32',
+    )
     args = parser.parse_args()
 
-    check_staleness()
-    index = op_index()
+    isa = args.isa.lower()
+    check_staleness(isa)
+    index = op_index(isa)
 
     if args.list:
-        return cmd_list(args.list, index)
+        return cmd_list(args.list, index, isa)
 
     if not args.operation:
         parser.print_help()
         return 0
 
-    op = resolve_op(args.operation, index)
+    op = resolve_op(args.operation, index, isa)
 
     if args.enc:
         return cmd_enc(op)

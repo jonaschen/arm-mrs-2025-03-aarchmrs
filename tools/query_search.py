@@ -33,23 +33,40 @@ CACHE_DIR  = Path(os.environ.get('ARM_MRS_CACHE_DIR', str(REPO_ROOT / 'cache')))
 META_PATH  = CACHE_DIR / 'registers_meta.json'
 OP_DIR     = CACHE_DIR / 'operations'
 
+ARM_ARM_CACHE = CACHE_DIR / 'arm_arm'
+T32_OP_DIR    = ARM_ARM_CACHE / 't32_operations'
+A32_OP_DIR    = ARM_ARM_CACHE / 'a32_operations'
+
 # ---------------------------------------------------------------------------
 # Cache loading
 # ---------------------------------------------------------------------------
 
-def load_meta() -> dict:
+def load_meta() -> dict | None:
     if not META_PATH.exists():
-        print('Cache not found. Run: python3 tools/build_index.py', file=sys.stderr)
-        sys.exit(1)
+        return None
     with open(META_PATH) as f:
         return json.load(f)
 
 
 def load_op_index() -> list:
-    """Return sorted list of all operation_id strings from the operations directory."""
+    """Return sorted list of all A64 operation_id strings from the operations directory."""
     if not OP_DIR.exists():
         return []
     return sorted(p.stem for p in OP_DIR.iterdir() if p.suffix == '.json')
+
+
+def load_t32_op_index() -> list:
+    """Return sorted list of all T32 operation_id strings (empty if cache absent)."""
+    if not T32_OP_DIR.exists():
+        return []
+    return sorted(p.stem for p in T32_OP_DIR.iterdir() if p.suffix == '.json')
+
+
+def load_a32_op_index() -> list:
+    """Return sorted list of all A32 operation_id strings (empty if cache absent)."""
+    if not A32_OP_DIR.exists():
+        return []
+    return sorted(p.stem for p in A32_OP_DIR.iterdir() if p.suffix == '.json')
 
 
 def check_staleness() -> None:
@@ -78,7 +95,9 @@ def check_staleness() -> None:
 # Search functions
 # ---------------------------------------------------------------------------
 
-def search_registers(pattern: str, state_filter: str | None, meta: dict) -> list:
+def search_registers(pattern: str, state_filter: str | None, meta: dict | None) -> list:
+    if not meta:
+        return []
     upper = pattern.upper()
     results = []
     for name, entries in meta.items():
@@ -90,10 +109,10 @@ def search_registers(pattern: str, state_filter: str | None, meta: dict) -> list
     return results
 
 
-def search_operations(pattern: str, op_index: list) -> list:
+def search_operations(pattern: str, op_index: list, isa: str = 'a64') -> list:
     upper = pattern.upper()
     return [
-        {'type': 'operation', 'name': op_id}
+        {'type': 'operation', 'name': op_id, 'isa': isa.upper()}
         for op_id in op_index
         if upper in op_id.upper()
     ]
@@ -116,10 +135,17 @@ def print_results(results: list, query: str) -> None:
         print()
 
     if op_results:
-        print(f"Operations ({len(op_results)}):")
+        # Group by ISA for cleaner output
+        by_isa: dict = {}
         for r in op_results:
-            print(f"  {r['name']}")
-        print()
+            isa = r.get('isa', 'A64')
+            by_isa.setdefault(isa, []).append(r['name'])
+        for isa in sorted(by_isa.keys()):
+            names = by_isa[isa]
+            print(f"Operations/{isa} ({len(names)}):")
+            for name in names:
+                print(f"  {name}")
+            print()
 
     if not results:
         print("  (no matches)")
@@ -138,12 +164,21 @@ Examples:
   query_search.py --reg EL2
   query_search.py --reg EL2 --state AArch64
   query_search.py --op ADD
+  query_search.py --op LDR --isa t32
+  query_search.py --op LDR --isa all
 """,
     )
     parser.add_argument('query',   nargs='?',         help='Search pattern (registers + operations)')
     parser.add_argument('--reg',   metavar='PATTERN', help='Search registers only')
     parser.add_argument('--op',    metavar='PATTERN', help='Search operations only')
     parser.add_argument('--state', metavar='STATE',   help='State filter for register search: AArch64, AArch32, ext')
+    parser.add_argument(
+        '--isa',
+        metavar='ISA',
+        default='all',
+        choices=('a64', 't32', 'a32', 'all'),
+        help='ISA filter for operation search: a64, t32, a32, all (default: all)',
+    )
     args = parser.parse_args()
 
     if not (args.query or args.reg or args.op):
@@ -151,8 +186,31 @@ Examples:
         return 0
 
     check_staleness()
-    meta     = load_meta()
-    op_index = load_op_index()
+    meta         = load_meta()
+    a64_op_index = load_op_index()
+    t32_op_index = load_t32_op_index()
+    a32_op_index = load_a32_op_index()
+
+    # Warn if register search requested but A64 cache is absent
+    if (args.reg or args.query) and meta is None:
+        print(
+            'Warning: register cache not found (A64 cache absent). '
+            'Run: python3 tools/build_index.py',
+            file=sys.stderr,
+        )
+
+    isa_filter = args.isa.lower()
+
+    def collect_op_results(pattern: str) -> list:
+        """Collect operation results across selected ISAs."""
+        results = []
+        if isa_filter in ('a64', 'all'):
+            results += search_operations(pattern, a64_op_index, 'a64')
+        if isa_filter in ('t32', 'all'):
+            results += search_operations(pattern, t32_op_index, 't32')
+        if isa_filter in ('a32', 'all'):
+            results += search_operations(pattern, a32_op_index, 'a32')
+        return results
 
     results = []
 
@@ -160,13 +218,13 @@ Examples:
         results = search_registers(args.reg, args.state, meta)
         query_str = args.reg
     elif args.op:
-        results = search_operations(args.op, op_index)
+        results = collect_op_results(args.op)
         query_str = args.op
     else:
         # Combined search
         results = (
             search_registers(args.query, args.state, meta)
-            + search_operations(args.query, op_index)
+            + collect_op_results(args.query)
         )
         query_str = args.query
 
