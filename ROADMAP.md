@@ -18,7 +18,7 @@
 | E0 | `arm-pmu` — PMU events skill | 🔲 Pending |
 | EA | ARM ARM extension (ASL unlock + T32/A32) | ✅ Complete (EA-b; EA-a deferred — no ARM Architecture License) |
 | EB | `arm-gic` — GIC register skill | ✅ Complete |
-| EC | `arm-coresight` — CoreSight skill | 🔲 Pending |
+| EC | `arm-coresight` — CoreSight skill | ✅ Complete |
 | EX | Cross-extension integration and eval | 🔲 Pending |
 
 ---
@@ -250,7 +250,7 @@
 
 ---
 
-## Milestone EC — CoreSight Skill (`arm-coresight`) 🔲
+## Milestone EC — CoreSight Skill (`arm-coresight`) ✅
 
 **Goal:** Ground CoreSight debug/trace component register queries in spec data.
 
@@ -260,20 +260,20 @@
 
 ### EC-0 — Data Acquisition
 
-- [ ] **EC-0-1** Check for IP-XACT or SVD sources for CoreSight component registers. If found, use `tools/convert_xml_to_json.py`. If not, confirm static HTML (same check as EB-0-2).
-- [ ] **EC-0-2** Write `tools/fetch_coresight.py` (if HTML path): downloads CoreSight spec HTML; parses per-component register tables; handles component type scoping
-- [ ] **EC-0-3** Extract the common identification block (32 registers per 4 KB frame) separately from component-specific registers
-- [ ] **EC-0-4** Initial component priority: ETM → CTI → STM → ITM
-- [ ] **EC-0-5** Produce `coresight/CoreSight.json` and `coresight/CoreSight_meta.json`; define and validate `coresight/schema/`
+- [x] **EC-0-1** Check for IP-XACT or SVD sources for CoreSight component registers. If found, use `tools/convert_xml_to_json.py`. If not, confirm static HTML (same check as EB-0-2).
+- [x] **EC-0-2** Write `tools/fetch_coresight.py` (if HTML path): downloads CoreSight spec HTML; parses per-component register tables; handles component type scoping
+- [x] **EC-0-3** Extract the common identification block (32 registers per 4 KB frame) separately from component-specific registers
+- [x] **EC-0-4** Initial component priority: ETM → CTI → STM → ITM
+- [x] **EC-0-5** Produce `coresight/CoreSight.json` and `coresight/CoreSight_meta.json`; define and validate `coresight/schema/`
 
 ### EC-1 — Cache Builder
 
-- [ ] **EC-1-1** Write `tools/build_coresight_index.py`: reads `coresight/CoreSight.json`; writes per-component cache files under `cache/coresight/<component>/` and `cache/coresight/cs_meta.json`; extends `cache/manifest.json`
-- [ ] **EC-1-2** Add `cache/coresight/` to `.gitignore`
+- [x] **EC-1-1** Write `tools/build_coresight_index.py`: reads `coresight/CoreSight.json`; writes per-component cache files under `cache/coresight/<component>/` and `cache/coresight/cs_meta.json`; extends `cache/manifest.json`
+- [x] **EC-1-2** Add `cache/coresight/` to `.gitignore`
 
 ### EC-2 — Query Tool
 
-- [ ] **EC-2-1** Write `tools/query_coresight.py`
+- [x] **EC-2-1** Write `tools/query_coresight.py`
   - `etm TRCPRGCTLR` — field layout and access type for a component register
   - `etm TRCPRGCTLR EN` — single field detail
   - `--component etm|cti|stm|itm` — all registers for a component
@@ -283,15 +283,15 @@
 
 ### EC-3 — Agent Skill
 
-- [ ] **EC-3-1** Write `.claude/skills/arm-coresight.md`
+- [x] **EC-3-1** Write `.claude/skills/arm-coresight.md`
   - Positive triggers: ETM programming, trace enabling, CTI channel routing, ITM stimulus ports, STM trace, ROM table, `TRCPRGCTLR`/`TRCCONFIGR`
   - Negative examples: CPU halt via `MDSCR_EL1` → `arm-reg`; JTAG protocol → out of scope
 
 ### EC-4 — Search Integration
 
-- [ ] **EC-4-1** Extend `tools/query_search.py`: add `--spec coresight` filter; add `"cs_register"` result type
-- [ ] **EC-4-2** Update `.claude/skills/arm-search.md` to route CoreSight results to `arm-coresight`
-- [ ] **EC-4-3** Extend `eval_skill.py` with `coresight` test cases
+- [x] **EC-4-1** Extend `tools/query_search.py`: add `--spec coresight` filter; add `"cs_register"` result type
+- [x] **EC-4-2** Update `.claude/skills/arm-search.md` to route CoreSight results to `arm-coresight`
+- [x] **EC-4-3** Extend `eval_skill.py` with `coresight` test cases (20 coresight + 4 coresight_search = 24 tests)
 
 **Exit criteria:** `python3 tools/query_coresight.py etm TRCPRGCTLR` returns field layout. `arm-search TRC` returns CoreSight ETM results. All coresight eval tests pass.
 

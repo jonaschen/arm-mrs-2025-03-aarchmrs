@@ -41,6 +41,7 @@ QUERY_REG   = str(TOOLS_DIR / 'query_register.py')
 QUERY_SRCH  = str(TOOLS_DIR / 'query_search.py')
 QUERY_INSTR = str(TOOLS_DIR / 'query_instruction.py')
 QUERY_GIC   = str(TOOLS_DIR / 'query_gic.py')
+QUERY_CS    = str(TOOLS_DIR / 'query_coresight.py')
 
 # ---------------------------------------------------------------------------
 # Test runner helpers
@@ -725,17 +726,166 @@ GIC_SEARCH_TESTS = [
     ),
 ]
 
+# ---------------------------------------------------------------------------
+# EC tests: CoreSight skill (arm-coresight cache — built by build_coresight_index.py)
+# ---------------------------------------------------------------------------
+
+def _check_coresight_cache_available() -> bool:
+    """Return True if the CoreSight cache exists."""
+    cs_meta = TOOLS_DIR.parent / 'cache' / 'coresight' / 'cs_meta.json'
+    return cs_meta.exists()
+
+
+# EC: CoreSight register tests (require coresight cache — built by build_coresight_index.py)
+CORESIGHT_TESTS = [
+    # Exit criteria: query_coresight.py etm TRCPRGCTLR returns field layout
+    (
+        'ETM TRCPRGCTLR lookup succeeds (exit 0) — exit criteria',
+        [QUERY_CS, 'etm', 'TRCPRGCTLR'],
+        [exit_ok()],
+    ),
+    (
+        'ETM TRCPRGCTLR output shows component ETM',
+        [QUERY_CS, 'etm', 'TRCPRGCTLR'],
+        [exit_ok(), stdout_contains('ETM')],
+    ),
+    # Field existence and bit position (EN at bit [0])
+    (
+        'ETM TRCPRGCTLR EN field lookup succeeds (exit 0)',
+        [QUERY_CS, 'etm', 'TRCPRGCTLR', 'EN'],
+        [exit_ok()],
+    ),
+    (
+        'ETM TRCPRGCTLR EN field is at bit [0]',
+        [QUERY_CS, 'etm', 'TRCPRGCTLR', 'EN'],
+        [exit_ok(), stdout_contains('[0]')],
+    ),
+    (
+        'ETM TRCPRGCTLR EN field access type is RW',
+        [QUERY_CS, 'etm', 'TRCPRGCTLR', 'EN'],
+        [exit_ok(), stdout_contains('RW')],
+    ),
+    # TRCSTATR
+    (
+        'ETM TRCSTATR IDLE field is at bit [0]',
+        [QUERY_CS, 'etm', 'TRCSTATR', 'IDLE'],
+        [exit_ok(), stdout_contains('[0]')],
+    ),
+    (
+        'ETM TRCSTATR IDLE field is read-only',
+        [QUERY_CS, 'etm', 'TRCSTATR', 'IDLE'],
+        [exit_ok(), stdout_contains('RO')],
+    ),
+    # CTI
+    (
+        'CTI CTICONTROL lookup succeeds (exit 0)',
+        [QUERY_CS, 'cti', 'CTICONTROL'],
+        [exit_ok()],
+    ),
+    (
+        'CTI CTICONTROL GLBEN field is at bit [0]',
+        [QUERY_CS, 'cti', 'CTICONTROL', 'GLBEN'],
+        [exit_ok(), stdout_contains('[0]')],
+    ),
+    (
+        'CTI CTICONTROL GLBEN access type is RW',
+        [QUERY_CS, 'cti', 'CTICONTROL', 'GLBEN'],
+        [exit_ok(), stdout_contains('RW')],
+    ),
+    # Component listing
+    (
+        '--component etm lists ETM registers',
+        [QUERY_CS, '--component', 'etm'],
+        [exit_ok(), stdout_contains('TRCPRGCTLR')],
+    ),
+    (
+        '--component cti lists CTI registers',
+        [QUERY_CS, '--component', 'cti'],
+        [exit_ok(), stdout_contains('CTICONTROL')],
+    ),
+    (
+        '--component stm lists STM registers',
+        [QUERY_CS, '--component', 'stm'],
+        [exit_ok(), stdout_contains('STMHEMCR')],
+    ),
+    (
+        '--component itm lists ITM registers',
+        [QUERY_CS, '--component', 'itm'],
+        [exit_ok(), stdout_contains('TCR')],
+    ),
+    # ID block
+    (
+        '--id-block lists identification registers',
+        [QUERY_CS, '--id-block'],
+        [exit_ok(), stdout_contains('DEVARCH')],
+    ),
+    (
+        'id_block DEVTYPE lookup succeeds',
+        [QUERY_CS, 'id_block', 'DEVTYPE'],
+        [exit_ok(), stdout_contains('DEVTYPE')],
+    ),
+    # Name listing
+    (
+        '--list TRC finds ETM TRC registers',
+        [QUERY_CS, '--list', 'TRC'],
+        [exit_ok(), stdout_contains('TRCPRGCTLR')],
+    ),
+    (
+        '--list-components lists all 5 components',
+        [QUERY_CS, '--list-components'],
+        [exit_ok(), stdout_contains('ETM'), stdout_contains('CTI'),
+         stdout_contains('STM'), stdout_contains('ITM')],
+    ),
+    # Hallucination guard
+    (
+        'Hallucinated register TRCFAKECTRL not found (exit non-zero)',
+        [QUERY_CS, 'etm', 'TRCFAKECTRL'],
+        [exit_nonzero()],
+    ),
+    (
+        'Hallucinated component FICTIOUS not found (exit non-zero)',
+        [QUERY_CS, '--component', 'FICTIOUS'],
+        [exit_nonzero()],
+    ),
+]
+
+# CoreSight search integration tests
+CORESIGHT_SEARCH_TESTS = [
+    (
+        'search TRC finds CoreSight ETM registers — exit criteria',
+        [QUERY_SRCH, 'TRC'],
+        [exit_ok(), stdout_contains('TRCPRGCTLR')],
+    ),
+    (
+        'search --spec coresight TRC returns CoreSight results',
+        [QUERY_SRCH, '--spec', 'coresight', 'TRC'],
+        [exit_ok(), stdout_contains('TRCPRGCTLR')],
+    ),
+    (
+        'search --spec coresight GLBEN finds CTI CTICONTROL',
+        [QUERY_SRCH, '--spec', 'coresight', 'GLBEN'],
+        [exit_ok(), stdout_contains('CTICONTROL')],
+    ),
+    (
+        'search --spec coresight FAKECTRL_ZZZZ returns no results (exit non-zero)',
+        [QUERY_SRCH, '--spec', 'coresight', 'FAKECTRL_ZZZZ'],
+        [exit_nonzero()],
+    ),
+]
+
 # Map skill name → test list
 ALL_SKILLS: dict = {
-    'feat':       FEAT_TESTS,
-    'reg':        REG_TESTS,
-    'search':     SEARCH_TESTS,
-    'instr':      INSTR_TESTS,
-    'instr_t32':  INSTR_T32_TESTS,
-    'instr_a32':  INSTR_A32_TESTS,
-    'search_t32': SEARCH_T32_TESTS,
-    'gic':        GIC_TESTS,
-    'gic_search': GIC_SEARCH_TESTS,
+    'feat':            FEAT_TESTS,
+    'reg':             REG_TESTS,
+    'search':          SEARCH_TESTS,
+    'instr':           INSTR_TESTS,
+    'instr_t32':       INSTR_T32_TESTS,
+    'instr_a32':       INSTR_A32_TESTS,
+    'search_t32':      SEARCH_T32_TESTS,
+    'gic':             GIC_TESTS,
+    'gic_search':      GIC_SEARCH_TESTS,
+    'coresight':       CORESIGHT_TESTS,
+    'coresight_search': CORESIGHT_SEARCH_TESTS,
 }
 
 # ---------------------------------------------------------------------------
@@ -804,9 +954,11 @@ def main() -> int:
 
     # Validate cache — A64 cache is required for feat/reg/search/instr tests;
     # arm_arm cache is required for instr_t32/instr_a32/search_t32 tests;
-    # gic cache is required for gic/gic_search tests.
-    ARM_ARM_ONLY_SKILLS = frozenset(('instr_t32', 'instr_a32', 'search_t32'))
-    GIC_ONLY_SKILLS     = frozenset(('gic', 'gic_search'))
+    # gic cache is required for gic/gic_search tests;
+    # coresight cache is required for coresight/coresight_search tests.
+    ARM_ARM_ONLY_SKILLS  = frozenset(('instr_t32', 'instr_a32', 'search_t32'))
+    GIC_ONLY_SKILLS      = frozenset(('gic', 'gic_search'))
+    CS_ONLY_SKILLS       = frozenset(('coresight', 'coresight_search'))
 
     # Select skills to test first (so we can decide which caches to require)
     if args.skill:
@@ -818,9 +970,11 @@ def main() -> int:
     else:
         skills_to_run = ALL_SKILLS
 
-    needs_a64_cache     = any(s not in ARM_ARM_ONLY_SKILLS.union(GIC_ONLY_SKILLS) for s in skills_to_run)
-    needs_arm_arm_cache = any(s in ARM_ARM_ONLY_SKILLS for s in skills_to_run)
-    needs_gic_cache     = any(s in GIC_ONLY_SKILLS for s in skills_to_run)
+    non_special = ARM_ARM_ONLY_SKILLS | GIC_ONLY_SKILLS | CS_ONLY_SKILLS
+    needs_a64_cache      = any(s not in non_special for s in skills_to_run)
+    needs_arm_arm_cache  = any(s in ARM_ARM_ONLY_SKILLS for s in skills_to_run)
+    needs_gic_cache      = any(s in GIC_ONLY_SKILLS for s in skills_to_run)
+    needs_cs_cache       = any(s in CS_ONLY_SKILLS for s in skills_to_run)
 
     if needs_a64_cache and not _check_cache_available():
         print('\nERROR: A64 cache not found or incomplete.')
@@ -835,6 +989,11 @@ def main() -> int:
     if needs_gic_cache and not _check_gic_cache_available():
         print('\nERROR: GIC cache not found.')
         print('Build it first:  python tools/build_gic_index.py')
+        return 1
+
+    if needs_cs_cache and not _check_coresight_cache_available():
+        print('\nERROR: CoreSight cache not found.')
+        print('Build it first:  python tools/build_coresight_index.py')
         return 1
 
     total_pass = 0
