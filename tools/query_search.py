@@ -19,23 +19,14 @@ Exit codes:
 
 import argparse
 import json
-import os
 import sys
-from pathlib import Path
 
-# ---------------------------------------------------------------------------
-# Paths
-# ---------------------------------------------------------------------------
+from cache_utils import CACHE_DIR, ARM_ARM_CACHE, check_staleness
 
-SCRIPT_DIR = Path(__file__).parent.resolve()
-REPO_ROOT  = SCRIPT_DIR.parent
-CACHE_DIR  = Path(os.environ.get('ARM_MRS_CACHE_DIR', str(REPO_ROOT / 'cache')))
 META_PATH  = CACHE_DIR / 'registers_meta.json'
 OP_DIR     = CACHE_DIR / 'operations'
-
-ARM_ARM_CACHE = CACHE_DIR / 'arm_arm'
-T32_OP_DIR    = ARM_ARM_CACHE / 't32_operations'
-A32_OP_DIR    = ARM_ARM_CACHE / 'a32_operations'
+T32_OP_DIR = ARM_ARM_CACHE / 't32_operations'
+A32_OP_DIR = ARM_ARM_CACHE / 'a32_operations'
 
 # ---------------------------------------------------------------------------
 # Cache loading
@@ -67,29 +58,6 @@ def load_a32_op_index() -> list:
     if not A32_OP_DIR.exists():
         return []
     return sorted(p.stem for p in A32_OP_DIR.iterdir() if p.suffix == '.json')
-
-
-def check_staleness() -> None:
-    manifest_path = CACHE_DIR / 'manifest.json'
-    if not manifest_path.exists():
-        return
-    try:
-        import hashlib
-        with open(manifest_path) as f:
-            manifest = json.load(f)
-        for fname, info in manifest.get('sources', {}).items():
-            src = Path(info.get('path', REPO_ROOT / fname))
-            if not src.exists():
-                continue
-            h = hashlib.sha256()
-            with open(src, 'rb') as fh:
-                for chunk in iter(lambda: fh.read(65536), b''):
-                    h.update(chunk)
-            if h.hexdigest() != info.get('sha256'):
-                print(f'Warning: {fname} has changed since cache was built. '
-                      f'Consider re-running tools/build_index.py', file=sys.stderr)
-    except Exception:
-        pass
 
 # ---------------------------------------------------------------------------
 # Search functions

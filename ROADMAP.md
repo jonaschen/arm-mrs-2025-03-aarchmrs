@@ -14,7 +14,7 @@
 | M3 | `arm-search` — Search skill | ✅ Complete |
 | M4 | `arm-instr` — Instruction skill | ✅ Complete |
 | ME | Skill correctness evaluation (51 tests) | ✅ Complete |
-| M5 | Integration and hardening | 🔲 Pending |
+| M5 | Integration and hardening | ✅ Complete |
 | E0 | `arm-pmu` — PMU events skill | 🔲 Pending |
 | EA | ARM ARM extension (ASL unlock + T32/A32) | ✅ Complete (EA-b; EA-a deferred — no ARM Architecture License) |
 | EB | `arm-gic` — GIC register skill | 🔲 Pending |
@@ -129,17 +129,17 @@
 
 ---
 
-## Milestone 5 — Integration and Hardening 🔲
+## Milestone 5 — Integration and Hardening ✅
 
 **Goal:** Cross-skill polish and real-world validation before extension work begins.
 
-- [ ] **M5-1** Test skill routing with ambiguous queries; add routing examples to each skill file where gaps are found
-- [ ] **M5-2** Validate all skills correctly emit "Description not available in BSD MRS release" for null fields rather than synthesizing prose
-- [ ] **M5-3** Document `ARM_MRS_CACHE_DIR` env var in `CLAUDE.md` for multi-project use
-- [ ] **M5-4** Update `CLAUDE.md` with final `build_index.py` invocation and skill usage examples
-- [ ] **M5-5** Extract shared `check_staleness()` and manifest logic from all query scripts into `tools/cache_utils.py` (prerequisite for Phase 2 extensions)
+- [x] **M5-1** Test skill routing with ambiguous queries; routing disambiguation verified in all four skill files (MRS ambiguity, ISA routing, FEAT vs register, search handoff)
+- [x] **M5-2** Validate all skills correctly emit "Description not available in BSD MRS release" for null fields — verified in eval tests and confirmed in Important Constraints sections of all skill files
+- [x] **M5-3** Document `ARM_MRS_CACHE_DIR` env var in `CLAUDE.md` for multi-project use
+- [x] **M5-4** Update `CLAUDE.md` with final build invocations and skill usage quick reference (all four query scripts with example commands)
+- [x] **M5-5** Extract shared `check_staleness()`, `render_ast()`, and path setup into `tools/cache_utils.py`; all four query scripts now import from it; `import re` moved to module top in `query_instruction.py`
 
-**Exit criteria:** All four skills pass ambiguous routing tests. `cache_utils.py` exists. `CLAUDE.md` is up to date.
+**Exit criteria:** ✅ All four skills pass ambiguous routing tests. `cache_utils.py` exists. `CLAUDE.md` is up to date. 67/67 eval tests pass.
 
 ---
 

@@ -63,6 +63,7 @@ See `AARCH64_AGENT_SKILL_DEV_PLAN.md` for the full design and `ROADMAP.md` for t
 
 ```
 tools/
+  cache_utils.py       # [DONE] Shared path resolution, staleness checking, AST renderer
   probe.py             # [DONE] Data validation and cache schema preview (no cache needed)
   build_index.py       # [DONE] One-time cache builder (run before using any A64 skill)
   build_arm_arm_index.py # [DONE] T32/A32 cache builder (Milestone EA)
@@ -122,6 +123,37 @@ Re-run `build_arm_arm_index.py` whenever `arm-arm/T32Instructions.json` or `arm-
 ### Path resolution in skills
 
 Skills resolve the repo root via the `ARM_MRS_CACHE_DIR` environment variable (if set) or `git rev-parse --show-toplevel` at invocation time. Set `ARM_MRS_CACHE_DIR` to reuse the cache across multiple projects pointing at the same MRS data.
+
+### Skill usage quick reference
+
+```bash
+# Feature queries
+python3 tools/query_feature.py FEAT_SVE
+python3 tools/query_feature.py FEAT_SVE --deps FEAT_FP16
+python3 tools/query_feature.py --version v9Ap2
+python3 tools/query_feature.py --list SVE
+
+# Register queries
+python3 tools/query_register.py SCTLR_EL1
+python3 tools/query_register.py SCTLR_EL1 UCI --values
+python3 tools/query_register.py SCTLR_EL1 --access
+python3 tools/query_register.py DBGBCR2_EL1
+python3 tools/query_register.py --list EL1 --state AArch64
+
+# Instruction queries (A64 default; use --isa t32 or --isa a32 for T32/A32)
+python3 tools/query_instruction.py ADC
+python3 tools/query_instruction.py ADC --enc
+python3 tools/query_instruction.py LDR --isa t32 --enc
+python3 tools/query_instruction.py --list ADD
+
+# Cross-cutting search
+python3 tools/query_search.py TCR
+python3 tools/query_search.py --reg EL2 --state AArch64
+python3 tools/query_search.py --op ADD --isa all
+
+# Correctness evaluation (all 67 tests should pass)
+python3 tools/eval_skill.py
+```
 
 ### Important constraints
 

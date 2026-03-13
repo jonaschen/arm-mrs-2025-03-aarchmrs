@@ -18,17 +18,10 @@ Exit codes:
 
 import argparse
 import json
-import os
 import sys
-from pathlib import Path
 
-# ---------------------------------------------------------------------------
-# Paths
-# ---------------------------------------------------------------------------
+from cache_utils import CACHE_DIR, check_staleness, render_ast
 
-SCRIPT_DIR = Path(__file__).parent.resolve()
-REPO_ROOT  = SCRIPT_DIR.parent
-CACHE_DIR  = Path(os.environ.get('ARM_MRS_CACHE_DIR', str(REPO_ROOT / 'cache')))
 FEATURES_CACHE = CACHE_DIR / 'features.json'
 
 VERSION_ORDER = [
@@ -50,59 +43,6 @@ def load_features() -> list:
     with open(FEATURES_CACHE) as f:
         return json.load(f)
 
-
-def check_staleness() -> None:
-    manifest_path = CACHE_DIR / 'manifest.json'
-    if not manifest_path.exists():
-        return
-    try:
-        import hashlib
-        with open(manifest_path) as f:
-            manifest = json.load(f)
-        for fname, info in manifest.get('sources', {}).items():
-            src = Path(info.get('path', REPO_ROOT / fname))
-            if not src.exists():
-                continue
-            h = hashlib.sha256()
-            with open(src, 'rb') as fh:
-                for chunk in iter(lambda: fh.read(65536), b''):
-                    h.update(chunk)
-            if h.hexdigest() != info.get('sha256'):
-                print(f'Warning: {fname} has changed since cache was built. '
-                      f'Consider re-running tools/build_index.py', file=sys.stderr)
-    except Exception:
-        pass  # staleness check is advisory only
-
-# ---------------------------------------------------------------------------
-# AST renderer
-# ---------------------------------------------------------------------------
-
-def render_ast(node) -> str:
-    """Render an AST node as a compact human-readable expression."""
-    if not isinstance(node, dict):
-        return str(node)
-    t = node.get('_type', '')
-    if t == 'AST.Identifier':
-        return node.get('value', '?')
-    if t == 'AST.Bool':
-        return str(node.get('value', '?')).lower()
-    if t == 'AST.Integer':
-        return str(node.get('value', '?'))
-    if t == 'AST.BinaryOp':
-        left  = render_ast(node.get('left',  {}))
-        right = render_ast(node.get('right', {}))
-        op    = node.get('op', '?')
-        return f'({left} {op} {right})'
-    if t == 'AST.UnaryOp':
-        return f'({node.get("op","?")} {render_ast(node.get("operand", {}))})'
-    if t == 'AST.Function':
-        args = ', '.join(render_ast(a) for a in node.get('arguments', []))
-        return f'{node.get("name","?")}({args})'
-    if t == 'Types.Field':
-        v = node.get('value', {})
-        return f'{v.get("name","?")}.{v.get("field","?")}'
-    # Fallback: show type tag
-    return f'[{t}]'
 
 # ---------------------------------------------------------------------------
 # Dependency helpers

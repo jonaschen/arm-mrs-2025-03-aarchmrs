@@ -21,58 +21,14 @@ Exit codes:
 
 import argparse
 import json
-import os
 import re
 import sys
 from pathlib import Path
 
-# ---------------------------------------------------------------------------
-# Paths
-# ---------------------------------------------------------------------------
+from cache_utils import CACHE_DIR, check_staleness, render_ast
 
-SCRIPT_DIR = Path(__file__).parent.resolve()
-REPO_ROOT  = SCRIPT_DIR.parent
-CACHE_DIR  = Path(os.environ.get('ARM_MRS_CACHE_DIR', str(REPO_ROOT / 'cache')))
-REG_DIR    = CACHE_DIR / 'registers'
-META_PATH  = CACHE_DIR / 'registers_meta.json'
-
-# ---------------------------------------------------------------------------
-# AST renderer (shared with query_feature.py)
-# ---------------------------------------------------------------------------
-
-def render_ast(node) -> str:
-    if not isinstance(node, dict):
-        return str(node)
-    t = node.get('_type', '')
-    if t == 'AST.Identifier':
-        return node.get('value', '?')
-    if t == 'AST.Bool':
-        return str(node.get('value', '?')).lower()
-    if t == 'AST.Integer':
-        return str(node.get('value', '?'))
-    if t == 'AST.BinaryOp':
-        left  = render_ast(node.get('left',  {}))
-        right = render_ast(node.get('right', {}))
-        op    = node.get('op', '?')
-        return f'({left} {op} {right})'
-    if t == 'AST.UnaryOp':
-        expr = node.get('expr') or node.get('operand', {})
-        return f'({node.get("op","?")} {render_ast(expr)})'
-    if t == 'AST.Function':
-        args = ', '.join(render_ast(a) for a in node.get('arguments', []))
-        return f'{node.get("name","?")}({args})'
-    if t == 'Types.Field':
-        v = node.get('value', {})
-        return f'{v.get("name","?")}.{v.get("field","?")}'
-    if t == 'AST.DotAtom':
-        vals = node.get('values', [])
-        return '.'.join(render_ast(v) for v in vals)
-    if t == 'AST.Set':
-        vals = node.get('values', [])
-        return '{' + ', '.join(render_ast(v) for v in vals) + '}'
-    if t in ('Values.Value', 'Values.Group'):
-        return node.get('value', '?')
-    return f'[{t}]'
+REG_DIR   = CACHE_DIR / 'registers'
+META_PATH = CACHE_DIR / 'registers_meta.json'
 
 # ---------------------------------------------------------------------------
 # Cache loading
@@ -80,7 +36,7 @@ def render_ast(node) -> str:
 
 def load_meta() -> dict:
     if not META_PATH.exists():
-        print('Cache not found. Run: python tools/build_index.py', file=sys.stderr)
+        print('Cache not found. Run: python3 tools/build_index.py', file=sys.stderr)
         sys.exit(1)
     with open(META_PATH) as f:
         return json.load(f)
@@ -93,29 +49,6 @@ def load_register(cache_key: str) -> dict:
         sys.exit(1)
     with open(path) as f:
         return json.load(f)
-
-
-def check_staleness() -> None:
-    manifest_path = CACHE_DIR / 'manifest.json'
-    if not manifest_path.exists():
-        return
-    try:
-        import hashlib
-        with open(manifest_path) as f:
-            manifest = json.load(f)
-        for fname, info in manifest.get('sources', {}).items():
-            src = Path(info.get('path', REPO_ROOT / fname))
-            if not src.exists():
-                continue
-            h = hashlib.sha256()
-            with open(src, 'rb') as fh:
-                for chunk in iter(lambda: fh.read(65536), b''):
-                    h.update(chunk)
-            if h.hexdigest() != info.get('sha256'):
-                print(f'Warning: {fname} has changed since cache was built. '
-                      f'Consider re-running tools/build_index.py', file=sys.stderr)
-    except Exception:
-        pass
 
 # ---------------------------------------------------------------------------
 # Name normalization and resolution

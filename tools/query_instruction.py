@@ -19,22 +19,15 @@ Exit codes:
 
 import argparse
 import json
-import os
+import re
 import sys
 from pathlib import Path
 
-# ---------------------------------------------------------------------------
-# Paths
-# ---------------------------------------------------------------------------
+from cache_utils import CACHE_DIR, ARM_ARM_CACHE, check_staleness
 
-SCRIPT_DIR = Path(__file__).parent.resolve()
-REPO_ROOT  = SCRIPT_DIR.parent
-CACHE_DIR  = Path(os.environ.get('ARM_MRS_CACHE_DIR', str(REPO_ROOT / 'cache')))
 OP_DIR     = CACHE_DIR / 'operations'
-
-ARM_ARM_CACHE = CACHE_DIR / 'arm_arm'
-T32_OP_DIR    = ARM_ARM_CACHE / 't32_operations'
-A32_OP_DIR    = ARM_ARM_CACHE / 'a32_operations'
+T32_OP_DIR = ARM_ARM_CACHE / 't32_operations'
+A32_OP_DIR = ARM_ARM_CACHE / 'a32_operations'
 
 DEFAULT_OP_LINES = 60
 
@@ -79,42 +72,6 @@ def load_op(op_id: str, isa: str = 'a64') -> dict:
         return json.load(f)
 
 
-def check_staleness(isa: str = 'a64') -> None:
-    manifest_path = CACHE_DIR / 'manifest.json'
-    if not manifest_path.exists():
-        return
-    try:
-        import hashlib
-        with open(manifest_path) as f:
-            manifest = json.load(f)
-        # For T32/A32, also check the arm_arm manifest if available
-        if isa in ('t32', 'a32'):
-            arm_arm_manifest_path = ARM_ARM_CACHE / 'manifest.json'
-            if arm_arm_manifest_path.exists():
-                with open(arm_arm_manifest_path) as f:
-                    arm_arm_manifest = json.load(f)
-                sources = arm_arm_manifest.get('sources', {})
-            else:
-                sources = manifest.get('sources', {})
-        else:
-            sources = manifest.get('sources', {})
-        for fname, info in sources.items():
-            src = Path(info.get('path', REPO_ROOT / fname))
-            if not src.exists():
-                continue
-            h = hashlib.sha256()
-            with open(src, 'rb') as fh:
-                for chunk in iter(lambda: fh.read(65536), b''):
-                    h.update(chunk)
-            if h.hexdigest() != info.get('sha256'):
-                print(
-                    f'Warning: {fname} has changed since cache was built. '
-                    f'Consider re-running {_builder_script(isa)}',
-                    file=sys.stderr,
-                )
-    except Exception:
-        pass
-
 # ---------------------------------------------------------------------------
 # Assembly rendering
 # ---------------------------------------------------------------------------
@@ -129,7 +86,6 @@ def render_assembly(symbols: list) -> str:
         elif t == 'Instruction.Symbols.RuleReference':
             rule = s['rule_id']
             # Strip trailing __N disambiguation suffixes for display
-            import re
             base = re.sub(r'__\d+$', '', rule)
             parts.append(f'<{base}>')
         elif t == 'Instruction.Symbols.Optional':

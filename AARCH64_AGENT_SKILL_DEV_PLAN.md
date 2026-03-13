@@ -15,7 +15,17 @@ Create a set of Claude Code agent skills that ground hardware-related AI respons
 ARM Machine Readable Specification (MRS), eliminating hallucination for tasks involving registers,
 instructions, and architecture features.
 
-**Status:** M0–M4 complete. 51/51 eval tests pass (100%). See `ROADMAP.md` for milestone detail.
+**Status:** M0–M5 complete. 67/67 eval tests pass (100%). See `ROADMAP.md` for milestone detail.
+
+### Implementation deviations from original design
+
+| Area | Design | Actual |
+|------|--------|--------|
+| Shared utilities | Not specified | `tools/cache_utils.py` extracts `check_staleness(isa)`, `render_ast()`, and `CACHE_DIR`/`ARM_ARM_CACHE` path constants; all four query scripts import from it |
+| `render_ast()` | Single copy in `query_feature.py` | Canonical copy in `cache_utils.py`; `query_register.py` no longer duplicates it |
+| `check_staleness()` | Per-script, A64-only | Unified in `cache_utils.py` with `isa` parameter; handles arm_arm manifest for T32/A32 |
+| `import re` location | Inside `render_assembly()` | Moved to module top in `query_instruction.py` |
+| Eval test count | 51 (original design) | 67 (51 A64 + 16 T32/A32 added in EA-b) |
 
 ---
 
