@@ -15,7 +15,7 @@ Create a set of Claude Code agent skills that ground hardware-related AI respons
 ARM Machine Readable Specification (MRS), eliminating hallucination for tasks involving registers,
 instructions, and architecture features.
 
-**Status:** M0–M5 complete. 67/67 eval tests pass (100%). See `ROADMAP.md` for milestone detail.
+**Status:** M0–EX complete. 137/137 eval tests pass (100%). See `ROADMAP.md` for milestone detail.
 
 ### Implementation deviations from original design
 
@@ -25,7 +25,9 @@ instructions, and architecture features.
 | `render_ast()` | Single copy in `query_feature.py` | Canonical copy in `cache_utils.py`; `query_register.py` no longer duplicates it |
 | `check_staleness()` | Per-script, A64-only | Unified in `cache_utils.py` with `isa` parameter; handles arm_arm manifest for T32/A32 |
 | `import re` location | Inside `render_assembly()` | Moved to module top in `query_instruction.py` |
-| Eval test count | 51 (original design) | 67 (51 A64 + 16 T32/A32 added in EA-b) |
+| Eval test count | 51 (original design) | 137 (51 A64 + 16 T32/A32 + 18 GIC + 24 CoreSight + 14 PMU + 14 EX cross-routing/spec) |
+| `--spec` choices | `gic`, `coresight` (design §6.4) | Extended to `aarchmrs`, `gic`, `coresight`, `pmu` (Milestone EX) |
+| EX-1 cross-routing | GICD_CTLR not in AARCHMRS | GICD_CTLR IS in AARCHMRS as `ext`-state (memory-mapped); arm-gic provides GIC-specific field view |
 
 ---
 
@@ -686,16 +688,20 @@ extend `.claude/skills/arm-search.md`.
 
 ---
 
-### Phase EX — Integration, Evaluation, and Hardening
+### Phase EX — Integration, Evaluation, and Hardening ✅
 
 **Depends on:** Phase E0 + Phase EA + Phase EB-3 + Phase EC-3
 
-| Step | Task |
-|------|------|
-| EX-1 | Extend `tools/eval_skill.py` with test cases for `arm-pmu`, `arm-gic`, `arm-coresight`, and `arm-instr --isa t32` |
-| EX-2 | Test cross-skill routing: queries that span AARCHMRS + GIC (e.g., "How do I configure interrupt priority?" — involves both GICD_CTLR and ICC_PMR_EL1) |
-| EX-3 | Validate all skills emit spec-accurate descriptions; no hallucination across all six skills |
-| EX-4 | Update `README.md`, `CLAUDE.md`, and `ROADMAP.md` with new build commands, supported specifications, and skill usage examples |
+| Step | Task | Status |
+|------|------|--------|
+| EX-1 | Add `CROSS_ROUTING_TESTS` to `eval_skill.py`: ICC_PMR_EL1 via `arm-reg`, GICD_CTLR as ext-state in AARCHMRS, `arm-gic --icc-xref` routing, combined search spanning AARCHMRS + GIC | ✅ Done |
+| EX-2 | Extend `query_search.py --spec` with `aarchmrs` and `pmu`; add `SEARCH_SPEC_AARCHMRS_TESTS` and `SEARCH_SPEC_PMU_TESTS` to `eval_skill.py`; add `search_pmu_events()` function | ✅ Done |
+| EX-3 | Run full eval suite across all six skills; all 137 tests pass (100%); no regressions | ✅ Done |
+| EX-4 | Update `README.md` (full tool documentation), `CLAUDE.md` (corrected eval count + new skill examples), `AARCH64_AGENT_SKILL_DEV_PLAN.md` (deviations table), `ROADMAP.md` (status) | ✅ Done |
+
+**Note on EX-1 cross-routing finding:** GICD_CTLR IS present in AARCHMRS `Registers.json` as an
+`ext`-state (memory-mapped) register. The `arm-gic` skill provides the GIC-specific field view
+and routing. Both tools are complementary, not exclusive.
 
 ---
 

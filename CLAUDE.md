@@ -77,7 +77,7 @@ tools/
   query_gic.py         # [DONE] GIC register field, version, and cross-reference queries
   query_coresight.py   # [DONE] CoreSight component register field and access queries
   query_pmu.py         # [DONE] PMU event code and description queries (Milestone E0)
-  eval_skill.py        # [DONE] Correctness evaluation (105 tests: 51 A64 + 16 T32/A32 + 18 GIC + 24 CoreSight + 14 PMU)
+  eval_skill.py        # [DONE] Correctness evaluation (137 tests: 51 A64 + 16 T32/A32 + 18 GIC + 24 CoreSight + 14 PMU + 14 EX)
 arm-arm/               # Hand-curated T32/A32 instruction data (committed)
   T32Instructions.json # T32 (Thumb-2) instruction encodings — starter set
   A32Instructions.json # A32 (classic ARM 32-bit) instruction encodings — starter set
@@ -215,8 +215,10 @@ python3 tools/query_search.py TCR
 python3 tools/query_search.py --reg EL2 --state AArch64
 python3 tools/query_search.py --op ADD --isa all
 python3 tools/query_search.py TRC
+python3 tools/query_search.py --spec aarchmrs TCR
 python3 tools/query_search.py --spec coresight TRC
 python3 tools/query_search.py --spec gic EnableGrp1
+python3 tools/query_search.py --spec pmu CPU_CYCLES
 
 # GIC queries
 python3 tools/query_gic.py GICD_CTLR
@@ -241,11 +243,12 @@ python3 tools/query_pmu.py --search STALL
 python3 tools/query_pmu.py --list
 python3 tools/query_pmu.py --list neoverse
 
-# Correctness evaluation (all 105 tests should pass)
+# Correctness evaluation (all 137 tests should pass)
 python3 tools/eval_skill.py
 python3 tools/eval_skill.py --skill gic
 python3 tools/eval_skill.py --skill coresight
 python3 tools/eval_skill.py --skill pmu
+python3 tools/eval_skill.py --skill cross_routing
 ```
 
 ### Important constraints
