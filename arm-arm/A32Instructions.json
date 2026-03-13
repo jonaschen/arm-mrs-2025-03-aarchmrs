@@ -1,0 +1,270 @@
+{
+  "_meta": {
+    "isa": "A32",
+    "description": "Hand-curated A32 (classic 32-bit ARM) instruction encodings",
+    "version": "1.0",
+    "source": "ARM Architecture Reference Manual (ARM DDI0487)"
+  },
+  "operations": [
+    {
+      "operation_id": "LDR",
+      "title": "Load Register",
+      "brief": "Load Register. Loads a word from memory into a register, optionally using a base register plus immediate or register offset.",
+      "description": null,
+      "decode": null,
+      "operation": null,
+      "instruction_variants": [
+        {
+          "name": "LDR_A1",
+          "condition": null,
+          "assembly": {
+            "symbols": [
+              {"_type": "Instruction.Symbols.Literal", "value": "LDR"},
+              {"_type": "Instruction.Symbols.RuleReference", "rule_id": "cond"},
+              {"_type": "Instruction.Symbols.Literal", "value": " "},
+              {"_type": "Instruction.Symbols.RuleReference", "rule_id": "Rt"},
+              {"_type": "Instruction.Symbols.Literal", "value": ", ["},
+              {"_type": "Instruction.Symbols.RuleReference", "rule_id": "Rn"},
+              {"_type": "Instruction.Symbols.Optional", "symbols": [
+                {"_type": "Instruction.Symbols.Literal", "value": ", #"},
+                {"_type": "Instruction.Symbols.RuleReference", "rule_id": "imm12"}
+              ]},
+              {"_type": "Instruction.Symbols.Literal", "value": "]"}
+            ]
+          },
+          "encoding": {
+            "width": 32,
+            "fields": [
+              {"start": 28, "width": 4,  "name": "cond",  "value": "'xxxx'",         "kind": "operand"},
+              {"start": 24, "width": 4,  "name": null,    "value": "'0101'",          "kind": "class"},
+              {"start": 23, "width": 1,  "name": "U",     "value": "'x'",            "kind": "operand"},
+              {"start": 22, "width": 1,  "name": null,    "value": "'0'",            "kind": "fixed"},
+              {"start": 21, "width": 1,  "name": null,    "value": "'0'",            "kind": "fixed"},
+              {"start": 20, "width": 1,  "name": null,    "value": "'1'",            "kind": "fixed"},
+              {"start": 16, "width": 4,  "name": "Rn",    "value": "'xxxx'",          "kind": "operand"},
+              {"start": 12, "width": 4,  "name": "Rt",    "value": "'xxxx'",          "kind": "operand"},
+              {"start": 0,  "width": 12, "name": "imm12", "value": "'xxxxxxxxxxxx'",  "kind": "operand"}
+            ]
+          }
+        },
+        {
+          "name": "LDR_A1_reg",
+          "condition": null,
+          "assembly": {
+            "symbols": [
+              {"_type": "Instruction.Symbols.Literal", "value": "LDR"},
+              {"_type": "Instruction.Symbols.RuleReference", "rule_id": "cond"},
+              {"_type": "Instruction.Symbols.Literal", "value": " "},
+              {"_type": "Instruction.Symbols.RuleReference", "rule_id": "Rt"},
+              {"_type": "Instruction.Symbols.Literal", "value": ", ["},
+              {"_type": "Instruction.Symbols.RuleReference", "rule_id": "Rn"},
+              {"_type": "Instruction.Symbols.Literal", "value": ", "},
+              {"_type": "Instruction.Symbols.RuleReference", "rule_id": "Rm"},
+              {"_type": "Instruction.Symbols.Literal", "value": "]"}
+            ]
+          },
+          "encoding": {
+            "width": 32,
+            "fields": [
+              {"start": 28, "width": 4,  "name": "cond", "value": "'xxxx'",  "kind": "operand"},
+              {"start": 24, "width": 4,  "name": null,   "value": "'0111'",  "kind": "class"},
+              {"start": 23, "width": 1,  "name": "U",    "value": "'x'",     "kind": "operand"},
+              {"start": 22, "width": 1,  "name": null,   "value": "'0'",     "kind": "fixed"},
+              {"start": 21, "width": 1,  "name": null,   "value": "'0'",     "kind": "fixed"},
+              {"start": 20, "width": 1,  "name": null,   "value": "'1'",     "kind": "fixed"},
+              {"start": 16, "width": 4,  "name": "Rn",   "value": "'xxxx'",  "kind": "operand"},
+              {"start": 12, "width": 4,  "name": "Rt",   "value": "'xxxx'",  "kind": "operand"},
+              {"start": 4,  "width": 8,  "name": "shift","value": "'xxxxxxxx'","kind": "operand"},
+              {"start": 0,  "width": 4,  "name": "Rm",   "value": "'xxxx'",  "kind": "operand"}
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "operation_id": "STR",
+      "title": "Store Register",
+      "brief": "Store Register. Stores a word from a register to memory using a base register plus immediate offset.",
+      "description": null,
+      "decode": null,
+      "operation": null,
+      "instruction_variants": [
+        {
+          "name": "STR_A1",
+          "condition": null,
+          "assembly": {
+            "symbols": [
+              {"_type": "Instruction.Symbols.Literal", "value": "STR"},
+              {"_type": "Instruction.Symbols.RuleReference", "rule_id": "cond"},
+              {"_type": "Instruction.Symbols.Literal", "value": " "},
+              {"_type": "Instruction.Symbols.RuleReference", "rule_id": "Rt"},
+              {"_type": "Instruction.Symbols.Literal", "value": ", ["},
+              {"_type": "Instruction.Symbols.RuleReference", "rule_id": "Rn"},
+              {"_type": "Instruction.Symbols.Optional", "symbols": [
+                {"_type": "Instruction.Symbols.Literal", "value": ", #"},
+                {"_type": "Instruction.Symbols.RuleReference", "rule_id": "imm12"}
+              ]},
+              {"_type": "Instruction.Symbols.Literal", "value": "]"}
+            ]
+          },
+          "encoding": {
+            "width": 32,
+            "fields": [
+              {"start": 28, "width": 4,  "name": "cond",  "value": "'xxxx'",         "kind": "operand"},
+              {"start": 24, "width": 4,  "name": null,    "value": "'0101'",          "kind": "class"},
+              {"start": 23, "width": 1,  "name": "U",     "value": "'x'",            "kind": "operand"},
+              {"start": 22, "width": 1,  "name": null,    "value": "'0'",            "kind": "fixed"},
+              {"start": 21, "width": 1,  "name": null,    "value": "'0'",            "kind": "fixed"},
+              {"start": 20, "width": 1,  "name": null,    "value": "'0'",            "kind": "fixed"},
+              {"start": 16, "width": 4,  "name": "Rn",    "value": "'xxxx'",          "kind": "operand"},
+              {"start": 12, "width": 4,  "name": "Rt",    "value": "'xxxx'",          "kind": "operand"},
+              {"start": 0,  "width": 12, "name": "imm12", "value": "'xxxxxxxxxxxx'",  "kind": "operand"}
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "operation_id": "ADD",
+      "title": "Add",
+      "brief": "Add (immediate). Adds a 12-bit immediate value to a register, writing the result to a destination register.",
+      "description": null,
+      "decode": null,
+      "operation": null,
+      "instruction_variants": [
+        {
+          "name": "ADD_A1",
+          "condition": null,
+          "assembly": {
+            "symbols": [
+              {"_type": "Instruction.Symbols.Literal", "value": "ADD"},
+              {"_type": "Instruction.Symbols.RuleReference", "rule_id": "cond"},
+              {"_type": "Instruction.Symbols.Optional", "symbols": [
+                {"_type": "Instruction.Symbols.RuleReference", "rule_id": "S"}
+              ]},
+              {"_type": "Instruction.Symbols.Literal", "value": " "},
+              {"_type": "Instruction.Symbols.RuleReference", "rule_id": "Rd"},
+              {"_type": "Instruction.Symbols.Literal", "value": ", "},
+              {"_type": "Instruction.Symbols.RuleReference", "rule_id": "Rn"},
+              {"_type": "Instruction.Symbols.Literal", "value": ", #"},
+              {"_type": "Instruction.Symbols.RuleReference", "rule_id": "imm12"}
+            ]
+          },
+          "encoding": {
+            "width": 32,
+            "fields": [
+              {"start": 28, "width": 4,  "name": "cond",  "value": "'xxxx'",         "kind": "operand"},
+              {"start": 25, "width": 3,  "name": null,    "value": "'001'",           "kind": "class"},
+              {"start": 21, "width": 4,  "name": null,    "value": "'0100'",          "kind": "class"},
+              {"start": 20, "width": 1,  "name": "S",     "value": "'x'",            "kind": "operand"},
+              {"start": 16, "width": 4,  "name": "Rn",    "value": "'xxxx'",          "kind": "operand"},
+              {"start": 12, "width": 4,  "name": "Rd",    "value": "'xxxx'",          "kind": "operand"},
+              {"start": 0,  "width": 12, "name": "imm12", "value": "'xxxxxxxxxxxx'",  "kind": "operand"}
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "operation_id": "SUB",
+      "title": "Subtract",
+      "brief": "Subtract (immediate). Subtracts a 12-bit immediate from a register, writing the result to a destination register.",
+      "description": null,
+      "decode": null,
+      "operation": null,
+      "instruction_variants": [
+        {
+          "name": "SUB_A1",
+          "condition": null,
+          "assembly": {
+            "symbols": [
+              {"_type": "Instruction.Symbols.Literal", "value": "SUB"},
+              {"_type": "Instruction.Symbols.RuleReference", "rule_id": "cond"},
+              {"_type": "Instruction.Symbols.Optional", "symbols": [
+                {"_type": "Instruction.Symbols.RuleReference", "rule_id": "S"}
+              ]},
+              {"_type": "Instruction.Symbols.Literal", "value": " "},
+              {"_type": "Instruction.Symbols.RuleReference", "rule_id": "Rd"},
+              {"_type": "Instruction.Symbols.Literal", "value": ", "},
+              {"_type": "Instruction.Symbols.RuleReference", "rule_id": "Rn"},
+              {"_type": "Instruction.Symbols.Literal", "value": ", #"},
+              {"_type": "Instruction.Symbols.RuleReference", "rule_id": "imm12"}
+            ]
+          },
+          "encoding": {
+            "width": 32,
+            "fields": [
+              {"start": 28, "width": 4,  "name": "cond",  "value": "'xxxx'",         "kind": "operand"},
+              {"start": 25, "width": 3,  "name": null,    "value": "'001'",           "kind": "class"},
+              {"start": 21, "width": 4,  "name": null,    "value": "'0010'",          "kind": "class"},
+              {"start": 20, "width": 1,  "name": "S",     "value": "'x'",            "kind": "operand"},
+              {"start": 16, "width": 4,  "name": "Rn",    "value": "'xxxx'",          "kind": "operand"},
+              {"start": 12, "width": 4,  "name": "Rd",    "value": "'xxxx'",          "kind": "operand"},
+              {"start": 0,  "width": 12, "name": "imm12", "value": "'xxxxxxxxxxxx'",  "kind": "operand"}
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "operation_id": "B",
+      "title": "Branch",
+      "brief": "Branch. Causes a branch to a target address formed by adding a signed 24-bit offset (shifted left 2) to PC.",
+      "description": null,
+      "decode": null,
+      "operation": null,
+      "instruction_variants": [
+        {
+          "name": "B_A1",
+          "condition": null,
+          "assembly": {
+            "symbols": [
+              {"_type": "Instruction.Symbols.Literal", "value": "B"},
+              {"_type": "Instruction.Symbols.RuleReference", "rule_id": "cond"},
+              {"_type": "Instruction.Symbols.Literal", "value": " "},
+              {"_type": "Instruction.Symbols.RuleReference", "rule_id": "label"}
+            ]
+          },
+          "encoding": {
+            "width": 32,
+            "fields": [
+              {"start": 28, "width": 4,  "name": "cond",  "value": "'xxxx'",                   "kind": "operand"},
+              {"start": 24, "width": 4,  "name": null,    "value": "'1010'",                    "kind": "class"},
+              {"start": 0,  "width": 24, "name": "imm24", "value": "'xxxxxxxxxxxxxxxxxxxxxxxx'","kind": "operand"}
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "operation_id": "BL",
+      "title": "Branch with Link",
+      "brief": "Branch with Link. Calls a subroutine at a PC-relative target, saving the return address in LR (R14).",
+      "description": null,
+      "decode": null,
+      "operation": null,
+      "instruction_variants": [
+        {
+          "name": "BL_A1",
+          "condition": null,
+          "assembly": {
+            "symbols": [
+              {"_type": "Instruction.Symbols.Literal", "value": "BL"},
+              {"_type": "Instruction.Symbols.RuleReference", "rule_id": "cond"},
+              {"_type": "Instruction.Symbols.Literal", "value": " "},
+              {"_type": "Instruction.Symbols.RuleReference", "rule_id": "label"}
+            ]
+          },
+          "encoding": {
+            "width": 32,
+            "fields": [
+              {"start": 28, "width": 4,  "name": "cond",  "value": "'xxxx'",                   "kind": "operand"},
+              {"start": 24, "width": 4,  "name": null,    "value": "'1011'",                    "kind": "class"},
+              {"start": 0,  "width": 24, "name": "imm24", "value": "'xxxxxxxxxxxxxxxxxxxxxxxx'","kind": "operand"}
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
