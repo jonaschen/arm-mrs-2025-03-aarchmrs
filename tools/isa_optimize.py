@@ -234,7 +234,7 @@ _SVE2_TEMPLATES: dict[str, dict] = {
                     for (int k = 0; k < ksize; k++) {{
                         int j = 0;
                         svbool_t pg = svwhilelt_b32(j, 1);
-                        svfloat32_t vin = svld1_s32(pg, (const int32_t *)(in + i + k));
+                        svfloat32_t vin = svld1_f32(pg, in + i + k);
                         svfloat32_t vk  = svdup_f32(kernel[k]);
                         acc = svmla_f32_m(pg, acc, vin, vk);
                     }}
@@ -332,6 +332,11 @@ _SVE2_TEMPLATES: dict[str, dict] = {
             /* SVE2 inclusive prefix sum: out[i] = sum(in[0..i])
              * Compile: {march_flag}
              * Requires: FEAT_SVE2
+             *
+             * Note: This is a simplified sketch showing the inter-vector
+             * carry pattern.  A production implementation requires
+             * log2(VL/32) shift-and-add iterations for the full
+             * intra-vector prefix sum.
              */
             #include <arm_sve.h>
 
@@ -341,10 +346,15 @@ _SVE2_TEMPLATES: dict[str, dict] = {
                 svbool_t pg = svwhilelt_b32(i, n);
                 do {{
                     svfloat32_t v = svld1_f32(pg, in + i);
-                    /* Intra-vector prefix sum via shift-and-add */
+                    /* Intra-vector prefix sum via iterative shift-and-add.
+                     * Each iteration doubles the propagation distance. */
                     svfloat32_t s = v;
-                    s = svadd_f32_m(pg, s, svext_f32(svdup_f32(0.0f), s, svcntw() - 1));
-                    /* Add inter-lane carry */
+                    for (unsigned d = 1; d < svcntw(); d <<= 1) {{
+                        svfloat32_t shifted = svext_f32(svdup_f32(0.0f), s,
+                                                         svcntw() - d);
+                        s = svadd_f32_m(pg, s, shifted);
+                    }}
+                    /* Add inter-lane carry from previous chunk */
                     s = svadd_f32_x(pg, s, svdup_f32(carry));
                     svst1_f32(pg, out + i, s);
                     carry = svlasta_f32(pg, s);
@@ -413,7 +423,7 @@ _SME_TEMPLATES: dict[str, dict] = {
                 for (int i = 0; i < M; i++) {{
                     svbool_t pg = svwhilelt_b32(0, N);
                     svfloat32_t row;
-                    svread_za32_f32_m(row, pg, 0, i);
+                    row = svread_za32_f32_m(row, pg, 0, i);
                     svst1_f32(pg, C + i * N, row);
                 }}
             }}
@@ -441,7 +451,7 @@ _SME_TEMPLATES: dict[str, dict] = {
                 svmopa_za32_f32_m(0, pg, pg, va, vb);
                 /* Read-back first row as demo */
                 svfloat32_t row;
-                svread_za32_f32_m(row, pg, 0, 0);
+                row = svread_za32_f32_m(row, pg, 0, 0);
                 svst1_f32(pg, out, row);
             }}
         """),
@@ -473,7 +483,7 @@ _SME_TEMPLATES: dict[str, dict] = {
                 for (int c = 0; c < cols; c++) {{
                     svbool_t pg = svwhilelt_b32(0, rows);
                     svfloat32_t col;
-                    svread_za32_f32_m(col, pg, 0, c);
+                    col = svread_za32_f32_m(col, pg, 0, c);
                     svst1_f32(pg, dst + c * rows, col);
                 }}
             }}
@@ -507,7 +517,7 @@ _SME_TEMPLATES: dict[str, dict] = {
                 for (int i = 0; i < M; i++) {{
                     svbool_t pg = svwhilelt_b32(0, N);
                     svint32_t row;
-                    svread_za32_s32_m(row, pg, 0, i);
+                    row = svread_za32_s32_m(row, pg, 0, i);
                     svst1_s32(pg, C + i * N, row);
                 }}
             }}
