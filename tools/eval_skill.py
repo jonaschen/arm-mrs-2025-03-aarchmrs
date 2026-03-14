@@ -43,6 +43,7 @@ QUERY_INSTR = str(TOOLS_DIR / 'query_instruction.py')
 QUERY_GIC   = str(TOOLS_DIR / 'query_gic.py')
 QUERY_CS    = str(TOOLS_DIR / 'query_coresight.py')
 QUERY_PMU   = str(TOOLS_DIR / 'query_pmu.py')
+QUERY_AL    = str(TOOLS_DIR / 'query_allowlist.py')
 
 # ---------------------------------------------------------------------------
 # Test runner helpers
@@ -1056,6 +1057,121 @@ SEARCH_SPEC_PMU_TESTS = [
     ),
 ]
 
+# ---------------------------------------------------------------------------
+# H1 tests: Allowlist skill (arm-allowlist — requires A64 cache)
+# ---------------------------------------------------------------------------
+
+ALLOWLIST_TESTS = [
+    # ------------------------------------------------------------------ #
+    # Basic invocation                                                     #
+    # ------------------------------------------------------------------ #
+    (
+        '--arch v9Ap4 --summary succeeds (exit 0) — H1 exit criteria',
+        [QUERY_AL, '--arch', 'v9Ap4', '--summary'],
+        [exit_ok()],
+    ),
+    (
+        '--arch v9Ap4 --summary reports operation counts',
+        [QUERY_AL, '--arch', 'v9Ap4', '--summary'],
+        [exit_ok(), stdout_contains('Operations')],
+    ),
+    (
+        '--arch v9Ap4 --summary reports register counts',
+        [QUERY_AL, '--arch', 'v9Ap4', '--summary'],
+        [exit_ok(), stdout_contains('Registers')],
+    ),
+    # ------------------------------------------------------------------ #
+    # Operation allowlist correctness                                      #
+    # ------------------------------------------------------------------ #
+    (
+        'ADC is in the allowed list at v9Ap4 (baseline instruction)',
+        [QUERY_AL, '--arch', 'v9Ap4', '--output', 'json'],
+        [exit_ok(), stdout_contains('"ADC"')],
+    ),
+    (
+        'ADC is in the allowed list at v8Ap0 (baseline instruction)',
+        [QUERY_AL, '--arch', 'v8Ap0', '--output', 'json'],
+        [exit_ok(), stdout_contains('"ADC"')],
+    ),
+    (
+        'SVE add_z_p_zz is prohibited at v8Ap0 (requires FEAT_SVE)',
+        [QUERY_AL, '--arch', 'v8Ap0', '--output', 'json'],
+        [exit_ok(), stdout_contains('"add_z_p_zz"')],
+    ),
+    (
+        'SVE add_z_p_zz becomes allowed at v8Ap0 when FEAT_SVE is added',
+        [QUERY_AL, '--arch', 'v8Ap0', '--feat', 'FEAT_SVE', '--output', 'json'],
+        [exit_ok(), stdout_contains('"allowed_operations"')],
+    ),
+    # ------------------------------------------------------------------ #
+    # Register blocklist correctness                                       #
+    # ------------------------------------------------------------------ #
+    (
+        'ZCR_EL1 (SVE length control) is prohibited at v8Ap0',
+        [QUERY_AL, '--arch', 'v8Ap0', '--output', 'json'],
+        [exit_ok(), stdout_contains('ZCR_EL1')],
+    ),
+    (
+        'ZCR_EL1 prohibition reason mentions FEAT_SVE',
+        [QUERY_AL, '--arch', 'v8Ap0', '--output', 'json'],
+        [exit_ok(), stdout_contains('FEAT_SVE')],
+    ),
+    # ------------------------------------------------------------------ #
+    # --list-features command                                              #
+    # ------------------------------------------------------------------ #
+    (
+        '--list-features v9Ap4 succeeds (exit 0)',
+        [QUERY_AL, '--list-features', 'v9Ap4'],
+        [exit_ok()],
+    ),
+    (
+        '--list-features v9Ap4 includes FEAT_SVE2',
+        [QUERY_AL, '--list-features', 'v9Ap4'],
+        [exit_ok(), stdout_contains('FEAT_SVE2')],
+    ),
+    (
+        '--list-features v8Ap0 does NOT include FEAT_SVE2 (introduced later)',
+        [QUERY_AL, '--list-features', 'v8Ap0'],
+        [exit_ok(), stdout_not_contains('FEAT_SVE2')],
+    ),
+    (
+        '--list-features v9Ap4 reports 324 active features',
+        [QUERY_AL, '--list-features', 'v9Ap4'],
+        [exit_ok(), stdout_contains('Features active at v9Ap4: 324')],
+    ),
+    # ------------------------------------------------------------------ #
+    # JSON schema correctness                                              #
+    # ------------------------------------------------------------------ #
+    (
+        '--output json produces valid JSON with schema_version 1.0',
+        [QUERY_AL, '--arch', 'v9Ap4', '--output', 'json'],
+        [exit_ok(), stdout_contains('"schema_version": "1.0"')],
+    ),
+    (
+        '--output json has query.arch field',
+        [QUERY_AL, '--arch', 'v9Ap4', '--output', 'json'],
+        [exit_ok(), stdout_contains('"arch": "v9Ap4"')],
+    ),
+    (
+        '--output json has stats block with total_operations',
+        [QUERY_AL, '--arch', 'v9Ap4', '--output', 'json'],
+        [exit_ok(), stdout_contains('"total_operations": 2262')],
+    ),
+    # ------------------------------------------------------------------ #
+    # Error handling                                                       #
+    # ------------------------------------------------------------------ #
+    (
+        'Unknown arch version exits non-zero',
+        [QUERY_AL, '--arch', 'v99Ap99'],
+        [exit_nonzero()],
+    ),
+    (
+        'No arguments exits non-zero (prints help)',
+        [QUERY_AL],
+        [exit_nonzero()],
+    ),
+]
+
 # Map skill name → test list
 ALL_SKILLS: dict = {
     'feat':                  FEAT_TESTS,
@@ -1073,6 +1189,7 @@ ALL_SKILLS: dict = {
     'cross_routing':         CROSS_ROUTING_TESTS,
     'search_spec_aarchmrs':  SEARCH_SPEC_AARCHMRS_TESTS,
     'search_spec_pmu':       SEARCH_SPEC_PMU_TESTS,
+    'allowlist':             ALLOWLIST_TESTS,
 }
 
 # ---------------------------------------------------------------------------
@@ -1139,7 +1256,7 @@ def main() -> int:
     print('Architecture: v9Ap6-A, Build 445, March 2025')
     print('=' * 60)
 
-    # Validate cache — A64 cache is required for feat/reg/search/instr/cross_routing/search_spec_aarchmrs tests;
+    # Validate cache — A64 cache is required for feat/reg/search/instr/allowlist/cross_routing/search_spec_aarchmrs tests;
     # arm_arm cache is required for instr_t32/instr_a32/search_t32 tests;
     # gic cache is required for gic/gic_search/cross_routing tests;
     # coresight cache is required for coresight/coresight_search tests;
