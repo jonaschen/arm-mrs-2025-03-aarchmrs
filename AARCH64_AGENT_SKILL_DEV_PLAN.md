@@ -4,6 +4,7 @@ This document is the canonical design reference for the ARM agent skills project
 
 - **Part I** covers the original AARCHMRS skills (M0–M4), all of which are complete.
 - **Part II** covers the extension plan: PMU Events, ARM ARM (T32/A32 + ASL), GIC, and CoreSight.
+- **Part III** covers the active hardware engineering layer: code generation, toolchain execution, GDB verification, linting, and multi-agent orchestration (skills H1–H8).
 
 ---
 
@@ -979,3 +980,448 @@ commit only the schema extensions and query tool changes.
 
 6. **Cache storage:** PMU adds ~50 files (~5 MB). GIC/CoreSight would add ~300+ files (~30 MB).
    These fit comfortably in the existing `cache/` structure.
+
+---
+
+# Part III — Active Hardware Engineering (Phase 3)
+
+> **Source:** Merged from `AARCH64_HW_SKILL_SET_DEV_PLAN.md` (v1.0, 2026-03-14).
+> Parts I and II provide the spec-grounding foundation. Part III builds the active
+> code-generation and verification loop on top of it.
+
+## Vision
+
+Transform Claude Agent from a spec lookup tool into a **deterministic AArch64 systems architect**:
+every line of generated assembly or system code is traceable to the ARM official machine-readable
+specification and passes real toolchain verification before being output.
+
+The four-layer architecture:
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                    AArch64 Agent Skill Set                        │
+│                                                                  │
+│  Layer 1: Spec Grounding  ──▶  Layer 2: Tool Execution           │
+│  (Parts I & II — DONE)         (GDB · QEMU · Compiler · Linter)  │
+│                                                                  │
+│  Layer 3: Multi-Agent Orchestration                               │
+│  (Developer · Critic · Judge · Executor agents)                  │
+│                                                                  │
+│  Layer 4: Continuous Verification                                 │
+│  (ENAMEL Benchmark · PPO RL · Lint-Green Gate)                   │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+## Core Design Principles
+
+| Principle | Description |
+|-----------|-------------|
+| **Spec-First** | Every decision must be traceable to AARCHMRS JSON/XML (implemented by Parts I/II) |
+| **Tool-Augmented Verification** | Generate → Execute → Observe → Repair closed loop |
+| **Hierarchical Reasoning** | Progressive zoom from document summary to instruction pseudocode |
+| **Min-Hallucination** | Lint-Green is the sole merge gate |
+| **Parallelizable** | Multiple agents work on independent subsystems without conflict |
+
+---
+
+## Skill H1 — AARCHMRS Feature Resolution
+
+**Purpose:** Query the MRS to confirm target hardware feature support; generate instruction
+allowlists and prohibited-register lists for a given architecture version and feature flag set.
+
+**Relationship to Parts I/II:** The spec lookup half (query_feature.py, query_register.py,
+query_instruction.py) is **complete**. What remains new:
+- Allowlist/blocklist output format for downstream code generators
+- ASL pseudocode parsing for instruction semantics simulation — **blocked on EA-a** (no ARM
+  Architecture License currently available)
+
+| Item | Detail |
+|------|--------|
+| Input | Target hardware description (architecture version, FEAT_* flags) |
+| Data sources | `Features.json`, `Instructions.json`, `Registers.json` (via existing cache) |
+| Core logic | AST BinaryOp evaluation → boolean feature dependency derivation |
+| Output | Usable instruction allowlist, prohibited register list, applicable ISA subset |
+
+**Milestones:**
+
+- [ ] **H1-1** Define allowlist/blocklist JSON output schema for feature-qualified instruction sets
+- [ ] **H1-2** Write `tools/query_allowlist.py`: given `--arch v9Ap4 --feat FEAT_SVE2`, produce
+  the set of valid operation_ids and prohibited register names from existing cache
+- [ ] **H1-3** ASL pseudocode parser for instruction semantics simulation — **deferred** (same
+  blocker as EA-a: requires ARM Architecture License for full MRS XML)
+- [ ] **H1-4** API wrapper so downstream skills (H3, H6) can call H1 programmatically
+
+---
+
+## Skill H2 — Hierarchical RAG Navigation
+
+**Purpose:** Multi-level retrieval over the full ARM Architecture Reference Manual (DDI 0487,
+thousands of pages), ensuring only the most relevant atomic technical content is loaded into
+the context window.
+
+**Blocker:** Requires the full ARM ARM text (PDF or licensed XML). This shares the same
+licensing gate as EA-a. Parts I/II only use the BSD MRS JSON — no prose, no full descriptions.
+
+| RAG Level | Coverage | Embedding strategy |
+|-----------|----------|--------------------|
+| Document | ARMv8-A vs ARMv9-A baseline | Summary embedding (512 tokens) |
+| Section | Exception Model / Memory Model / GIC | Section embedding (256 tokens) |
+| Paragraph | System register descriptions, access constraints | Precise embedding (128 tokens) |
+| Chunk | Instruction pseudocode, encoding formats | Code-block embedding |
+
+**Milestones:**
+
+- [ ] **H2-1** Confirm ARM Architecture License availability; obtain ARM ARM PDF or XML release
+  — **prerequisite for all H2 steps**
+- [ ] **H2-2** Build four-layer index of the ARM ARM document
+- [ ] **H2-3** Implement coarse-to-fine retrieval (progressive zoom)
+- [ ] **H2-4** Integrate context compression to prevent context loss in long conversations
+- [ ] **H2-5** Validate retrieval precision: target Recall@5 > 90% on a held-out question set
+
+**Note:** Until H2-1 is resolved, any prose content must come from the existing BSD MRS release
+(which has mostly null descriptions) or from user-supplied context.
+
+---
+
+## Skill H3 — AArch64 GDB-MCP Debugging
+
+**Purpose:** Let Claude directly control GDB/MI via the MCP protocol to step through generated
+A64 assembly and verify register state against expected values.
+
+| Tool category | MCP functions | Purpose |
+|---------------|--------------|---------|
+| Execution control | `gdb_step`, `gdb_next`, `gdb_continue` | Step-trace A64 instruction effects |
+| Data inspection | `gdb_get_registers`, `gdb_examine_memory` | Verify X0–X30, SP, PC, PSTATE |
+| Breakpoint management | `gdb_set_breakpoint`, `gdb_list_breakpoints` | Conditional halt on register values |
+| Stack analysis | `gdb_get_backtrace`, `gdb_select_frame` | Analyse EL1/EL2 exception entry/return |
+
+**Milestones:**
+
+- [ ] **H3-1** Deploy GDB-MCP Server (based on `pansila/mcp_server_gdb` or `Ipiano/gdb-mcp`)
+- [ ] **H3-2** Implement programmatic tool-calling mode: Python batch orchestration of step →
+  inspect → assert sequences
+- [ ] **H3-3** Build register-state comparison assertion mechanism (expected vs. actual)
+- [ ] **H3-4** Integrate rule-based repair: on `SIGILL` (Illegal Instruction), query H1 to
+  suggest a downgraded instruction and regenerate
+
+---
+
+## Skill H4 — QEMU-AArch64 Emulation Automation
+
+**Purpose:** Auto-generate QEMU launch scripts and test images for end-to-end AArch64 testing
+of generated code in a virtualised environment.
+
+Standard QEMU configuration target:
+
+```bash
+qemu-system-aarch64 \
+  -machine virt,iommu=smmuv3 \
+  -cpu cortex-a57           \   # or 'max' for newest features
+  -accel tcg                \   # x86 host: TCG; AArch64 host: hvf/kvm
+  -m 4G                     \
+  -pflash edk2-aarch64-code.fd \ # UEFI boot
+  -pflash edk2-arm-vars.fd  \
+  -nic user                 \
+  -nographic
+```
+
+**Milestones:**
+
+- [ ] **H4-1** Write QEMU launch-script generator (`tools/gen_qemu_launch.py`): parametrised by
+  target CPU, memory size, accelerator, boot mode
+- [ ] **H4-2** EDK2 firmware file management: download, version-lock, and verify checksums
+- [ ] **H4-3** MCP interface: allow Claude to trigger emulation runs and receive stdout/stderr
+- [ ] **H4-4** Result parser: classify exit conditions (pass / crash / timeout / SIGILL) and
+  route failures back to H3 (GDB) or H5 (re-compile)
+
+---
+
+## Skill H5 — Cross-Compilation & Static Linking
+
+**Purpose:** Manage the `aarch64-linux-gnu-gcc` toolchain to produce AArch64 binaries that run
+directly in H4's QEMU environment.
+
+Linking strategy decision tree:
+
+| Target environment | Recommended flags |
+|--------------------|-------------------|
+| QEMU bare-metal test | `-static` (no dynamic library dependencies) |
+| Minimal binary (low-level systems) | Musl libc + `-static` |
+| Full dynamic linking needed | Multiarch + install arm64 cross-compilation libraries |
+
+Common error repair rules:
+
+| Error | Root cause | Fix |
+|-------|-----------|-----|
+| `ld-linux-aarch64.so.1: No such file` | Missing AArch64 shared objects | Switch to `-static` or set up Multiarch |
+| `illegal instruction` | Instruction not supported on target CPU | Query H1 for downgrade |
+| `cannot find symbol` | Missing import/export declaration | Rule-based repair |
+
+**Milestones:**
+
+- [ ] **H5-1** Write cross-compilation environment setup script (auto-detects host arch,
+  installs `aarch64-linux-gnu-gcc`, configures Multiarch if needed)
+- [ ] **H5-2** Implement static/dynamic linking strategy selector
+- [ ] **H5-3** Musl libc support: configure, download, and integrate
+- [ ] **H5-4** Build common compile-error auto-repair rule library (at least 20 rules)
+
+---
+
+## Skill H6 — Advanced ISA Optimization (SVE2 / SME / Security Extensions)
+
+**Purpose:** Generate high-performance and security-hardened AArch64 code using the latest ISA
+extensions; depend on H1 to gate each extension by confirmed feature availability.
+
+### Vector and matrix acceleration
+
+| Extension | Key property | Use case |
+|-----------|-------------|----------|
+| SVE2 | Variable-length vectors (128–2048 bits), VLA programming | HPC, DSP |
+| SME / SME2 | Matrix operation acceleration | AI/ML inference workloads |
+| MXFP6 (v9.7-A) | 6-bit float, OCP format | AI model efficiency |
+
+Compile flag: `-march=armv9-a+sve2`
+
+### Hardware-enforced security
+
+| Extension | Key instructions | Protection target |
+|-----------|-----------------|------------------|
+| PAC (Pointer Authentication) | `PACIASP` / `AUTIASP` | Return-address hijacking (ROP) |
+| BTI (Branch Target Identification) | `BTI c`, `BTI j` | Jump-oriented programming (JOP) |
+| MTE (Memory Tagging Extension) | `LDG`, `STG`, `ADDG` | Buffer overflow, use-after-free |
+| RME (Realm Management Extension) | Realm isolation primitives | Privilege-layer data leakage |
+
+**Milestones:**
+
+- [ ] **H6-1** Build SVE2/SME code-generation template library
+- [ ] **H6-2** Implement PAC/BTI auto-insertion (function prologue/epilogue)
+- [ ] **H6-3** Build MTE tag-management helper utilities
+- [ ] **H6-4** Define security-extension usage best-practice checklist (lint rules for H7)
+
+---
+
+## Skill H7 — Linter-in-the-Loop Verification
+
+**Purpose:** Integrate VIXL Linter (or Ascent AutoFormal) into the generation loop; make
+Lint-Green the sole gate before merging generated code.
+
+Verification gate flow:
+
+```
+Code generation
+    │
+    ▼
+[Lint]──── FAIL ────▶ Error parse ──▶ Rule-based Repair ──┐
+    │                                                      │
+  PASS                                                     │
+    │◀─────────────────────────────────────────────────────┘
+    ▼
+[Functional test in H4 QEMU]──── FAIL ────▶ H3 GDB debug ──▶ Regenerate
+    │
+  PASS
+    ▼
+[ENAMEL performance benchmark]
+    │
+    ▼
+  Merge
+```
+
+AArch64-specific lint rule categories:
+
+| Category | Example rule | Architectural basis |
+|----------|-------------|---------------------|
+| Memory alignment | LDP/STP must be 16-byte aligned | AArch64 access requirement |
+| Register constraints | XZR must not be writeback base in LDR/STR | A64 ISA constraint |
+| Security | All indirect call targets must have BTI landing pad | Armv9 security model |
+| Exception model | EL1↔EL2 transitions must save/restore system registers | ARM ARM Part D |
+
+**Milestones:**
+
+- [ ] **H7-1** Deploy VIXL Linter integration interface
+- [ ] **H7-2** Define AArch64-specific lint rule set (target: ≥ 50 rules), sourcing from H1
+  spec data and H6 security patterns
+- [ ] **H7-3** Implement auto-repair suggestion generator (maps lint violations to code edits)
+- [ ] **H7-4** Wire Lint-Green check into CI/CD as a blocking merge gate
+
+---
+
+## Skill H8 — Multi-Agent Orchestration
+
+**Purpose:** Coordinate multiple Claude instances working in parallel on independent
+architectural subsystems, using version control to prevent conflicts.
+
+Agent roles:
+
+| Agent | Primary responsibility | AArch64 domain focus |
+|-------|----------------------|----------------------|
+| Developer Agent | Generate A64 code, pass unit tests | Instruction selection, algorithm design |
+| Critic Agent | Catch syntax errors and logical flaws | Architectural compliance, best practices |
+| Judge Agent | Independent spec-based verification | Zero-hallucination gatekeeper |
+| Executor Agent | Operate QEMU, GDB, compiler | Runtime verification, performance analysis |
+
+RALPH coordination loop:
+
+```
+Each agent runs in an isolated Docker container
+    │
+    ▼
+Acquire task lock file
+    ├──▶ Conflict: another agent holds the lock → choose a different task
+    ▼
+Oracle comparison: randomly mix GCC-compiled reference + experimental code
+    │
+    ▼
+Delta Debugging: narrow failures to the specific file pair
+    │
+    ▼
+RALPH (Repeating Amplified Prompting Loop): 24/7 continuous repair
+```
+
+**Milestones:**
+
+- [ ] **H8-1** Build multi-agent Docker sandbox environment (one container per agent role)
+- [ ] **H8-2** Implement version-control synchronisation protocol (lock file mechanism,
+  idempotent task design)
+- [ ] **H8-3** Implement Oracle comparison testing framework
+- [ ] **H8-4** Implement RALPH continuous improvement loop
+
+---
+
+## System Prompt Engineering Framework
+
+The canonical system prompt structure for an AArch64 master agent:
+
+```xml
+<identity>
+You are an expert AArch64 Systems Architect operating in a Linux 5.15 / Ubuntu 22.04 environment.
+You have mastered the Arm Architecture Reference Manual (DDI 0487) and have direct access
+to AARCHMRS machine-readable specifications via the arm-feat, arm-reg, arm-instr,
+arm-gic, arm-coresight, and arm-pmu skills.
+</identity>
+
+<constraints>
+- All memory accesses must be 16-byte aligned for LDP/STP instructions.
+- Never use XZR as the base register in load/store with writeback.
+- Always verify feature availability via arm-feat before using any ISA extension.
+- Insert PAC/AUT instructions in all function prologues and epilogues for Armv9 targets.
+- BTI landing pads are mandatory for all indirect branch targets.
+</constraints>
+
+<reasoning_protocol>
+Think step-by-step:
+1. Query arm-feat to confirm the instruction/extension exists for the target architecture version.
+2. Analyse register dependencies and potential pipeline stalls.
+3. Generate assembly code with proper alignment and security annotations.
+4. Propose a GDB verification plan (H3) before finalizing.
+</reasoning_protocol>
+
+<graceful_exit>
+If the requested feature is absent from arm-feat for the target version,
+state this clearly and offer an alternative implementation.
+</graceful_exit>
+```
+
+**Few-shot example strategy:** Provide 1–5 complete assembly examples per new ISA extension,
+each including register-state trace, so the agent learns the idiomatic usage pattern quickly.
+
+---
+
+## Validation and Benchmarking Strategy
+
+### Functional correctness metrics
+
+| Benchmark | Target | Evaluation method |
+|-----------|--------|-------------------|
+| HumanEval / HumanEval+ | Pass@1 ≥ 95% | Unit test pass rate |
+| Architectural compliance | Zero lint errors | VIXL Linter (H7) |
+| Register state correctness | 100% GDB assertion pass | GDB-MCP (H3) |
+
+### Performance efficiency metrics (ENAMEL benchmark)
+
+| Metric | Description | Target |
+|--------|-------------|--------|
+| eff@1 | Performance ratio vs `gcc -O3` | ≥ 0.85 |
+| Pipeline Stall Rate | Proportion of pipeline stall cycles | ≤ 5% |
+| Code Density | Code density vs. human expert | ≥ 90% |
+
+Reference: ENAMEL benchmark — arXiv:2505.11480 / OpenReview.
+
+### RL optimisation path (PPO)
+
+```
+Reward = 0.5 × functional_correctness + 0.3 × execution_performance + 0.2 × security_compliance
+```
+
+---
+
+## Phase 3 Development Timeline
+
+```
+Q1 (Month 1–3): Spec Grounding Layer (extends Parts I/II)
+  ├── H1: AARCHMRS allowlist output + query_allowlist.py      [Month 1]
+  ├── H2: Hierarchical RAG (gated on ARM Architecture License) [Month 2-3]
+  └── System prompt framework v1.0                            [Month 3]
+
+Q2 (Month 4–6): Tool Execution Layer
+  ├── H3: GDB-MCP Debugging                                   [Month 4]
+  ├── H4: QEMU Emulation Automation                           [Month 5]
+  └── H5: Cross-Compilation & Static Linking                  [Month 6]
+
+Q3 (Month 7–9): Advanced Capability Layer
+  ├── H6: Advanced ISA Optimization (SVE2/SME/Security)       [Month 7-8]
+  └── H7: Linter-in-the-Loop                                  [Month 9]
+
+Q4 (Month 10–12): Orchestration and Optimisation Layer
+  ├── H8: Multi-Agent Orchestration                           [Month 10-11]
+  └── ENAMEL benchmarking, PPO RL training, full integration  [Month 12]
+```
+
+**Prerequisite dependency:**
+
+```
+Parts I & II (Spec Grounding, DONE)
+    │
+    ├── H1 (allowlist output — no new blockers)
+    ├── H2 (RAG — blocked on ARM Architecture License)
+    │
+    ├── H3 (GDB-MCP — independent, start anytime)
+    ├── H4 (QEMU — independent, start anytime)
+    ├── H5 (Cross-compile — independent, start anytime)
+    │
+    ├── H6 (ISA Opt — depends on H1 for feature gating)
+    ├── H7 (Linter — depends on H6 for security rules)
+    └── H8 (Orchestration — depends on H3 + H4 + H5)
+```
+
+---
+
+## Phase 3 Risk Assessment
+
+| Risk | Severity | Mitigation |
+|------|----------|------------|
+| AARCHMRS spec update breaks skill | High | Versioned JSON cache + automated staleness detection (already implemented) |
+| QEMU vs real hardware divergence | Medium | Periodically validate on real AArch64 hardware |
+| Multi-agent race conditions | Medium | Strict lock-file mechanism + idempotent task design |
+| LLM context window exhausted by ARM ARM | High | Hierarchical RAG (H2) strict progressive zoom |
+| Incorrect security extension use introduces vulnerability | Critical | Judge Agent independent verification + H7 security lint rules |
+| ARM Architecture License unavailable for H2/EA-a | High | H2 deferred; all other H skills can proceed independently |
+
+---
+
+## Phase 3 References
+
+| Resource | Purpose |
+|----------|---------|
+| ARM ARM DDI 0487 | Primary architecture reference manual |
+| AARCHMRS (Parts I/II) | Machine-readable spec — already integrated |
+| Anthropic MCP | Tool protocol standard (modelcontextprotocol.io) |
+| VIXL | AArch64 runtime code generation and linter (github.com/Linaro/vixl) |
+| GDB-MCP Server | GDB debug MCP integration (github.com/Ipiano/gdb-mcp) |
+| ENAMEL Benchmark | Assembly efficiency evaluation (arXiv:2505.11480) |
+| QEMU AArch64 | Emulation environment |
+| pmsila/mcp_server_gdb | Alternative GDB-MCP server |
+
+---
+
+*Part III source: `AARCH64_HW_SKILL_SET_DEV_PLAN.md` v1.0 (2026-03-14). Integrated and renamed
+skill milestones H1–H8 to avoid collision with existing M0–M5/E0–EX naming.*

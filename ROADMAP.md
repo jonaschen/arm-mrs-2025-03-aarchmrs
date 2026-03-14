@@ -20,6 +20,14 @@
 | EB | `arm-gic` — GIC register skill | ✅ Complete |
 | EC | `arm-coresight` — CoreSight skill | ✅ Complete |
 | EX | Cross-extension integration and eval | ✅ Complete |
+| H1 | Allowlist output + `query_allowlist.py` | 🔲 Pending |
+| H2 | Hierarchical RAG on ARM ARM | 🔲 Pending (blocked: ARM Architecture License) |
+| H3 | GDB-MCP debugging skill | 🔲 Pending |
+| H4 | QEMU emulation automation | 🔲 Pending |
+| H5 | Cross-compilation & static linking | 🔲 Pending |
+| H6 | Advanced ISA optimization (SVE2/SME/PAC/BTI/MTE) | 🔲 Pending |
+| H7 | Linter-in-the-loop (VIXL) | 🔲 Pending |
+| H8 | Multi-agent orchestration | 🔲 Pending |
 
 ---
 
