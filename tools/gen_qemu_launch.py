@@ -413,8 +413,8 @@ def run_binary(
     except subprocess.TimeoutExpired as e:
         timed_out = True
         exit_code = _TIMEOUT_EXIT
-        stdout    = (e.stdout or b'').decode('utf-8', errors='replace')
-        stderr    = (e.stderr or b'').decode('utf-8', errors='replace')
+        stdout    = e.stdout or ''
+        stderr    = e.stderr or ''
     elapsed = time.monotonic() - t0
 
     return QemuResult(exit_code, stdout, stderr, elapsed)

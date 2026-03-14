@@ -411,6 +411,31 @@ class GdbSession:
                 return self._parse_breakpoint_table(rec.get('payload', ''))
         return []
 
+    @staticmethod
+    def _parse_breakpoint_table(payload: str) -> list:
+        """Parse the breakpoint-table payload from a ``-break-list`` response.
+
+        Extracts each ``{...}`` breakpoint entry and returns a list of dicts
+        with keys: ``number``, ``type``, ``disp``, ``enabled``, ``addr``,
+        ``func``, ``file``, ``line``, ``times``.
+        """
+        breakpoints = []
+        # Each breakpoint is a GDB/MI tuple: {number="1",type="breakpoint",...}
+        for m in re.finditer(
+            r'\{([^}]*)\}',
+            payload,
+        ):
+            entry_str = m.group(1)
+            bp: dict = {}
+            for field in ('number', 'type', 'disp', 'enabled', 'addr',
+                          'func', 'file', 'fullname', 'line', 'times'):
+                val = _extract_value(entry_str, field)
+                if val is not None:
+                    bp[field] = val
+            if bp:
+                breakpoints.append(bp)
+        return breakpoints
+
     def delete_breakpoint(self, bp_number: int) -> None:
         """Delete a breakpoint by number."""
         self._send_mi(f'-break-delete {bp_number}')
