@@ -100,7 +100,7 @@ def toolchain_available() -> bool:
 # Architecture version → march flag mapping
 # ---------------------------------------------------------------------------
 
-_ARCH_MARCH: dict = {
+_ARCH_MARCH: dict[str, str] = {
     'v8Ap0':  'armv8-a',
     'v8Ap1':  'armv8.1-a',
     'v8Ap2':  'armv8.2-a',
@@ -121,7 +121,7 @@ _ARCH_MARCH: dict = {
 }
 
 # Feature → +extension suffix for -march
-_FEAT_EXTENSION: dict = {
+_FEAT_EXTENSION: dict[str, str] = {
     'FEAT_SVE':      'sve',
     'FEAT_SVE2':     'sve2',
     'FEAT_SME':      'sme',
@@ -233,7 +233,7 @@ def detect_link_strategy() -> str:
     return 'static'
 
 
-def link_flags(strategy: str) -> list:
+def link_flags(strategy: str) -> list[str]:
     """Return the GCC flags for a given link strategy.
 
     Parameters
@@ -263,7 +263,7 @@ def link_flags(strategy: str) -> list:
 #   fix       actionable repair instructions
 #   docs_url  optional ARM / GCC documentation reference
 
-REPAIR_RULES: list = [
+REPAIR_RULES: list[dict[str, str]] = [
     # ---- Dynamic / shared library errors --------------------------------
     {
         'id':  'R01',

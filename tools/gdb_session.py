@@ -829,7 +829,7 @@ class GdbSession:
 
     # GDB assigns stable numbers to AArch64 registers.
     # Numbers 0–30: x0–x30; 31: sp; 32: pc; 33: cpsr/pstate
-    _AARCH64_REG_MAP: dict = {
+    _AARCH64_REG_MAP: dict[int, str] = {
         **{i: f'x{i}' for i in range(31)},
         31: 'sp',
         32: 'pc',

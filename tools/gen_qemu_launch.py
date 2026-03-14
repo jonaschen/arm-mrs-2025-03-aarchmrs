@@ -114,7 +114,7 @@ def qemu_available(mode: str = 'user') -> bool:
 # ---------------------------------------------------------------------------
 
 # Representative AArch64 CPUs available in QEMU (not exhaustive)
-QEMU_CPUS: dict = {
+QEMU_CPUS: dict[str, str] = {
     # QEMU generic target (enables most features)
     'max':           'Maximum features supported by this QEMU build',
 
