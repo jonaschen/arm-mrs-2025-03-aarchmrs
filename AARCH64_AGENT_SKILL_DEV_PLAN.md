@@ -1044,12 +1044,12 @@ query_instruction.py) is **complete**. What remains new:
 
 **Milestones:**
 
-- [ ] **H1-1** Define allowlist/blocklist JSON output schema for feature-qualified instruction sets
-- [ ] **H1-2** Write `tools/query_allowlist.py`: given `--arch v9Ap4 --feat FEAT_SVE2`, produce
+- [x] **H1-1** Define allowlist/blocklist JSON output schema for feature-qualified instruction sets
+- [x] **H1-2** Write `tools/query_allowlist.py`: given `--arch v9Ap4 --feat FEAT_SVE2`, produce
   the set of valid operation_ids and prohibited register names from existing cache
 - [ ] **H1-3** ASL pseudocode parser for instruction semantics simulation — **deferred** (same
   blocker as EA-a: requires ARM Architecture License for full MRS XML)
-- [ ] **H1-4** API wrapper so downstream skills (H3, H6) can call H1 programmatically
+- [x] **H1-4** API wrapper so downstream skills (H3, H6) can call H1 programmatically
 
 ---
 

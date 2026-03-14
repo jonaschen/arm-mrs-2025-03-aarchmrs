@@ -20,7 +20,7 @@
 | EB | `arm-gic` — GIC register skill | ✅ Complete |
 | EC | `arm-coresight` — CoreSight skill | ✅ Complete |
 | EX | Cross-extension integration and eval | ✅ Complete |
-| H1 | Allowlist output + `query_allowlist.py` | 🔲 Pending |
+| H1 | Allowlist output + `query_allowlist.py` | ✅ Complete |
 | H2 | Hierarchical RAG on ARM ARM | 🔲 Pending (blocked: ARM Architecture License) |
 | H3 | GDB-MCP debugging skill | 🔲 Pending |
 | H4 | QEMU emulation automation | 🔲 Pending |
@@ -322,6 +322,49 @@
 - `query_search.py --spec` extended from `{gic, coresight}` to `{aarchmrs, gic, coresight, pmu}`; `search_pmu_events()` function added
 - `eval_skill.py` now has 137 tests (added `CROSS_ROUTING_TESTS`, `SEARCH_SPEC_AARCHMRS_TESTS`, `SEARCH_SPEC_PMU_TESTS`)
 - Cross-routing finding: GICD_CTLR IS in AARCHMRS as `ext`-state (memory-mapped); `arm-gic` provides the GIC-specific view
+
+---
+
+# Phase 3 — Active Hardware Engineering
+
+## Milestone H1 — AARCHMRS Feature-Qualified Allowlist ✅
+
+**Goal:** Given a target architecture version and optional explicit feature flags, produce the set of
+valid AArch64 operation_ids (instruction allowlist) and unavailable register names (blocklist).
+
+**Prerequisite:** M0 (cache builder) complete · M1 (arm-feat) complete
+
+- [x] **H1-1** Define allowlist/blocklist JSON output schema (`schema_version`, `query`, `stats`,
+  `allowed_operations`, `prohibited_operations`, `allowed_registers`, `prohibited_registers`)
+- [x] **H1-2** Write `tools/query_allowlist.py`
+  - `--arch v9Ap4` — compute allowed/prohibited lists for the given arch version
+  - `--arch v9Ap4 --feat FEAT_SVE2` — add explicit features on top of the arch baseline
+  - `--arch v9Ap4 --output json` — machine-readable JSON output matching the schema
+  - `--arch v9Ap4 --summary` — summary counts only (no full lists)
+  - `--list-features v9Ap4` — show all FEAT_* names active at the version
+  - Evaluates `IsFeatureImplemented(FEAT_X)` conditions using `&&`, `||`, `!` operators
+  - Conservatively treats non-feature conditions (hardware register queries) as True
+- [x] **H1-3** ASL pseudocode parser for instruction semantics simulation — **deferred**
+  (blocked: requires ARM Architecture License for full MRS XML)
+- [x] **H1-4** Programmatic API wrapper `query_allowlist(arch, extra_features)` so downstream
+  skills (H3, H6) can call H1 without subprocess invocation
+- [x] Write `.claude/skills/arm-allowlist.md` — positive/negative triggers, schema docs,
+  programmatic import pattern
+- [x] Add 18 eval tests to `eval_skill.py` (`ALLOWLIST_TESTS`, `--skill allowlist`): exit
+  criteria, baseline instruction (ADC), SVE prohibition at v8Ap0, --list-features, JSON schema,
+  error handling
+
+**Exit criteria:** ✅ `python3 tools/query_allowlist.py --arch v9Ap4 --summary` produces correct
+counts. `--output json` produces valid JSON matching the schema. 18/18 eval tests pass.
+
+**Implementation notes:**
+- Feature set derivation: features.json cache consulted for `min_version ≤ arch`; features
+  with no `min_version` are always included (baseline features, e.g. `FEAT_AA64`)
+- Condition evaluation: only `IsFeatureImplemented(FEAT_X)` calls are evaluated; complex
+  conditions involving hardware registers (MPAMF_IDR, ERRDEVID, HaveEL, …) are treated as True
+- An operation is allowed if ANY of its instruction variants satisfies the condition
+- At v9Ap4: 2216/2262 operations allowed, 1398/1607 registers allowed (209 blocked)
+- At v8Ap0: 1706/2262 operations allowed, 759/1607 registers allowed (848 blocked)
 
 ---
 
