@@ -25,7 +25,7 @@
 | H3 | GDB-MCP debugging skill | ✅ Complete |
 | H4 | QEMU emulation automation | ✅ Complete |
 | H5 | Cross-compilation & static linking | ✅ Complete |
-| H6 | Advanced ISA optimization (SVE2/SME/PAC/BTI/MTE) | 🔲 Pending |
+| H6 | Advanced ISA optimization (SVE2/SME/PAC/BTI/MTE) | ✅ Complete |
 | H7 | Linter-in-the-loop (VIXL) | 🔲 Pending |
 | H8 | Multi-agent orchestration | 🔲 Pending |
 
@@ -483,6 +483,55 @@ in H4's QEMU environment; integrate 20 compile-error auto-repair rules.
 **Exit criteria:** ✅ `python3 tools/setup_cross_compile.py --march-flag --arch v9Ap0 --feat FEAT_SVE2`
 outputs `-march=armv9-a+sve2`. 20/20 repair rules present. `--repair-hint "illegal instruction"`
 returns R04. `python3 tools/eval_skill.py --skill cross` — 27/27 tests pass.
+
+---
+
+## Milestone H6 — Advanced ISA Optimization (SVE2/SME/PAC/BTI/MTE) ✅
+
+**Goal:** Generate high-performance and security-hardened AArch64 code using the latest ISA
+extensions (SVE2, SME, PAC, BTI, MTE); enforce feature gating through the H1 allowlist API.
+
+**Prerequisite:** H1 (feature-qualified allowlist), H5 (cross-compilation `-march` flags)
+
+- [x] **H6-1** Build SVE2/SME code-generation template library
+  - 8 SVE2 templates: dotproduct, matrix-multiply, convolution, reduce, gather, scatter,
+    scan, permute — all using `<arm_sve.h>` intrinsics with predicated VLA loops
+  - 4 SME templates: matmul, accumulate, transpose, int8-matmul — all using `<arm_sme.h>`
+    with `__arm_new("za")` streaming-mode functions
+  - `list_templates(category)` — Python API; `--list-templates [--category sve2|sme]` CLI
+  - `generate_template(name, arch)` — Python API; `--template NAME --arch VERSION` CLI
+  - Feature gating: every template checks feature availability via H1 `features_for_arch()`
+  - Generated code includes correct `-march` flag comments via H5 `arch_to_march_flag()`
+- [x] **H6-2** Implement PAC/BTI auto-insertion (function prologue/epilogue)
+  - `insert_pac_bti(asm_text, arch)` — Python API; `--auto-pac-bti --arch VERSION` CLI
+  - PACIASP inserted at function entry, AUTIASP before RET (if FEAT_PAuth available)
+  - BTI c inserted at function entry (if FEAT_BTI available at v8Ap5+)
+  - No-op at v8Ap0 (neither PAC nor BTI available)
+  - Both PAC and BTI at v9Ap0+ (both features architecturally mandated)
+- [x] **H6-3** Build MTE tag-management helper utilities
+  - `generate_mte_helpers(arch)` — Python API; `--mte-helpers --arch VERSION` CLI
+  - C header with `<arm_acle.h>` intrinsic wrappers: IRG (`mte_create_tag`),
+    STG (`mte_set_tag`), LDG (`mte_get_tag`), ADDG (`mte_increment_tag`)
+  - Region tagging (`mte_tag_region`) and pool allocation (`mte_alloc_pool`) helpers
+  - Feature-gated: only available at v8Ap5+ (FEAT_MTE)
+- [x] **H6-4** Define security-extension usage best-practice checklist (18 rules for H7)
+  - 5 PAC rules (R01–R05): prologue signing, epilogue auth, key diversity, AUT before deref, RETAA
+  - 5 BTI rules (R06–R10): indirect call landing pads, jump targets, GP bit, PAC+BTI combo, no mid-func jump
+  - 5 MTE rules (R11–R15): tag-on-alloc, granule alignment, clear-on-free, SCTLR_EL1.TCF, ADDG sub-objects
+  - 3 general rules (R16–R18): stack tagging, defense-in-depth combo, enhanced PAC2
+  - `list_security_rules(category)` — Python API; `--list-rules [--category pac|bti|mte|general]` CLI
+  - JSON export for H7 linter integration: `--list-rules --output json`
+- [x] Write `.claude/skills/arm-isa-opt.md` — positive/negative triggers, template tables,
+  security rules reference, extension availability table, programmatic API docs
+- [x] Add 42 eval tests to `eval_skill.py` (`ISA_OPT_TESTS`, `--skill isa_opt`):
+  basic invocation (4), template generation (7), feature gating (7), PAC/BTI insertion (4),
+  MTE helpers (6), security rules (5), programmatic API (6), error handling (3)
+
+**Exit criteria:** ✅ `python3 tools/isa_optimize.py --list-templates` shows 12 templates
+(8 SVE2 + 4 SME). `--template sve2-dotproduct --arch v9Ap4` produces valid C with `svdot_s32`.
+`--auto-pac-bti --arch v9Ap0` inserts PACIASP/AUTIASP/BTI c. `--mte-helpers --arch v8Ap5`
+produces valid C header with MTE intrinsics. `--list-rules` shows 18 security rules.
+`python3 tools/eval_skill.py --skill isa_opt` — 42/42 tests pass.
 
 ---
 

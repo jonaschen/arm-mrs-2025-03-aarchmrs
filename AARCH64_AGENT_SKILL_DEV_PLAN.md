@@ -1193,10 +1193,10 @@ Compile flag: `-march=armv9-a+sve2`
 
 **Milestones:**
 
-- [ ] **H6-1** Build SVE2/SME code-generation template library
-- [ ] **H6-2** Implement PAC/BTI auto-insertion (function prologue/epilogue)
-- [ ] **H6-3** Build MTE tag-management helper utilities
-- [ ] **H6-4** Define security-extension usage best-practice checklist (lint rules for H7)
+- [x] **H6-1** Build SVE2/SME code-generation template library
+- [x] **H6-2** Implement PAC/BTI auto-insertion (function prologue/epilogue)
+- [x] **H6-3** Build MTE tag-management helper utilities
+- [x] **H6-4** Define security-extension usage best-practice checklist (lint rules for H7)
 
 ---
 

@@ -47,6 +47,7 @@ QUERY_AL    = str(TOOLS_DIR / 'query_allowlist.py')
 QUERY_GDB   = str(TOOLS_DIR / 'query_gdb.py')
 QUERY_QEMU  = str(TOOLS_DIR / 'gen_qemu_launch.py')
 QUERY_CROSS = str(TOOLS_DIR / 'setup_cross_compile.py')
+QUERY_ISAOPT = str(TOOLS_DIR / 'isa_optimize.py')
 
 # ---------------------------------------------------------------------------
 # Test runner helpers
@@ -1667,6 +1668,292 @@ CROSS_TESTS = [
     ),
 ]
 
+# ---------------------------------------------------------------------------
+# ISA_OPT_TESTS — H6 Advanced ISA Optimization (SVE2/SME/PAC/BTI/MTE)
+# ---------------------------------------------------------------------------
+
+ISA_OPT_TESTS = [
+    # ------------------------------------------------------------------ #
+    # Basic invocation                                                     #
+    # ------------------------------------------------------------------ #
+    (
+        '--list-templates succeeds (exit 0)',
+        [QUERY_ISAOPT, '--list-templates'],
+        [exit_ok()],
+    ),
+    (
+        '--list-templates --category sve2 shows 8 SVE2 templates',
+        [QUERY_ISAOPT, '--list-templates', '--category', 'sve2'],
+        [exit_ok(), stdout_contains('Templates: 8')],
+    ),
+    (
+        '--list-templates --category sme shows 4 SME templates',
+        [QUERY_ISAOPT, '--list-templates', '--category', 'sme'],
+        [exit_ok(), stdout_contains('Templates: 4')],
+    ),
+    (
+        'No arguments exits non-zero (prints help)',
+        [QUERY_ISAOPT],
+        [exit_nonzero()],
+    ),
+    # ------------------------------------------------------------------ #
+    # Template generation correctness                                      #
+    # ------------------------------------------------------------------ #
+    (
+        '--template sve2-dotproduct --arch v9Ap4 produces SVE2 code',
+        [QUERY_ISAOPT, '--template', 'sve2-dotproduct', '--arch', 'v9Ap4'],
+        [exit_ok(), stdout_contains('arm_sve.h'), stdout_contains('svdot_s32')],
+    ),
+    (
+        '--template sve2-dotproduct --arch v9Ap4 shows march flag',
+        [QUERY_ISAOPT, '--template', 'sve2-dotproduct', '--arch', 'v9Ap4'],
+        [exit_ok(), stdout_contains('-march=armv9.4-a+sve2')],
+    ),
+    (
+        '--template sme-matmul --arch v9Ap2 produces SME code',
+        [QUERY_ISAOPT, '--template', 'sme-matmul', '--arch', 'v9Ap2'],
+        [exit_ok(), stdout_contains('arm_sme.h'), stdout_contains('svmopa_za32')],
+    ),
+    (
+        '--template sme-matmul --arch v8Ap0 errors (SME not available)',
+        [QUERY_ISAOPT, '--template', 'sme-matmul', '--arch', 'v8Ap0'],
+        [exit_nonzero(), stderr_contains('FEAT_SME')],
+    ),
+    (
+        'Unknown template name exits non-zero',
+        [QUERY_ISAOPT, '--template', 'nonexistent', '--arch', 'v9Ap4'],
+        [exit_nonzero(), stderr_contains('Unknown template')],
+    ),
+    (
+        '--template JSON output has schema_version 1.0',
+        [QUERY_ISAOPT, '--template', 'sve2-dotproduct', '--arch', 'v9Ap4',
+         '--output', 'json'],
+        [exit_ok(), stdout_contains('"schema_version": "1.0"')],
+    ),
+    (
+        '--template JSON output has march_flag field',
+        [QUERY_ISAOPT, '--template', 'sve2-dotproduct', '--arch', 'v9Ap4',
+         '--output', 'json'],
+        [exit_ok(), stdout_contains('"march_flag"')],
+    ),
+    # ------------------------------------------------------------------ #
+    # Feature availability gating                                          #
+    # ------------------------------------------------------------------ #
+    (
+        '--check-features SVE2 at v9Ap4 → available',
+        [QUERY_ISAOPT, '--check-features', '--arch', 'v9Ap4', 'SVE2'],
+        [exit_ok(), stdout_contains('available')],
+    ),
+    (
+        '--check-features SVE2 at v8Ap0 → NOT available',
+        [QUERY_ISAOPT, '--check-features', '--arch', 'v8Ap0', 'SVE2'],
+        [exit_nonzero(), stdout_contains('NOT available')],
+    ),
+    (
+        '--check-features SME at v9Ap2 → available',
+        [QUERY_ISAOPT, '--check-features', '--arch', 'v9Ap2', 'SME'],
+        [exit_ok(), stdout_contains('available')],
+    ),
+    (
+        '--check-features PAC at v8Ap3 → available',
+        [QUERY_ISAOPT, '--check-features', '--arch', 'v8Ap3', 'PAC'],
+        [exit_ok(), stdout_contains('available')],
+    ),
+    (
+        '--check-features BTI at v8Ap5 → available',
+        [QUERY_ISAOPT, '--check-features', '--arch', 'v8Ap5', 'BTI'],
+        [exit_ok(), stdout_contains('available')],
+    ),
+    (
+        '--check-features MTE at v8Ap5 → available',
+        [QUERY_ISAOPT, '--check-features', '--arch', 'v8Ap5', 'MTE'],
+        [exit_ok(), stdout_contains('available')],
+    ),
+    (
+        '--check-features all five at v9Ap4 → ALL AVAILABLE',
+        [QUERY_ISAOPT, '--check-features', '--arch', 'v9Ap4',
+         'SVE2', 'SME', 'PAC', 'BTI', 'MTE'],
+        [exit_ok(), stdout_contains('ALL AVAILABLE')],
+    ),
+    # ------------------------------------------------------------------ #
+    # PAC / BTI auto-insertion                                             #
+    # ------------------------------------------------------------------ #
+    (
+        '--auto-pac-bti at v9Ap0 inserts PACIASP',
+        ['-c', 'import subprocess, sys; '
+         'r = subprocess.run([sys.executable, "' + QUERY_ISAOPT + '", '
+         '"--auto-pac-bti", "--arch", "v9Ap0"], '
+         'input="my_func:\\n\\tret\\n", capture_output=True, text=True); '
+         'print(r.stdout); sys.exit(r.returncode)'],
+        [exit_ok(), stdout_contains('paciasp')],
+    ),
+    (
+        '--auto-pac-bti at v9Ap0 inserts BTI c',
+        ['-c', 'import subprocess, sys; '
+         'r = subprocess.run([sys.executable, "' + QUERY_ISAOPT + '", '
+         '"--auto-pac-bti", "--arch", "v9Ap0"], '
+         'input="my_func:\\n\\tret\\n", capture_output=True, text=True); '
+         'print(r.stdout); sys.exit(r.returncode)'],
+        [exit_ok(), stdout_contains('bti')],
+    ),
+    (
+        '--auto-pac-bti at v9Ap0 inserts AUTIASP before ret',
+        ['-c', 'import subprocess, sys; '
+         'r = subprocess.run([sys.executable, "' + QUERY_ISAOPT + '", '
+         '"--auto-pac-bti", "--arch", "v9Ap0"], '
+         'input="my_func:\\n\\tret\\n", capture_output=True, text=True); '
+         'print(r.stdout); sys.exit(r.returncode)'],
+        [exit_ok(), stdout_contains('autiasp')],
+    ),
+    (
+        '--auto-pac-bti at v8Ap0 does NOT insert PAC/BTI',
+        ['-c', 'import subprocess, sys; '
+         'r = subprocess.run([sys.executable, "' + QUERY_ISAOPT + '", '
+         '"--auto-pac-bti", "--arch", "v8Ap0"], '
+         'input="my_func:\\n\\tret\\n", capture_output=True, text=True); '
+         'print(r.stdout); sys.exit(r.returncode)'],
+        [exit_ok(), stdout_not_contains('paciasp'), stdout_not_contains('bti\tc')],
+    ),
+    # ------------------------------------------------------------------ #
+    # MTE helpers                                                          #
+    # ------------------------------------------------------------------ #
+    (
+        '--mte-helpers at v8Ap5 produces MTE header',
+        [QUERY_ISAOPT, '--mte-helpers', '--arch', 'v8Ap5'],
+        [exit_ok(), stdout_contains('MTE_HELPERS_H'),
+         stdout_contains('arm_acle.h')],
+    ),
+    (
+        '--mte-helpers includes IRG (mte_create_tag)',
+        [QUERY_ISAOPT, '--mte-helpers', '--arch', 'v8Ap5'],
+        [exit_ok(), stdout_contains('mte_create_tag')],
+    ),
+    (
+        '--mte-helpers includes STG (mte_set_tag)',
+        [QUERY_ISAOPT, '--mte-helpers', '--arch', 'v8Ap5'],
+        [exit_ok(), stdout_contains('mte_set_tag')],
+    ),
+    (
+        '--mte-helpers includes LDG (mte_get_tag)',
+        [QUERY_ISAOPT, '--mte-helpers', '--arch', 'v8Ap5'],
+        [exit_ok(), stdout_contains('mte_get_tag')],
+    ),
+    (
+        '--mte-helpers includes ADDG (mte_increment_tag)',
+        [QUERY_ISAOPT, '--mte-helpers', '--arch', 'v8Ap5'],
+        [exit_ok(), stdout_contains('mte_increment_tag')],
+    ),
+    (
+        '--mte-helpers at v8Ap0 errors (MTE not available)',
+        [QUERY_ISAOPT, '--mte-helpers', '--arch', 'v8Ap0'],
+        [exit_nonzero(), stderr_contains('FEAT_MTE')],
+    ),
+    # ------------------------------------------------------------------ #
+    # Security rules                                                       #
+    # ------------------------------------------------------------------ #
+    (
+        '--list-rules shows 18 rules',
+        [QUERY_ISAOPT, '--list-rules'],
+        [exit_ok(), stdout_contains('Rules: 18')],
+    ),
+    (
+        '--list-rules --category pac shows PAC rules',
+        [QUERY_ISAOPT, '--list-rules', '--category', 'pac'],
+        [exit_ok(), stdout_contains('PACIASP'), stdout_contains('R01')],
+    ),
+    (
+        '--list-rules --category bti shows BTI rules',
+        [QUERY_ISAOPT, '--list-rules', '--category', 'bti'],
+        [exit_ok(), stdout_contains('BTI'), stdout_contains('R06')],
+    ),
+    (
+        '--list-rules --category mte shows MTE rules',
+        [QUERY_ISAOPT, '--list-rules', '--category', 'mte'],
+        [exit_ok(), stdout_contains('MTE'), stdout_contains('R11')],
+    ),
+    (
+        '--list-rules JSON output has count field',
+        [QUERY_ISAOPT, '--list-rules', '--output', 'json'],
+        [exit_ok(), stdout_contains('"count": 18')],
+    ),
+    # ------------------------------------------------------------------ #
+    # Programmatic API                                                     #
+    # ------------------------------------------------------------------ #
+    (
+        'list_templates() returns 12 templates',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from isa_optimize import list_templates;\n'
+         'ts = list_templates();\n'
+         'assert len(ts) == 12, len(ts);\n'
+         'print("12 templates ok")\n'],
+        [exit_ok(), stdout_contains('12 templates ok')],
+    ),
+    (
+        'generate_template() returns code with intrinsics',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from isa_optimize import generate_template;\n'
+         'r = generate_template("sve2-dotproduct", "v9Ap4");\n'
+         'assert "svdot_s32" in r["code"];\n'
+         'assert r["march_flag"] == "-march=armv9.4-a+sve2";\n'
+         'print("template ok")\n'],
+        [exit_ok(), stdout_contains('template ok')],
+    ),
+    (
+        'generate_template() raises ValueError for unavailable feature',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from isa_optimize import generate_template;\n'
+         'try:\n    generate_template("sme-matmul", "v8Ap0")\n'
+         '    print("no error")\n'
+         'except ValueError as e:\n    print("ValueError ok:", e)\n'],
+        [exit_ok(), stdout_contains('ValueError ok')],
+    ),
+    (
+        'insert_pac_bti() returns dict with pac_available and bti_available',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from isa_optimize import insert_pac_bti;\n'
+         'r = insert_pac_bti("my_func:\\n\\tret\\n", "v9Ap0");\n'
+         'assert r["pac_available"] is True;\n'
+         'assert r["bti_available"] is True;\n'
+         'assert "paciasp" in r["output"];\n'
+         'print("pac_bti ok")\n'],
+        [exit_ok(), stdout_contains('pac_bti ok')],
+    ),
+    (
+        'SECURITY_RULES has exactly 18 entries',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from isa_optimize import SECURITY_RULES;\n'
+         'assert len(SECURITY_RULES) == 18, len(SECURITY_RULES);\n'
+         'print("18 rules ok")\n'],
+        [exit_ok(), stdout_contains('18 rules ok')],
+    ),
+    (
+        'ALL_TEMPLATES has 12 entries (8 SVE2 + 4 SME)',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from isa_optimize import ALL_TEMPLATES;\n'
+         'assert len(ALL_TEMPLATES) == 12, len(ALL_TEMPLATES);\n'
+         'print("12 ok")\n'],
+        [exit_ok(), stdout_contains('12 ok')],
+    ),
+    # ------------------------------------------------------------------ #
+    # Error handling                                                       #
+    # ------------------------------------------------------------------ #
+    (
+        '--template without --arch exits non-zero',
+        [QUERY_ISAOPT, '--template', 'sve2-dotproduct'],
+        [exit_nonzero()],
+    ),
+    (
+        '--check-features without args exits non-zero',
+        [QUERY_ISAOPT, '--check-features', '--arch', 'v9Ap4'],
+        [exit_nonzero()],
+    ),
+    (
+        '--mte-helpers without --arch exits non-zero',
+        [QUERY_ISAOPT, '--mte-helpers'],
+        [exit_nonzero()],
+    ),
+]
+
 # Map skill name → test list
 ALL_SKILLS: dict = {
     'feat':                  FEAT_TESTS,
@@ -1688,6 +1975,7 @@ ALL_SKILLS: dict = {
     'gdb':                   GDB_TESTS,
     'qemu':                  QEMU_TESTS,
     'cross':                 CROSS_TESTS,
+    'isa_opt':               ISA_OPT_TESTS,
 }
 
 # ---------------------------------------------------------------------------
