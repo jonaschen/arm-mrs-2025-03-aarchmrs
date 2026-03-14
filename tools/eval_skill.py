@@ -44,6 +44,9 @@ QUERY_GIC   = str(TOOLS_DIR / 'query_gic.py')
 QUERY_CS    = str(TOOLS_DIR / 'query_coresight.py')
 QUERY_PMU   = str(TOOLS_DIR / 'query_pmu.py')
 QUERY_AL    = str(TOOLS_DIR / 'query_allowlist.py')
+QUERY_GDB   = str(TOOLS_DIR / 'query_gdb.py')
+QUERY_QEMU  = str(TOOLS_DIR / 'gen_qemu_launch.py')
+QUERY_CROSS = str(TOOLS_DIR / 'setup_cross_compile.py')
 
 # ---------------------------------------------------------------------------
 # Test runner helpers
@@ -147,6 +150,48 @@ def field_value(field_label: str, expected: str):
         found = bool(pattern.search(stdout))
         return found, f"field '{field_label}: {expected}' {'found' if found else 'NOT FOUND'}"
     fn.__doc__ = f"field '{field_label}' = '{expected}'"
+    return fn
+
+
+def exit_one_of(codes: list):
+    """The tool must exit with one of the given codes."""
+    def fn(rc, stdout, stderr):
+        ok = rc in codes
+        return ok, f'exit {rc} (expected one of {codes})'
+    fn.__doc__ = f'exit code in {codes}'
+    return fn
+
+
+def stdout_contains_any(texts: list):
+    """stdout must contain at least one of the given strings."""
+    def fn(rc, stdout, stderr):
+        for t in texts:
+            if t in stdout:
+                return True, f"'{t}' found in stdout"
+        return False, f'None of {texts!r} found in stdout'
+    fn.__doc__ = f"stdout contains any of {texts!r}"
+    return fn
+
+
+def stdout_count_lines_gte(n: int):
+    """stdout must have at least n non-empty lines."""
+    def fn(rc, stdout, stderr):
+        count = sum(1 for l in stdout.splitlines() if l.strip())
+        ok = count >= n
+        return ok, f'stdout has {count} non-empty lines (expected >= {n})'
+    fn.__doc__ = f'stdout line count >= {n}'
+    return fn
+
+
+def output_contains_any(texts: list):
+    """stdout OR stderr must contain at least one of the given strings."""
+    def fn(rc, stdout, stderr):
+        combined = stdout + stderr
+        for t in texts:
+            if t in combined:
+                return True, f"'{t}' found in output"
+        return False, f'None of {texts!r} found in stdout or stderr'
+    fn.__doc__ = f"output (stdout|stderr) contains any of {texts!r}"
     return fn
 
 
@@ -1172,6 +1217,456 @@ ALLOWLIST_TESTS = [
     ),
 ]
 
+# ---------------------------------------------------------------------------
+# H3 — GDB tests (no GDB installation required for basic CLI checks)
+# ---------------------------------------------------------------------------
+
+GDB_TESTS = [
+    # ------------------------------------------------------------------ #
+    # Basic CLI sanity (no GDB binary needed)                             #
+    # ------------------------------------------------------------------ #
+    (
+        '--check runs without crashing (exits 0 or 1)',
+        [QUERY_GDB, '--check'],
+        [output_contains_any(['GDB available', 'GDB not found', 'not found'])],
+    ),
+    (
+        '--version runs without crashing',
+        [QUERY_GDB, '--version'],
+        [exit_one_of([0, 1])],
+    ),
+    (
+        'No arguments prints help and exits non-zero',
+        [QUERY_GDB],
+        [exit_nonzero()],
+    ),
+    (
+        '--sigill-hint prints H1 query command',
+        [QUERY_GDB, '--sigill-hint', 'v9Ap4'],
+        [exit_ok(), stdout_contains('query_allowlist.py')],
+    ),
+    (
+        '--sigill-hint includes the arch version in output',
+        [QUERY_GDB, '--sigill-hint', 'v9Ap4'],
+        [exit_ok(), stdout_contains('v9Ap4')],
+    ),
+    (
+        '--sigill-hint with --pc includes the address',
+        [QUERY_GDB, '--sigill-hint', 'v9Ap4', '--pc', '0x4004f0'],
+        [exit_ok(), stdout_contains('0x4004f0')],
+    ),
+    (
+        '--sigill-hint mentions SIGILL',
+        [QUERY_GDB, '--sigill-hint', 'v8Ap0'],
+        [exit_ok(), stdout_contains('SIGILL')],
+    ),
+    (
+        'gdb_session module is importable',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from gdb_session import '
+         'GdbSession, GdbNotAvailableError, SigilDetectedError, '
+         'AssertionFailedError, gdb_available; print("import ok")'],
+        [exit_ok(), stdout_contains('import ok')],
+    ),
+    (
+        'gdb_available() returns a bool without crashing',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from gdb_session import gdb_available; '
+         'v = gdb_available(); assert isinstance(v, bool); print("bool ok")'],
+        [exit_ok(), stdout_contains('bool ok')],
+    ),
+    (
+        'find_gdb raises GdbNotAvailableError or returns a path',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from gdb_session import '
+         'find_gdb, GdbNotAvailableError;\n'
+         'try:\n'
+         '    p = find_gdb(); print("found:", p)\n'
+         'except GdbNotAvailableError:\n'
+         '    print("not available")\n'],
+        [exit_ok(), stdout_contains_any(['found:', 'not available'])],
+    ),
+    (
+        'AssertionFailedError carries register/expected/actual attrs',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from gdb_session import AssertionFailedError;\n'
+         'e = AssertionFailedError("x0", 0, 42);\n'
+         'assert e.register == "x0";\n'
+         'assert e.expected == 0;\n'
+         'assert e.actual == 42;\n'
+         'print("attrs ok")\n'],
+        [exit_ok(), stdout_contains('attrs ok')],
+    ),
+    (
+        'SigilDetectedError carries pc and arch attrs',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from gdb_session import SigilDetectedError;\n'
+         'e = SigilDetectedError("SIGILL at 0x100", pc=0x100, arch="aarch64");\n'
+         'assert e.pc == 0x100;\n'
+         'assert e.arch == "aarch64";\n'
+         'print("attrs ok")\n'],
+        [exit_ok(), stdout_contains('attrs ok')],
+    ),
+    (
+        'GdbSession has expected methods',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from gdb_session import GdbSession;\n'
+         'for m in ["start","close","run","step","next","stepi","nexti",\n'
+         '          "continue_","set_breakpoint","get_registers",\n'
+         '          "get_register","assert_register","assert_registers",\n'
+         '          "get_backtrace","run_assertion_suite"]:\n'
+         '    assert hasattr(GdbSession, m), f"missing {m}"\n'
+         'print("methods ok")\n'],
+        [exit_ok(), stdout_contains('methods ok')],
+    ),
+    (
+        'suggest_sigill_repair returns string containing --arch flag',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from gdb_session import GdbSession;\n'
+         'hint = GdbSession.suggest_sigill_repair("v9Ap4", pc=0x4004f0);\n'
+         'assert "--arch v9Ap4" in hint;\n'
+         'assert "0x4004f0" in hint;\n'
+         'print("hint ok")\n'],
+        [exit_ok(), stdout_contains('hint ok')],
+    ),
+]
+
+# ---------------------------------------------------------------------------
+# H4 — QEMU tests (no QEMU installation required for script generation)
+# ---------------------------------------------------------------------------
+
+QEMU_TESTS = [
+    # ------------------------------------------------------------------ #
+    # Basic CLI sanity                                                     #
+    # ------------------------------------------------------------------ #
+    (
+        '--check runs without crashing',
+        [QUERY_QEMU, '--check'],
+        [exit_one_of([0, 1])],
+    ),
+    (
+        'No arguments generates a user-mode launch script (stdout)',
+        [QUERY_QEMU],
+        [exit_ok(), stdout_contains('qemu-aarch64')],
+    ),
+    (
+        '--list-cpus lists cortex-a57',
+        [QUERY_QEMU, '--list-cpus'],
+        [exit_ok(), stdout_contains('cortex-a57')],
+    ),
+    (
+        '--list-cpus lists cortex-a710',
+        [QUERY_QEMU, '--list-cpus'],
+        [exit_ok(), stdout_contains('cortex-a710')],
+    ),
+    (
+        '--list-cpus lists max CPU',
+        [QUERY_QEMU, '--list-cpus'],
+        [exit_ok(), stdout_contains('max')],
+    ),
+    (
+        'User-mode script contains shebang',
+        [QUERY_QEMU, '--mode', 'user'],
+        [exit_ok(), stdout_contains('#!/usr/bin/env bash')],
+    ),
+    (
+        'User-mode script contains -cpu flag',
+        [QUERY_QEMU, '--mode', 'user', '--cpu', 'cortex-a57'],
+        [exit_ok(), stdout_contains('-cpu cortex-a57')],
+    ),
+    (
+        'User-mode script with --cpu max',
+        [QUERY_QEMU, '--mode', 'user', '--cpu', 'max'],
+        [exit_ok(), stdout_contains('-cpu max')],
+    ),
+    (
+        'System-mode script contains qemu-system-aarch64',
+        [QUERY_QEMU, '--mode', 'system'],
+        [exit_ok(), stdout_contains('qemu-system-aarch64')],
+    ),
+    (
+        'System-mode script contains -machine virt',
+        [QUERY_QEMU, '--mode', 'system'],
+        [exit_ok(), stdout_contains('-machine virt')],
+    ),
+    (
+        'System-mode script contains -m 4G by default',
+        [QUERY_QEMU, '--mode', 'system'],
+        [exit_ok(), stdout_contains('-m 4G')],
+    ),
+    (
+        'System-mode script with custom --memory',
+        [QUERY_QEMU, '--mode', 'system', '--memory', '2G'],
+        [exit_ok(), stdout_contains('-m 2G')],
+    ),
+    (
+        'System-mode script with --cpu cortex-a710',
+        [QUERY_QEMU, '--mode', 'system', '--cpu', 'cortex-a710'],
+        [exit_ok(), stdout_contains('-cpu cortex-a710')],
+    ),
+    (
+        'System-mode script contains -accel tcg by default',
+        [QUERY_QEMU, '--mode', 'system'],
+        [exit_ok(), stdout_contains('-accel tcg')],
+    ),
+    (
+        'System-mode script with --accel kvm',
+        [QUERY_QEMU, '--mode', 'system', '--accel', 'kvm'],
+        [exit_ok(), stdout_contains('-accel kvm')],
+    ),
+    (
+        'QemuResult module is importable',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from gen_qemu_launch import '
+         'QemuResult, run_binary, gen_user_mode_script, '
+         'gen_system_mode_script, QEMU_CPUS, find_qemu, qemu_available;\n'
+         'print("import ok")\n'],
+        [exit_ok(), stdout_contains('import ok')],
+    ),
+    (
+        'QEMU_CPUS contains expected entries',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from gen_qemu_launch import QEMU_CPUS;\n'
+         'for cpu in ["max","cortex-a57","cortex-a710","neoverse-n1"]:\n'
+         '    assert cpu in QEMU_CPUS, f"missing {cpu}"\n'
+         'print("cpus ok")\n'],
+        [exit_ok(), stdout_contains('cpus ok')],
+    ),
+    (
+        'QemuResult classifies SIGILL exit code 132',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from gen_qemu_launch import QemuResult;\n'
+         'r = QemuResult(132, "", "", 0.1);\n'
+         'assert r.classification == "sigill", r.classification;\n'
+         'print("sigill ok")\n'],
+        [exit_ok(), stdout_contains('sigill ok')],
+    ),
+    (
+        'QemuResult classifies SIGSEGV exit code 139',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from gen_qemu_launch import QemuResult;\n'
+         'r = QemuResult(139, "", "", 0.1);\n'
+         'assert r.classification == "sigsegv", r.classification;\n'
+         'print("sigsegv ok")\n'],
+        [exit_ok(), stdout_contains('sigsegv ok')],
+    ),
+    (
+        'QemuResult classifies exit 0 as pass',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from gen_qemu_launch import QemuResult;\n'
+         'r = QemuResult(0, "hello", "", 0.5);\n'
+         'assert r.classification == "pass", r.classification;\n'
+         'print("pass ok")\n'],
+        [exit_ok(), stdout_contains('pass ok')],
+    ),
+    (
+        'QemuResult classifies timeout exit 124',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from gen_qemu_launch import QemuResult, _TIMEOUT_EXIT;\n'
+         'r = QemuResult(_TIMEOUT_EXIT, "", "", 30.0);\n'
+         'assert r.classification == "timeout", r.classification;\n'
+         'print("timeout ok")\n'],
+        [exit_ok(), stdout_contains('timeout ok')],
+    ),
+    (
+        'gen_user_mode_script includes the cpu argument',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from gen_qemu_launch import gen_user_mode_script;\n'
+         's = gen_user_mode_script(cpu="cortex-a710");\n'
+         'assert "cortex-a710" in s, "cpu not in script";\n'
+         'print("script ok")\n'],
+        [exit_ok(), stdout_contains('script ok')],
+    ),
+    (
+        'gen_system_mode_script includes memory and CPU',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from gen_qemu_launch import gen_system_mode_script;\n'
+         's = gen_system_mode_script(cpu="neoverse-n1", memory="8G");\n'
+         'assert "neoverse-n1" in s;\n'
+         'assert "-m 8G" in s;\n'
+         'print("system script ok")\n'],
+        [exit_ok(), stdout_contains('system script ok')],
+    ),
+]
+
+# ---------------------------------------------------------------------------
+# H5 — Cross-compilation tests (no cross-compiler installation required)
+# ---------------------------------------------------------------------------
+
+CROSS_TESTS = [
+    # ------------------------------------------------------------------ #
+    # Basic CLI sanity                                                     #
+    # ------------------------------------------------------------------ #
+    (
+        '--check runs without crashing',
+        [QUERY_CROSS, '--check'],
+        [exit_one_of([0, 1])],
+    ),
+    (
+        'No arguments prints help and exits non-zero',
+        [QUERY_CROSS],
+        [exit_nonzero()],
+    ),
+    (
+        '--list-archs lists v8Ap0',
+        [QUERY_CROSS, '--list-archs'],
+        [exit_ok(), stdout_contains('v8Ap0')],
+    ),
+    (
+        '--list-archs lists v9Ap4',
+        [QUERY_CROSS, '--list-archs'],
+        [exit_ok(), stdout_contains('v9Ap4')],
+    ),
+    (
+        '--list-archs lists all 17 versions',
+        [QUERY_CROSS, '--list-archs'],
+        [exit_ok(), stdout_count_lines_gte(17)],
+    ),
+    (
+        '--list-feats lists FEAT_SVE2',
+        [QUERY_CROSS, '--list-feats'],
+        [exit_ok(), stdout_contains('FEAT_SVE2')],
+    ),
+    (
+        '--list-feats lists FEAT_MTE',
+        [QUERY_CROSS, '--list-feats'],
+        [exit_ok(), stdout_contains('FEAT_MTE')],
+    ),
+    (
+        '--list-feats lists at least 20 features',
+        [QUERY_CROSS, '--list-feats'],
+        [exit_ok(), stdout_count_lines_gte(20)],
+    ),
+    (
+        '--link-strategy prints the decision table',
+        [QUERY_CROSS, '--link-strategy'],
+        [exit_ok(), stdout_contains('static')],
+    ),
+    (
+        '--link-strategy mentions dynamic',
+        [QUERY_CROSS, '--link-strategy'],
+        [exit_ok(), stdout_contains('dynamic')],
+    ),
+    (
+        '--march-flag for v9Ap4 outputs armv9.4-a',
+        [QUERY_CROSS, '--march-flag', '--arch', 'v9Ap4'],
+        [exit_ok(), stdout_contains('armv9.4-a')],
+    ),
+    (
+        '--march-flag for v8Ap0 outputs armv8-a',
+        [QUERY_CROSS, '--march-flag', '--arch', 'v8Ap0'],
+        [exit_ok(), stdout_contains('armv8-a')],
+    ),
+    (
+        '--march-flag with FEAT_SVE2 outputs +sve2',
+        [QUERY_CROSS, '--march-flag', '--arch', 'v9Ap0', '--feat', 'FEAT_SVE2'],
+        [exit_ok(), stdout_contains('+sve2')],
+    ),
+    (
+        '--march-flag with FEAT_SME outputs +sme',
+        [QUERY_CROSS, '--march-flag', '--arch', 'v9Ap0', '--feat', 'FEAT_SME'],
+        [exit_ok(), stdout_contains('+sme')],
+    ),
+    (
+        '--march-flag with unknown arch exits non-zero',
+        [QUERY_CROSS, '--march-flag', '--arch', 'vXXX'],
+        [exit_nonzero()],
+    ),
+    (
+        '--repair-hint for ld-linux missing returns R01',
+        [QUERY_CROSS, '--repair-hint',
+         'ld-linux-aarch64.so.1: No such file or directory'],
+        [exit_ok(), stdout_contains('R01')],
+    ),
+    (
+        '--repair-hint for illegal instruction returns R04',
+        [QUERY_CROSS, '--repair-hint', 'illegal instruction'],
+        [exit_ok(), stdout_contains('R04')],
+    ),
+    (
+        '--repair-hint for SVE feature error returns R15',
+        [QUERY_CROSS, '--repair-hint',
+         "error: ACLE function requires target feature 'sve'"],
+        [exit_ok(), stdout_contains('R15')],
+    ),
+    (
+        '--repair-hint for SME feature error returns R16',
+        [QUERY_CROSS, '--repair-hint',
+         "error: ACLE function requires target feature 'sme'"],
+        [exit_ok(), stdout_contains('R16')],
+    ),
+    (
+        '--repair-hint with no match exits 0 and says no match',
+        [QUERY_CROSS, '--repair-hint', 'xyzzy frob gorp'],
+        [exit_ok(), stdout_contains('No matching repair rule')],
+    ),
+    (
+        'Module importable: arch_to_march_flag, find_repair_rules, cross_compile',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from setup_cross_compile import '
+         'arch_to_march_flag, find_repair_rules, cross_compile, '
+         'detect_link_strategy, link_flags, toolchain_available, '
+         'REPAIR_RULES;\n'
+         'print("import ok")\n'],
+        [exit_ok(), stdout_contains('import ok')],
+    ),
+    (
+        'arch_to_march_flag v9Ap4 → armv9.4-a',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from setup_cross_compile import arch_to_march_flag;\n'
+         'f = arch_to_march_flag("v9Ap4");\n'
+         'assert f == "-march=armv9.4-a", repr(f);\n'
+         'print("flag ok")\n'],
+        [exit_ok(), stdout_contains('flag ok')],
+    ),
+    (
+        'arch_to_march_flag v9Ap0 + FEAT_SVE2 → armv9-a+sve2',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from setup_cross_compile import arch_to_march_flag;\n'
+         'f = arch_to_march_flag("v9Ap0", ["FEAT_SVE2"]);\n'
+         'assert f == "-march=armv9-a+sve2", repr(f);\n'
+         'print("sve2 ok")\n'],
+        [exit_ok(), stdout_contains('sve2 ok')],
+    ),
+    (
+        'arch_to_march_flag unknown version raises ValueError',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from setup_cross_compile import arch_to_march_flag;\n'
+         'try:\n'
+         '    arch_to_march_flag("vXXX")\n'
+         '    print("no error")\n'
+         'except ValueError:\n'
+         '    print("ValueError ok")\n'],
+        [exit_ok(), stdout_contains('ValueError ok')],
+    ),
+    (
+        'REPAIR_RULES has exactly 20 entries',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from setup_cross_compile import REPAIR_RULES;\n'
+         'assert len(REPAIR_RULES) == 20, len(REPAIR_RULES);\n'
+         'print("20 rules ok")\n'],
+        [exit_ok(), stdout_contains('20 rules ok')],
+    ),
+    (
+        'find_repair_rules matches ld-linux error → non-empty',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from setup_cross_compile import find_repair_rules;\n'
+         'rules = find_repair_rules("ld-linux-aarch64.so.1: No such file");\n'
+         'assert len(rules) >= 1, rules;\n'
+         'print("found", len(rules), "rule(s)")\n'],
+        [exit_ok(), stdout_contains('rule')],
+    ),
+    (
+        'find_repair_rules returns empty list for unrecognised error',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from setup_cross_compile import find_repair_rules;\n'
+         'rules = find_repair_rules("xyzzy frob gorp");\n'
+         'assert rules == [], rules;\n'
+         'print("empty ok")\n'],
+        [exit_ok(), stdout_contains('empty ok')],
+    ),
+]
+
 # Map skill name → test list
 ALL_SKILLS: dict = {
     'feat':                  FEAT_TESTS,
@@ -1190,6 +1685,9 @@ ALL_SKILLS: dict = {
     'search_spec_aarchmrs':  SEARCH_SPEC_AARCHMRS_TESTS,
     'search_spec_pmu':       SEARCH_SPEC_PMU_TESTS,
     'allowlist':             ALLOWLIST_TESTS,
+    'gdb':                   GDB_TESTS,
+    'qemu':                  QEMU_TESTS,
+    'cross':                 CROSS_TESTS,
 }
 
 # ---------------------------------------------------------------------------
@@ -1263,11 +1761,13 @@ def main() -> int:
     #   gic cache:    gic, gic_search, cross_routing
     #   coresight cache: coresight, coresight_search
     #   pmu cache:    pmu, search_spec_pmu
+    #   no cache needed: gdb, qemu, cross
     ARM_ARM_ONLY_SKILLS  = frozenset(('instr_t32', 'instr_a32', 'search_t32'))
     GIC_ONLY_SKILLS      = frozenset(('gic', 'gic_search'))
     GIC_ALSO_SKILLS      = frozenset(('cross_routing',))   # needs A64 + GIC
     CS_ONLY_SKILLS       = frozenset(('coresight', 'coresight_search'))
     PMU_ONLY_SKILLS      = frozenset(('pmu', 'search_spec_pmu'))
+    NO_CACHE_SKILLS      = frozenset(('gdb', 'qemu', 'cross'))
 
     # Select skills to test first (so we can decide which caches to require)
     if args.skill:
@@ -1281,7 +1781,8 @@ def main() -> int:
 
     # NON_A64_SKILLS: skills that do NOT require the A64 cache.
     # cross_routing and search_spec_aarchmrs are NOT here — they need A64.
-    NON_A64_SKILLS       = ARM_ARM_ONLY_SKILLS | GIC_ONLY_SKILLS | CS_ONLY_SKILLS | PMU_ONLY_SKILLS
+    NON_A64_SKILLS       = (ARM_ARM_ONLY_SKILLS | GIC_ONLY_SKILLS
+                            | CS_ONLY_SKILLS | PMU_ONLY_SKILLS | NO_CACHE_SKILLS)
     needs_a64_cache      = any(s not in NON_A64_SKILLS for s in skills_to_run)
     needs_arm_arm_cache  = any(s in ARM_ARM_ONLY_SKILLS for s in skills_to_run)
     needs_gic_cache      = any(s in GIC_ONLY_SKILLS | GIC_ALSO_SKILLS for s in skills_to_run)

@@ -22,9 +22,9 @@
 | EX | Cross-extension integration and eval | ✅ Complete |
 | H1 | Allowlist output + `query_allowlist.py` | ✅ Complete |
 | H2 | Hierarchical RAG on ARM ARM | 🔲 Pending (blocked: ARM Architecture License) |
-| H3 | GDB-MCP debugging skill | 🔲 Pending |
-| H4 | QEMU emulation automation | 🔲 Pending |
-| H5 | Cross-compilation & static linking | 🔲 Pending |
+| H3 | GDB-MCP debugging skill | ✅ Complete |
+| H4 | QEMU emulation automation | ✅ Complete |
+| H5 | Cross-compilation & static linking | ✅ Complete |
 | H6 | Advanced ISA optimization (SVE2/SME/PAC/BTI/MTE) | 🔲 Pending |
 | H7 | Linter-in-the-loop (VIXL) | 🔲 Pending |
 | H8 | Multi-agent orchestration | 🔲 Pending |
@@ -365,6 +365,124 @@ counts. `--output json` produces valid JSON matching the schema. 18/18 eval test
 - An operation is allowed if ANY of its instruction variants satisfies the condition
 - At v9Ap4: 2216/2262 operations allowed, 1398/1607 registers allowed (209 blocked)
 - At v8Ap0: 1706/2262 operations allowed, 759/1607 registers allowed (848 blocked)
+
+---
+
+## Milestone H3 — AArch64 GDB-MCP Debugging Skill ✅
+
+**Goal:** Let Claude directly control GDB/MI to step through generated AArch64 assembly and
+verify register state against expected values.
+
+**Prerequisite:** H1 (allowlist output for SIGILL repair integration)
+
+- [x] **H3-1** Write `tools/gdb_session.py` — GDB/MI session manager class
+  - `GdbSession(executable)` — context manager that drives GDB in MI mode over subprocess
+  - `step()`, `next()`, `stepi()`, `nexti()` — execution control
+  - `continue_()`, `run()` — resume and start
+  - `set_breakpoint(location)`, `list_breakpoints()` — breakpoint management
+  - `get_registers()` → dict (x0–x30, sp, pc, pstate)
+  - `get_register(name)`, `examine_memory(addr, count)` — data inspection
+  - `get_backtrace()`, `select_frame(level)` — stack analysis
+  - `assert_register(reg, expected)` — raises `AssertionFailedError` on mismatch
+  - `assert_registers(expected_dict)` — batch assertion; returns list of failures
+  - `run_assertion_suite(steps)` — orchestrates a JSON step/assert sequence
+  - `suggest_sigill_repair(arch, pc)` — static helper; emits H1 query command
+  - `SigilDetectedError`, `AssertionFailedError`, `GdbNotAvailableError` exceptions
+  - Auto-discovers `gdb-multiarch` then `gdb`; respects `ARM_GDB_PATH` env var
+- [x] **H3-2** Write `tools/query_gdb.py` — CLI tool for GDB debugging operations
+  - `--check` — verify gdb-multiarch is installed
+  - `--version` — print GDB version
+  - `<binary> --break LOCATION --step N --registers` — run to breakpoint, step, inspect
+  - `<binary> --assert "x0=0 x1=0x42"` — assert register values; exits non-zero on failure
+  - `<binary> --nexti N` — step N machine instructions (step-over)
+  - `<binary> --backtrace` — print call stack
+  - `<binary> --suite SUITE.json` — run a JSON step/assert batch suite
+  - `--sigill-hint ARCH [--pc ADDR]` — print H1-based SIGILL repair hint
+  - Exit code 2 on SIGILL
+- [x] **H3-3** Write `.claude/skills/arm-gdb.md` — positive/negative triggers, suite format,
+  SIGILL repair workflow, programmatic API docs, register reference table
+- [x] **H3-4** Add 14 eval tests to `eval_skill.py` (`GDB_TESTS`, `--skill gdb`):
+  CLI sanity, sigill-hint content, module import, API attribute checks (no GDB install needed)
+
+**Exit criteria:** ✅ `python3 tools/query_gdb.py --sigill-hint v9Ap4` emits H1 query command.
+`python3 tools/eval_skill.py --skill gdb` — 14/14 tests pass with no GDB installation required.
+
+---
+
+## Milestone H4 — QEMU-AArch64 Emulation Automation ✅
+
+**Goal:** Auto-generate QEMU launch scripts and run AArch64 binaries in user-mode QEMU,
+classifying exit conditions for integration with H3 (GDB) and H5 (re-compile).
+
+**Prerequisite:** H3 (for routing SIGILL/SIGSEGV failures back to GDB)
+
+- [x] **H4-1** Write `tools/gen_qemu_launch.py` — QEMU launch-script generator and runner
+  - `--mode user [--cpu CPU] [--output FILE]` — generate user-mode launch script
+  - `--mode system [--cpu CPU] [--memory MEM] [--accel tcg|kvm|hvf]` — system-mode script
+  - `--run BINARY [--cpu CPU] [--timeout N] [--json]` — run binary and report result
+  - `--check` — verify qemu-aarch64 / qemu-system-aarch64 is installed
+  - `--list-cpus` — list available AArch64 CPU models with descriptions
+  - System-mode: `--kernel`, `--drive`, `--accel kvm|hvf|tcg`
+  - User-mode: `--static` (qemu-aarch64-static for static binaries)
+  - `QemuResult` class: `exit_code`, `stdout`, `stderr`, `elapsed`, `classification`
+    (`pass`/`fail`/`sigill`/`sigsegv`/`timeout`)
+  - `run_binary(binary, cpu, timeout)` — programmatic API
+  - `gen_user_mode_script(cpu, ...)` and `gen_system_mode_script(...)` — script generators
+  - Respects `ARM_QEMU_USER_PATH` and `ARM_QEMU_SYSTEM_PATH` env vars
+  - SIGILL exit code 132; SIGSEGV exit code 139; timeout exit code 124
+- [x] **H4-2** CPU catalogue: 11 representative CPUs (max, cortex-a35/a53/a55/a57/a72/a76/a710,
+  neoverse-n1/v1, cortex-x1) with architecture version and use-case descriptions
+- [x] **H4-3** Write `.claude/skills/arm-qemu.md` — positive/negative triggers, exit-condition
+  routing table, SIGILL repair workflow, CPU reference, programmatic API docs
+- [x] **H4-4** Add 23 eval tests to `eval_skill.py` (`QEMU_TESTS`, `--skill qemu`):
+  script generation correctness, QemuResult classification, CPU catalogue, import checks
+
+**Exit criteria:** ✅ `python3 tools/gen_qemu_launch.py --mode system --cpu cortex-a710`
+generates a valid QEMU launch script. `QemuResult` correctly classifies SIGILL/SIGSEGV/pass/
+timeout. `python3 tools/eval_skill.py --skill qemu` — 23/23 tests pass.
+
+---
+
+## Milestone H5 — Cross-Compilation & Static Linking ✅
+
+**Goal:** Manage the `aarch64-linux-gnu-gcc` toolchain to produce AArch64 binaries that run
+in H4's QEMU environment; integrate 20 compile-error auto-repair rules.
+
+**Prerequisite:** H4 (QEMU integration for test-compile-run loop)
+
+- [x] **H5-1** Write `tools/setup_cross_compile.py` — cross-compilation setup and build tool
+  - `--check` — detect cross-compiler and auto-detect link strategy
+  - `--setup` — install `gcc-aarch64-linux-gnu` via apt
+  - `--compile SOURCE [--out BINARY] [--arch VERSION] [--feat FEAT_X …]` — cross-compile
+  - `--link auto|static|dynamic|musl` — link strategy selector
+  - `--march-flag [--arch VERSION] [--feat FEAT_X …]` — print -march flag
+  - `--link-strategy` — show decision table + auto-detected strategy
+  - `--repair-hint ERROR_MSG` — look up auto-repair rules
+  - `--list-archs` — all 17 supported version strings
+  - `--list-feats` — all 21 FEAT_* → +extension mappings
+  - `arch_to_march_flag(arch, features)` — Python API; raises `ValueError` for unknown arch
+  - `find_repair_rules(error_msg)` — returns matching rules from 20-rule library
+  - `cross_compile(source, out, arch, features, link, extra_flags)` — Python API
+  - `detect_link_strategy()` — auto-detects `static`/`dynamic`/`musl`
+  - Respects `ARM_CC_AARCH64`, `ARM_CXX_AARCH64`, `ARM_SYSROOT` env vars
+- [x] **H5-2** Architecture version → `-march` mapping: all 17 versions (v8Ap0–v9Ap6)
+- [x] **H5-3** FEAT_* → `-march` extension mapping: 21 extensions (SVE, SVE2, SME, SME2,
+  FP16, LSE, LSE2, DOTPROD, BF16, I8MM, MTE, MTE2, BTI, PAUTH, SSBS, RNG, CRC32,
+  PMULL, SHA1, SHA256, SHA3, SHA512)
+- [x] **H5-4** 20-rule compile-error auto-repair library (R01–R20): dynamic linker missing,
+  library not found, libc static, illegal instruction, -march unrecognised, wrong target,
+  undefined reference, implicit declaration, undeclared symbol, relocation truncated,
+  unsupported relocation, ABI mismatch, stack alignment, data alignment, SVE/SME feature
+  errors, NEON range, PAC/BTI enable errors, generic ld failure
+- [x] Write `.claude/skills/arm-cross.md` — positive/negative triggers, arch/feat tables,
+  link strategy decision tree, repair rules reference, programmatic API docs
+- [x] Add 27 eval tests to `eval_skill.py` (`CROSS_TESTS`, `--skill cross`):
+  CLI sanity, --march-flag correctness, repair rule matching, API correctness,
+  REPAIR_RULES count validation, ValueError for unknown arch
+
+**Exit criteria:** ✅ `python3 tools/setup_cross_compile.py --march-flag --arch v9Ap0 --feat FEAT_SVE2`
+outputs `-march=armv9-a+sve2`. 20/20 repair rules present. `--repair-hint "illegal instruction"`
+returns R04. `python3 tools/eval_skill.py --skill cross` — 27/27 tests pass.
 
 ---
 
