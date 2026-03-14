@@ -67,6 +67,11 @@ VERSION_ORDER = [
 VERSION_INDEX = {v: i for i, v in enumerate(VERSION_ORDER)}
 VERSION_SET   = set(VERSION_ORDER)
 
+# Sentinel index for any unknown version string — guaranteed to exceed all
+# real version indices so features with unrecognized min_version strings are
+# never included in the active feature set.
+_UNKNOWN_VERSION_INDEX = 999
+
 
 # ---------------------------------------------------------------------------
 # Cache loading
@@ -139,7 +144,7 @@ def features_for_arch(arch_version: str, features: list) -> set:
         if min_ver is None:
             # Feature with no version constraint: always available
             result.add(name)
-        elif VERSION_INDEX.get(min_ver, 999) <= ceiling:
+        elif VERSION_INDEX.get(min_ver, _UNKNOWN_VERSION_INDEX) <= ceiling:
             result.add(name)
 
     return result
@@ -260,7 +265,12 @@ def compute_operation_lists(op_ids: list, feature_set: set) -> tuple:
         variants = op.get('instruction_variants', [])
 
         if not variants:
-            # No variants → baseline operation (always allowed)
+            # No variants → operation exists but has no feature-gated encoding
+            # variants in the cache (e.g. assembly-only aliases). Treat as always
+            # allowed: the cache schema guarantees that operations only appear in
+            # op_to_paths if at least one instruction leaf references them, so an
+            # empty variants list means the cache file exists but was not populated
+            # from the instruction tree (should not normally occur in practice).
             allowed.append(op_id)
             continue
 

@@ -1256,11 +1256,13 @@ def main() -> int:
     print('Architecture: v9Ap6-A, Build 445, March 2025')
     print('=' * 60)
 
-    # Validate cache — A64 cache is required for feat/reg/search/instr/allowlist/cross_routing/search_spec_aarchmrs tests;
-    # arm_arm cache is required for instr_t32/instr_a32/search_t32 tests;
-    # gic cache is required for gic/gic_search/cross_routing tests;
-    # coresight cache is required for coresight/coresight_search tests;
-    # pmu cache is required for pmu/search_spec_pmu tests.
+    # Validate cache requirements:
+    #   A64 cache:    feat, reg, search, instr, allowlist,
+    #                 cross_routing, search_spec_aarchmrs
+    #   arm_arm cache: instr_t32, instr_a32, search_t32
+    #   gic cache:    gic, gic_search, cross_routing
+    #   coresight cache: coresight, coresight_search
+    #   pmu cache:    pmu, search_spec_pmu
     ARM_ARM_ONLY_SKILLS  = frozenset(('instr_t32', 'instr_a32', 'search_t32'))
     GIC_ONLY_SKILLS      = frozenset(('gic', 'gic_search'))
     GIC_ALSO_SKILLS      = frozenset(('cross_routing',))   # needs A64 + GIC
