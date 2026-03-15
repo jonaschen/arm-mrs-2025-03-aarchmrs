@@ -134,7 +134,7 @@ _ALIGNMENT_RULES: list[dict] = [
         'title': 'LDP/STP pair must use SP-relative or 16-byte aligned base',
         'description': 'LDP and STP with a non-SP base register should ensure '
                        'the base address is 16-byte aligned to avoid alignment faults.',
-        'pattern': r'(?i)^\s*(?:ldp|stp)\s+',
+        'pattern': r'(?i)^\s*(?:ldp|stp)\s+.*\[\s*x\d+\b',
         'repair': 'Ensure the base register is SP or a 16-byte aligned address.',
         'severity': 'warning',
         'min_arch': 'v8Ap0',
@@ -551,6 +551,13 @@ _RULES_BY_ID: dict[str, dict] = {r['id']: r for r in LINT_RULES}
 
 # All categories
 LINT_CATEGORIES = ['security', 'alignment', 'register', 'branch', 'encoding']
+
+
+def list_lint_rules(category: str | None = None) -> list[dict]:
+    """Return lint rules, optionally filtered by category."""
+    if category:
+        return [r for r in LINT_RULES if r['category'] == category]
+    return list(LINT_RULES)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -1260,7 +1267,11 @@ def cmd_list_rules(category: str | None, output: str) -> int:
         return 1
 
     if output == 'json':
-        print(json.dumps({'rules': rules, 'count': len(rules)}, indent=2))
+        print(json.dumps({
+            'schema_version': SCHEMA_VERSION,
+            'rules': rules,
+            'count': len(rules),
+        }, indent=2))
         return 0
 
     hdr = f'AArch64 Lint Rules ({len(rules)} rules)'
