@@ -47,6 +47,17 @@ from query_allowlist import (             # noqa: E402
 
 SCHEMA_VERSION = '1.0'
 
+# AArch64 SP alignment requirement (bytes)
+SP_ALIGNMENT = 16
+
+# Maximum distance (in instructions) between flag-setting instruction and
+# conditional branch before triggering a stale-flags warning (L34).
+MAX_FLAG_DISTANCE = 5
+
+# Never-match regex — used for security rules that are advisory-only and
+# have no simple line-level pattern (they require whole-function analysis).
+_NEVER_MATCH = r'^\b$'
+
 # ---------------------------------------------------------------------------
 # Architecture version helpers (re-used from H1)
 # ---------------------------------------------------------------------------
@@ -61,6 +72,10 @@ def _arch_at_or_above(target: str, minimum: str) -> bool:
     if t is None or m is None:
         return True  # if unknown, do not filter
     return t >= m
+
+
+# Pre-compiled regex for conditional branch detection (used in hot loop)
+_RE_COND_BRANCH = re.compile(r'(?i)^b\.\w+')
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -117,7 +132,7 @@ def _build_security_lint_rules() -> list[dict]:
             'category': 'security',
             'title': sr['title'],
             'description': sr['description'],
-            'pattern': _SECURITY_PATTERNS.get(lid, r'(?!x)x'),
+            'pattern': _SECURITY_PATTERNS.get(lid, _NEVER_MATCH),
             'repair': f"Apply {sr['instruction']} as recommended by rule {sr['id']}.",
             'severity': _H6_CAT_SEVERITY.get(cat, 'warning'),
             'min_arch': sr['min_arch'],
@@ -656,7 +671,7 @@ def _check_sp_alignment(line: str) -> bool:
     )
     if m:
         imm = int(m.group(1))
-        return (imm % 16) != 0
+        return (imm % SP_ALIGNMENT) != 0
     return False
 
 
@@ -869,7 +884,7 @@ def lint_assembly(
         # Update unconditional branch tracking
         if mnemonic:
             stripped_instr = instruction_part.strip()
-            is_plain_b = mnemonic == 'b' and not re.match(r'(?i)^b\.\w+', stripped_instr)
+            is_plain_b = mnemonic == 'b' and not _RE_COND_BRANCH.match(stripped_instr)
             is_ret_or_br = mnemonic in ('ret', 'br')
             prev_is_unconditional_branch = is_plain_b or is_ret_or_br
         else:
@@ -880,11 +895,11 @@ def lint_assembly(
             continue
 
         # L34: Conditional branch with stale flags
-        if re.match(r'(?i)^b\.\w+', mnemonic) or re.match(
-            r'(?i)^\s*b\.\w+', instruction_part.strip()
+        if _RE_COND_BRANCH.match(mnemonic) or _RE_COND_BRANCH.match(
+            instruction_part.strip()
         ):
             distance = line_num - last_flag_set_line
-            if distance > 5:
+            if distance > MAX_FLAG_DISTANCE:
                 l34 = _RULES_BY_ID.get('L34')
                 if l34 and l34 in active_rules:
                     violations.append({
@@ -956,15 +971,15 @@ def suggest_repairs(violations: list[dict]) -> list[dict]:
 
         # Generate context-specific suggestions for key rules
         if rid == 'L20':
-            # SP alignment: round up to next 16
+            # SP alignment: round up to next SP_ALIGNMENT
             m = re.match(
                 r'(?i)^(\s*(?:sub|add)\s+sp\s*,\s*sp\s*,\s*#\s*)(\d+)(.*)',
                 original,
             )
             if m:
                 imm = int(m.group(2))
-                aligned = ((imm + 15) // 16) * 16
-                suggested = f'{m.group(1)}{aligned}{m.group(3)}  // FIXME: aligned to 16'
+                aligned = ((imm + SP_ALIGNMENT - 1) // SP_ALIGNMENT) * SP_ALIGNMENT
+                suggested = f'{m.group(1)}{aligned}{m.group(3)}  // FIXME: aligned to {SP_ALIGNMENT}'
                 explanation = (
                     f'SP must be 16-byte aligned. Original offset {imm} '
                     f'rounded up to {aligned}.'
@@ -978,10 +993,8 @@ def suggest_repairs(violations: list[dict]) -> list[dict]:
             )
             if m:
                 ws = int(m.group(2))
-                # Pick a different register (avoid special registers)
-                alt = (ws + 1) % 30
-                if alt == ws:
-                    alt = (ws + 2) % 30
+                # Pick a different register (avoid the same register)
+                alt = ws + 1 if ws < 29 else 0
                 suggested = f'{m.group(1)}w{alt}{m.group(3)}  // FIXME: avoid register overlap'
                 explanation = (
                     'STXR status register must differ from data and base registers. '
@@ -1023,7 +1036,8 @@ def suggest_repairs(violations: list[dict]) -> list[dict]:
                 original,
             )
             if m and m.group(2) == m.group(4):
-                alt = (int(m.group(2)) + 1) % 30
+                reg_num = int(m.group(2))
+                alt = reg_num + 1 if reg_num < 29 else 0
                 suggested = (
                     f'{m.group(1)}{m.group(2)}{m.group(3)}{alt}'
                     f'{m.group(5)}  // FIXME: use distinct destination registers'
