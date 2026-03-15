@@ -26,7 +26,7 @@
 | H4 | QEMU emulation automation | ✅ Complete |
 | H5 | Cross-compilation & static linking | ✅ Complete |
 | H6 | Advanced ISA optimization (SVE2/SME/PAC/BTI/MTE) | ✅ Complete |
-| H7 | Linter-in-the-loop (VIXL) | 🔲 Pending |
+| H7 | Linter-in-the-loop (VIXL) | ✅ Complete |
 | H8 | Multi-agent orchestration | 🔲 Pending |
 
 ---
@@ -535,6 +535,49 @@ produces valid C header with MTE intrinsics. `--list-rules` shows 18 security ru
 
 ---
 
+## Milestone H7 — Linter-in-the-Loop (VIXL) ✅
+
+**Goal:** Integrate a lint-based verification gate into the code-generation loop.
+Provide 50 AArch64-specific lint rules, auto-repair suggestions, and a lint-green
+blocking gate. Optionally integrates with VIXL external linter when available.
+
+**Depends on:** H6 (security rules R01–R18), H1 (spec data)
+
+- [x] **H7-1** Deploy VIXL Linter integration interface
+  - `check_vixl()` checks for `vixl-lint` or `aarch64-linux-gnu-objdump` on PATH
+  - Falls back to built-in rule engine when external tools not available
+  - CLI: `--check-vixl` (text/json output)
+- [x] **H7-2** Define AArch64-specific lint rule set (50 rules)
+  - 18 security rules (L01–L18): imported from H6 SECURITY_RULES (R01–R18)
+  - 8 alignment rules (L19–L26): SP alignment, LDP/STP, atomics, SVE, SIMD
+  - 10 register constraint rules (L27–L36): XZR writeback, STXR overlap, FP/LR/X18
+  - 8 branch/control flow rules (L37–L44): dead code, TBZ/TBNZ, ISB, BLR
+  - 6 encoding constraint rules (L45–L50): immediate ranges, shift amounts, system registers
+  - Severity levels: error (definitely wrong), warning (likely wrong), info (style)
+  - Feature-gated: `--arch VERSION` filters rules by min_arch
+- [x] **H7-3** Implement auto-repair suggestion generator
+  - `suggest_repairs(violations)` maps each violation to a code edit suggestion
+  - Context-specific repairs: SP alignment rounding, register substitution, etc.
+  - JSON output includes `repairs` array with original/suggested/explanation
+- [x] **H7-4** Wire Lint-Green check into CI/CD as a blocking merge gate
+  - `lint_green(text, arch)` returns `{green: bool, errors: N, warnings: N, info: N}`
+  - CLI: `--lint-green FILE` exits 0 only if zero errors and zero warnings
+  - Verification gate flow: Lint → QEMU functional test → GDB debug → Merge
+- [x] Write `.claude/skills/arm-linter.md` — positive/negative triggers, rule tables,
+  verification gate flow, programmatic API docs
+- [x] Add 31 eval tests to `eval_skill.py` (`LINTER_TESTS`, `--skill linter`):
+  basic invocation (8), JSON output (2), VIXL integration (2), lint detection (4),
+  lint-green gate (2), auto-repair (2), feature gating (2), programmatic API (6),
+  error handling (3)
+
+**Exit criteria:** ✅ `python3 tools/isa_linter.py --list-rules` shows 50 rules
+(18 security + 8 alignment + 10 register + 8 branch + 6 encoding).
+`--lint test.s --arch v9Ap0` detects violations with repair suggestions.
+`--lint-green clean.s` exits 0. `--lint-green bad.s` exits 1.
+`python3 tools/eval_skill.py --skill linter` — 31/31 tests pass.
+
+---
+
 # Dependency Graph
 
 ```
@@ -555,6 +598,14 @@ M0 (Cache builder)
                 └── EC (arm-coresight)        ← needs EB validation
                         └── ──────────────────────────────────────── ┤
                                                         EX (Integration)
+                                                              │
+              H1 (Allowlist) ─────────────────────────────────┤
+              H3 (GDB-MCP)  ──────────┐                      │
+              H4 (QEMU)     ──────────┤                      │
+              H5 (Cross)    ──────────┤                      │
+              H6 (ISA Opt)  ──────────┤─────── H7 (Linter) ──┤
+                                      │                      │
+                                      └── H8 (Multi-agent)  ─┘
 ```
 
 **Parallelism:** E0, EA, and EB-0 probe (data acquisition only) can all start immediately after M5.

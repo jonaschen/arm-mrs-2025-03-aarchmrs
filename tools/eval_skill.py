@@ -48,6 +48,7 @@ QUERY_GDB   = str(TOOLS_DIR / 'query_gdb.py')
 QUERY_QEMU  = str(TOOLS_DIR / 'gen_qemu_launch.py')
 QUERY_CROSS = str(TOOLS_DIR / 'setup_cross_compile.py')
 QUERY_ISAOPT = str(TOOLS_DIR / 'isa_optimize.py')
+QUERY_LINTER = str(TOOLS_DIR / 'isa_linter.py')
 
 # ---------------------------------------------------------------------------
 # Test runner helpers
@@ -1954,6 +1955,260 @@ ISA_OPT_TESTS = [
     ),
 ]
 
+# ---------------------------------------------------------------------------
+# LINTER_TESTS — H7 Linter-in-the-Loop (VIXL)
+# ---------------------------------------------------------------------------
+
+LINTER_TESTS = [
+    # ------------------------------------------------------------------ #
+    # Basic invocation                                                     #
+    # ------------------------------------------------------------------ #
+    (
+        '--list-rules succeeds (exit 0)',
+        [QUERY_LINTER, '--list-rules'],
+        [exit_ok()],
+    ),
+    (
+        '--list-rules shows 50 rules',
+        [QUERY_LINTER, '--list-rules'],
+        [exit_ok(), stdout_contains('Rules: 50')],
+    ),
+    (
+        '--list-rules --category security shows 18 rules',
+        [QUERY_LINTER, '--list-rules', '--category', 'security'],
+        [exit_ok(), stdout_contains('Rules: 18')],
+    ),
+    (
+        '--list-rules --category alignment shows 8 rules',
+        [QUERY_LINTER, '--list-rules', '--category', 'alignment'],
+        [exit_ok(), stdout_contains('Rules: 8')],
+    ),
+    (
+        '--list-rules --category register shows 10 rules',
+        [QUERY_LINTER, '--list-rules', '--category', 'register'],
+        [exit_ok(), stdout_contains('Rules: 10')],
+    ),
+    (
+        '--list-rules --category branch shows 8 rules',
+        [QUERY_LINTER, '--list-rules', '--category', 'branch'],
+        [exit_ok(), stdout_contains('Rules: 8')],
+    ),
+    (
+        '--list-rules --category encoding shows 6 rules',
+        [QUERY_LINTER, '--list-rules', '--category', 'encoding'],
+        [exit_ok(), stdout_contains('Rules: 6')],
+    ),
+    (
+        'No arguments exits non-zero (prints help)',
+        [QUERY_LINTER],
+        [exit_nonzero()],
+    ),
+    # ------------------------------------------------------------------ #
+    # JSON output                                                          #
+    # ------------------------------------------------------------------ #
+    (
+        '--list-rules --output json has schema_version',
+        [QUERY_LINTER, '--list-rules', '--output', 'json'],
+        [exit_ok(), stdout_contains('"schema_version": "1.0"')],
+    ),
+    (
+        '--list-rules --output json has count=50',
+        [QUERY_LINTER, '--list-rules', '--output', 'json'],
+        [exit_ok(), stdout_contains('"count": 50')],
+    ),
+    # ------------------------------------------------------------------ #
+    # VIXL integration (H7-1)                                              #
+    # ------------------------------------------------------------------ #
+    (
+        '--check-vixl runs without crashing (exits 0)',
+        [QUERY_LINTER, '--check-vixl'],
+        [exit_ok()],
+    ),
+    (
+        '--check-vixl --output json produces valid JSON',
+        [QUERY_LINTER, '--check-vixl', '--output', 'json'],
+        [exit_ok(), stdout_contains('"available"')],
+    ),
+    # ------------------------------------------------------------------ #
+    # Lint detection — alignment and register errors                       #
+    # ------------------------------------------------------------------ #
+    (
+        'Detects SP misalignment (sub sp, sp, #17)',
+        ['-c', 'import sys, subprocess; r = subprocess.run([sys.executable, "' +
+         QUERY_LINTER + '", "--lint-stdin", "--arch", "v8Ap0"], '
+         'input="sub sp, sp, #17\\n", capture_output=True, text=True); '
+         'print(r.stdout); sys.exit(r.returncode)'],
+        [exit_ok(), stdout_contains('L20')],
+    ),
+    (
+        'Detects XZR writeback base (ldr x0, [xzr, #8]!)',
+        ['-c', 'import sys, subprocess; r = subprocess.run([sys.executable, "' +
+         QUERY_LINTER + '", "--lint-stdin", "--arch", "v8Ap0"], '
+         'input="ldr x0, [xzr, #8]!\\n", capture_output=True, text=True); '
+         'print(r.stdout); sys.exit(r.returncode)'],
+        [exit_ok(), stdout_contains('L27')],
+    ),
+    (
+        'Detects STXR register overlap (stxr w0, x0, [x1])',
+        ['-c', 'import sys, subprocess; r = subprocess.run([sys.executable, "' +
+         QUERY_LINTER + '", "--lint-stdin", "--arch", "v8Ap0"], '
+         'input="stxr w0, x0, [x1]\\n", capture_output=True, text=True); '
+         'print(r.stdout); sys.exit(r.returncode)'],
+        [exit_ok(), stdout_contains('L22')],
+    ),
+    (
+        'Detects dead code after unconditional branch',
+        ['-c', 'import sys, subprocess; r = subprocess.run([sys.executable, "' +
+         QUERY_LINTER + '", "--lint-stdin", "--arch", "v8Ap0"], '
+         'input="b label\\nadd x0, x0, #1\\nlabel:\\n", capture_output=True, text=True); '
+         'print(r.stdout); sys.exit(r.returncode)'],
+        [exit_ok(), stdout_contains('L37')],
+    ),
+    # ------------------------------------------------------------------ #
+    # Lint-green gate (H7-4)                                               #
+    # ------------------------------------------------------------------ #
+    (
+        '--lint-green passes on clean assembly',
+        ['-c', 'import sys, subprocess, tempfile, os; '
+         'f = tempfile.NamedTemporaryFile(mode="w", suffix=".s", delete=False); '
+         'f.write("add x0, x1, x2\\nsub x3, x4, #16\\n"); f.close(); '
+         'r = subprocess.run([sys.executable, "' + QUERY_LINTER +
+         '", "--lint-green", f.name, "--arch", "v8Ap0"], '
+         'capture_output=True, text=True); os.unlink(f.name); '
+         'print(r.stdout); sys.exit(r.returncode)'],
+        [exit_ok(), stdout_contains('PASS')],
+    ),
+    (
+        '--lint-green fails on SP misalignment',
+        ['-c', 'import sys, subprocess, tempfile, os; '
+         'f = tempfile.NamedTemporaryFile(mode="w", suffix=".s", delete=False); '
+         'f.write("sub sp, sp, #17\\n"); f.close(); '
+         'r = subprocess.run([sys.executable, "' + QUERY_LINTER +
+         '", "--lint-green", f.name, "--arch", "v8Ap0"], '
+         'capture_output=True, text=True); os.unlink(f.name); '
+         'print(r.stdout); sys.exit(r.returncode)'],
+        [exit_nonzero(), stdout_contains('FAIL')],
+    ),
+    # ------------------------------------------------------------------ #
+    # Auto-repair suggestions (H7-3)                                       #
+    # ------------------------------------------------------------------ #
+    (
+        'Lint JSON output includes repair suggestions',
+        ['-c', 'import sys, subprocess; r = subprocess.run([sys.executable, "' +
+         QUERY_LINTER + '", "--lint-stdin", "--arch", "v8Ap0", "--output", "json"], '
+         'input="sub sp, sp, #17\\n", capture_output=True, text=True); '
+         'print(r.stdout); sys.exit(r.returncode)'],
+        [exit_ok(), stdout_contains('"repairs"'), stdout_contains('"suggested"')],
+    ),
+    (
+        'Repair for SP misalignment rounds up to 32',
+        ['-c', 'import sys, subprocess; r = subprocess.run([sys.executable, "' +
+         QUERY_LINTER + '", "--lint-stdin", "--arch", "v8Ap0", "--output", "json"], '
+         'input="sub sp, sp, #17\\n", capture_output=True, text=True); '
+         'print(r.stdout); sys.exit(r.returncode)'],
+        [exit_ok(), stdout_contains('#32')],
+    ),
+    # ------------------------------------------------------------------ #
+    # Feature-gated rule filtering                                         #
+    # ------------------------------------------------------------------ #
+    (
+        'Security rules L01-L05 (PAC) not applied at v8Ap0',
+        ['-c', 'import sys, subprocess; r = subprocess.run([sys.executable, "' +
+         QUERY_LINTER + '", "--lint-stdin", "--arch", "v8Ap0", "--category", "security"], '
+         'input="my_func:\\n\\tstp x29, x30, [sp, #-16]!\\n\\tret\\n", '
+         'capture_output=True, text=True); '
+         'print(r.stdout); sys.exit(r.returncode)'],
+        [exit_ok(), stdout_not_contains('L01')],
+    ),
+    (
+        'Security rules L01 (PAC) applied at v8Ap3 (FEAT_PAuth)',
+        ['-c', 'import sys, subprocess; r = subprocess.run([sys.executable, "' +
+         QUERY_LINTER + '", "--lint-stdin", "--arch", "v8Ap3", "--category", "security"], '
+         'input="my_func:\\n\\tstp x29, x30, [sp, #-16]!\\n\\tret\\n", '
+         'capture_output=True, text=True); '
+         'print(r.stdout); sys.exit(r.returncode)'],
+        [exit_ok(), stdout_contains('L01')],
+    ),
+    # ------------------------------------------------------------------ #
+    # Programmatic API                                                     #
+    # ------------------------------------------------------------------ #
+    (
+        'LINT_RULES has exactly 50 entries',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from isa_linter import LINT_RULES;\n'
+         'assert len(LINT_RULES) == 50, len(LINT_RULES);\n'
+         'print("50 rules ok")\n'],
+        [exit_ok(), stdout_contains('50 rules ok')],
+    ),
+    (
+        'lint_assembly() detects SP alignment violation',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from isa_linter import lint_assembly;\n'
+         'vs = lint_assembly("sub sp, sp, #17", arch="v8Ap0");\n'
+         'ids = [v["rule_id"] for v in vs];\n'
+         'assert "L20" in ids, ids;\n'
+         'print("L20 detected ok")\n'],
+        [exit_ok(), stdout_contains('L20 detected ok')],
+    ),
+    (
+        'lint_green() returns green=True on clean assembly',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from isa_linter import lint_green;\n'
+         'r = lint_green("add x0, x1, x2\\n", arch="v8Ap0");\n'
+         'assert r["green"] is True, r;\n'
+         'print("green ok")\n'],
+        [exit_ok(), stdout_contains('green ok')],
+    ),
+    (
+        'suggest_repairs() returns suggestions with line number',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from isa_linter import lint_assembly, suggest_repairs;\n'
+         'vs = lint_assembly("sub sp, sp, #17", arch="v8Ap0");\n'
+         'rs = suggest_repairs(vs);\n'
+         'assert len(rs) > 0, "no repairs";\n'
+         'assert "line" in rs[0], rs[0];\n'
+         'print("repairs ok")\n'],
+        [exit_ok(), stdout_contains('repairs ok')],
+    ),
+    (
+        'list_lint_rules(category) filters correctly',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from isa_linter import list_lint_rules;\n'
+         'sec = list_lint_rules(category="security");\n'
+         'assert len(sec) == 18, len(sec);\n'
+         'enc = list_lint_rules(category="encoding");\n'
+         'assert len(enc) == 6, len(enc);\n'
+         'print("filter ok")\n'],
+        [exit_ok(), stdout_contains('filter ok')],
+    ),
+    (
+        'LINT_CATEGORIES has 5 categories',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from isa_linter import LINT_CATEGORIES;\n'
+         'assert len(LINT_CATEGORIES) == 5, LINT_CATEGORIES;\n'
+         'print("5 categories ok")\n'],
+        [exit_ok(), stdout_contains('5 categories ok')],
+    ),
+    # ------------------------------------------------------------------ #
+    # Error handling                                                       #
+    # ------------------------------------------------------------------ #
+    (
+        '--lint with nonexistent file exits non-zero',
+        [QUERY_LINTER, '--lint', '/tmp/nonexistent_lint_test.s'],
+        [exit_nonzero()],
+    ),
+    (
+        '--list-rules with invalid category exits non-zero',
+        [QUERY_LINTER, '--list-rules', '--category', 'nonexistent'],
+        [exit_nonzero()],
+    ),
+    (
+        '--lint-green with nonexistent file exits non-zero',
+        [QUERY_LINTER, '--lint-green', '/tmp/nonexistent_lint_test.s'],
+        [exit_nonzero()],
+    ),
+]
+
 # Map skill name → test list
 ALL_SKILLS: dict = {
     'feat':                  FEAT_TESTS,
@@ -1976,6 +2231,7 @@ ALL_SKILLS: dict = {
     'qemu':                  QEMU_TESTS,
     'cross':                 CROSS_TESTS,
     'isa_opt':               ISA_OPT_TESTS,
+    'linter':                LINTER_TESTS,
 }
 
 # ---------------------------------------------------------------------------
@@ -2055,7 +2311,7 @@ def main() -> int:
     GIC_ALSO_SKILLS      = frozenset(('cross_routing',))   # needs A64 + GIC
     CS_ONLY_SKILLS       = frozenset(('coresight', 'coresight_search'))
     PMU_ONLY_SKILLS      = frozenset(('pmu', 'search_spec_pmu'))
-    NO_CACHE_SKILLS      = frozenset(('gdb', 'qemu', 'cross'))
+    NO_CACHE_SKILLS      = frozenset(('gdb', 'qemu', 'cross', 'linter'))
 
     # Select skills to test first (so we can decide which caches to require)
     if args.skill:

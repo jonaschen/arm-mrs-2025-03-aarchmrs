@@ -1237,11 +1237,11 @@ AArch64-specific lint rule categories:
 
 **Milestones:**
 
-- [ ] **H7-1** Deploy VIXL Linter integration interface
-- [ ] **H7-2** Define AArch64-specific lint rule set (target: ≥ 50 rules), sourcing from H1
+- [x] **H7-1** Deploy VIXL Linter integration interface
+- [x] **H7-2** Define AArch64-specific lint rule set (target: ≥ 50 rules), sourcing from H1
   spec data and H6 security patterns
-- [ ] **H7-3** Implement auto-repair suggestion generator (maps lint violations to code edits)
-- [ ] **H7-4** Wire Lint-Green check into CI/CD as a blocking merge gate
+- [x] **H7-3** Implement auto-repair suggestion generator (maps lint violations to code edits)
+- [x] **H7-4** Wire Lint-Green check into CI/CD as a blocking merge gate
 
 ---
 
