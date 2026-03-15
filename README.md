@@ -422,6 +422,8 @@ python3 tools/probe.py --list ADD
 
 This project is in alpha. If you are evaluating it as a BSP engineer, your feedback is
 the most valuable input for closing gaps before a wider release.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide on reporting issues and
+submitting data or code improvements.
 
 ### How to report issues
 

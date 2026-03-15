@@ -192,6 +192,7 @@ available memory.
 | Document | When to read it |
 |----------|----------------|
 | [README.md](README.md) | Full skills reference — all commands and options |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | How to report issues, submit data fixes, and add tests |
 | [CLAUDE.md](CLAUDE.md) | Detailed context for Claude Code (loaded automatically) |
 | [ROADMAP.md](ROADMAP.md) | Milestone status and implementation notes |
 | [docs/userguide/](docs/userguide/) | User guides for registers, instructions, and features |
