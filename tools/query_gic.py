@@ -24,6 +24,7 @@ Exit codes:
 """
 
 import argparse
+import functools
 import json
 import os
 import re
@@ -58,6 +59,7 @@ def _cache_missing() -> bool:
     return not META_PATH.exists()
 
 
+@functools.lru_cache(maxsize=None)
 def load_meta() -> dict:
     if _cache_missing():
         print('GIC cache not found. Run: python3 tools/build_gic_index.py', file=sys.stderr)
@@ -66,6 +68,7 @@ def load_meta() -> dict:
         return json.load(f)
 
 
+@functools.lru_cache(maxsize=None)
 def load_block(block: str) -> dict:
     path = BLOCK_PATHS.get(block.upper())
     if not path or not path.exists():
