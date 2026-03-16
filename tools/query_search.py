@@ -22,6 +22,7 @@ Exit codes:
 """
 
 import argparse
+import functools
 import json
 import sys
 
@@ -39,6 +40,7 @@ PMU_FLAT_PATH  = CACHE_DIR / 'pmu_events_flat.json'
 # Cache loading
 # ---------------------------------------------------------------------------
 
+@functools.lru_cache(maxsize=None)
 def load_meta() -> dict | None:
     if not META_PATH.exists():
         return None
@@ -46,6 +48,7 @@ def load_meta() -> dict | None:
         return json.load(f)
 
 
+@functools.lru_cache(maxsize=None)
 def load_op_index() -> list:
     """Return sorted list of all A64 operation_id strings from the operations directory."""
     if not OP_DIR.exists():
@@ -53,6 +56,7 @@ def load_op_index() -> list:
     return sorted(p.stem for p in OP_DIR.iterdir() if p.suffix == '.json')
 
 
+@functools.lru_cache(maxsize=None)
 def load_t32_op_index() -> list:
     """Return sorted list of all T32 operation_id strings (empty if cache absent)."""
     if not T32_OP_DIR.exists():
@@ -60,6 +64,7 @@ def load_t32_op_index() -> list:
     return sorted(p.stem for p in T32_OP_DIR.iterdir() if p.suffix == '.json')
 
 
+@functools.lru_cache(maxsize=None)
 def load_a32_op_index() -> list:
     """Return sorted list of all A32 operation_id strings (empty if cache absent)."""
     if not A32_OP_DIR.exists():
@@ -67,6 +72,7 @@ def load_a32_op_index() -> list:
     return sorted(p.stem for p in A32_OP_DIR.iterdir() if p.suffix == '.json')
 
 
+@functools.lru_cache(maxsize=None)
 def load_gic_meta() -> dict | None:
     """Load GIC metadata (name index). Returns None if GIC cache not built."""
     if not GIC_META_PATH.exists():
@@ -75,6 +81,7 @@ def load_gic_meta() -> dict | None:
         return json.load(f)
 
 
+@functools.lru_cache(maxsize=None)
 def load_cs_meta() -> dict | None:
     """Load CoreSight metadata (name index). Returns None if CoreSight cache not built."""
     if not CS_META_PATH.exists():
@@ -83,6 +90,7 @@ def load_cs_meta() -> dict | None:
         return json.load(f)
 
 
+@functools.lru_cache(maxsize=None)
 def load_pmu_flat() -> dict | None:
     """Load PMU flat event index. Returns None if PMU cache not built."""
     if not PMU_FLAT_PATH.exists():
