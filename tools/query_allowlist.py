@@ -46,6 +46,7 @@ Output schema (--output json):
 """
 
 import argparse
+import functools
 import json
 import sys
 from pathlib import Path
@@ -84,18 +85,21 @@ def _require_cache(path: Path, builder: str) -> None:
         sys.exit(1)
 
 
+@functools.lru_cache(maxsize=None)
 def load_features() -> list:
     _require_cache(FEATURES_CACHE, 'tools/build_index.py')
     with open(FEATURES_CACHE) as f:
         return json.load(f)
 
 
+@functools.lru_cache(maxsize=None)
 def load_reg_meta() -> dict:
     _require_cache(REG_META_CACHE, 'tools/build_index.py')
     with open(REG_META_CACHE) as f:
         return json.load(f)
 
 
+@functools.lru_cache(maxsize=None)
 def load_op(op_id: str) -> dict:
     path = OP_DIR / f'{op_id}.json'
     if not path.exists():
@@ -104,6 +108,7 @@ def load_op(op_id: str) -> dict:
         return json.load(f)
 
 
+@functools.lru_cache(maxsize=None)
 def load_reg(cache_key: str) -> dict:
     path = REG_DIR / f'{cache_key}.json'
     if not path.exists():
@@ -112,6 +117,7 @@ def load_reg(cache_key: str) -> dict:
         return json.load(f)
 
 
+@functools.lru_cache(maxsize=None)
 def list_op_ids() -> list:
     _require_cache(OP_DIR, 'tools/build_index.py')
     return sorted(p.stem for p in OP_DIR.iterdir() if p.suffix == '.json')
