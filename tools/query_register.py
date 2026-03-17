@@ -20,6 +20,7 @@ Exit codes:
 """
 
 import argparse
+import functools
 import json
 import re
 import sys
@@ -34,6 +35,7 @@ META_PATH = CACHE_DIR / 'registers_meta.json'
 # Cache loading
 # ---------------------------------------------------------------------------
 
+@functools.lru_cache(maxsize=None)
 def load_meta() -> dict:
     if not META_PATH.exists():
         print('Cache not found. Run: python3 tools/build_index.py', file=sys.stderr)
@@ -217,7 +219,7 @@ def _other_states(name: str, current_state: str) -> list:
     """Return other states for this register name (requires meta to be available)."""
     # We load meta lazily here to avoid passing it everywhere
     try:
-        meta = json.load(open(META_PATH))
+        meta = load_meta()
         # Normalize the name (strip <n> → _n_ form)
         key = re.sub(r'<[^>]+>', 'n', name).replace('__', '_').upper()
         # Try both the raw name and normalized
