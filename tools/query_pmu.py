@@ -21,6 +21,7 @@ Exit codes:
 """
 
 import argparse
+import functools
 import json
 import os
 import re
@@ -47,6 +48,7 @@ def _cache_missing() -> bool:
     return not META_PATH.exists()
 
 
+@functools.lru_cache(maxsize=None)
 def load_meta() -> dict:
     if _cache_missing():
         print('PMU cache not found. Run: python3 tools/build_pmu_index.py', file=sys.stderr)
@@ -55,6 +57,7 @@ def load_meta() -> dict:
         return json.load(f)
 
 
+@functools.lru_cache(maxsize=None)
 def load_cpu(slug: str) -> dict:
     path = PMU_CACHE / f'{slug}.json'
     if not path.exists():
@@ -65,6 +68,7 @@ def load_cpu(slug: str) -> dict:
         return json.load(f)
 
 
+@functools.lru_cache(maxsize=None)
 def load_flat() -> dict:
     if not FLAT_PATH.exists():
         print('PMU flat index not found. Run: python3 tools/build_pmu_index.py',
