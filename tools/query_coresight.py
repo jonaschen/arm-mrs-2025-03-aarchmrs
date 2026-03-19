@@ -24,6 +24,7 @@ Exit codes:
 """
 
 import argparse
+import functools
 import json
 import os
 import re
@@ -66,6 +67,7 @@ def _cache_missing() -> bool:
     return not META_PATH.exists()
 
 
+@functools.lru_cache(maxsize=None)
 def load_meta() -> dict:
     if _cache_missing():
         print('CoreSight cache not found. Run: python3 tools/build_coresight_index.py',
@@ -75,6 +77,7 @@ def load_meta() -> dict:
         return json.load(f)
 
 
+@functools.lru_cache(maxsize=None)
 def load_component(component: str) -> dict:
     path = COMPONENT_PATHS.get(component.upper())
     if not path or not path.exists():
