@@ -144,11 +144,11 @@ def version_total(n: int):
 
 def field_value(field_label: str, expected: str):
     """stdout must contain a line matching '{field_label}: {expected}'."""
+    pattern = re.compile(
+        r'^\s*' + re.escape(field_label) + r'\s*:\s*' + re.escape(expected),
+        re.MULTILINE,
+    )
     def fn(rc, stdout, stderr):
-        pattern = re.compile(
-            r'^\s*' + re.escape(field_label) + r'\s*:\s*' + re.escape(expected),
-            re.MULTILINE,
-        )
         found = bool(pattern.search(stdout))
         return found, f"field '{field_label}: {expected}' {'found' if found else 'NOT FOUND'}"
     fn.__doc__ = f"field '{field_label}' = '{expected}'"
