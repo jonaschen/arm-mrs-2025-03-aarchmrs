@@ -172,7 +172,7 @@ def _filter_fieldsets_by_version(fieldsets: list, version: str | None) -> list:
     if not version:
         return fieldsets
     v = version.lower()
-    return [fs for fs in fieldsets if v in [gv.lower() for gv in fs.get('gic_versions', [])]]
+    return [fs for fs in fieldsets if any(v == gv.lower() for gv in fs.get('gic_versions', []))]
 
 
 def _find_field(fieldsets: list, field_name: str):
