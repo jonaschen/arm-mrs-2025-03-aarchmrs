@@ -17,6 +17,7 @@ Exit codes:
 """
 
 import argparse
+import functools
 import json
 import sys
 
@@ -36,6 +37,7 @@ VERSION_SET   = set(VERSION_ORDER)
 # Cache loading
 # ---------------------------------------------------------------------------
 
+@functools.lru_cache(maxsize=None)
 def load_features() -> list:
     if not FEATURES_CACHE.exists():
         print('Cache not found. Run: python tools/build_index.py', file=sys.stderr)
