@@ -18,6 +18,7 @@ Exit codes:
 """
 
 import argparse
+import functools
 import json
 import re
 import sys
@@ -64,6 +65,7 @@ def op_index(isa: str = 'a64') -> list:
     return sorted(p.stem for p in op_dir.iterdir() if p.suffix == '.json')
 
 
+@functools.lru_cache(maxsize=None)
 def load_op(op_id: str, isa: str = 'a64') -> dict:
     path = get_op_dir(isa) / f'{op_id}.json'
     if not path.exists():
