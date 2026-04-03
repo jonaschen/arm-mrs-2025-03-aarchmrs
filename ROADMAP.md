@@ -27,7 +27,7 @@
 | H5 | Cross-compilation & static linking | ✅ Complete |
 | H6 | Advanced ISA optimization (SVE2/SME/PAC/BTI/MTE) | ✅ Complete |
 | H7 | Linter-in-the-loop (VIXL) | ✅ Complete |
-| H8 | Multi-agent orchestration | 🔲 Pending |
+| H8 | Multi-agent orchestration | ✅ Complete |
 
 ---
 
@@ -575,6 +575,52 @@ blocking gate. Optionally integrates with VIXL external linter when available.
 `--lint test.s --arch v9Ap0` detects violations with repair suggestions.
 `--lint-green clean.s` exits 0. `--lint-green bad.s` exits 1.
 `python3 tools/eval_skill.py --skill linter` — 31/31 tests pass.
+
+---
+
+## Milestone H8 — Multi-Agent Orchestration ✅
+
+**Goal:** Coordinate multiple agent roles (Developer, Critic, Judge, Executor) working
+on independent architectural subsystems with version-control synchronisation, Oracle
+comparison testing, and RALPH continuous improvement loops.
+
+**Depends on:** H3 (GDB), H4 (QEMU), H5 (Cross-compilation), H7 (Linter)
+
+- [x] **H8-1** Build multi-agent sandbox environment (four agent roles with constrained
+  tool access, system prompt generation, and domain-specific reasoning protocols)
+  - Developer Agent: code generation, instruction selection, algorithm design
+  - Critic Agent: lint and review, architectural compliance
+  - Judge Agent: independent spec-based verification, zero-hallucination gatekeeper
+  - Executor Agent: QEMU, GDB, compiler operation, runtime verification
+  - `generate_system_prompt(role, arch)` — XML-structured prompt per H8 design
+  - `get_agent_profile(role)` — full profile with tools_allowed/denied, constraints
+- [x] **H8-2** Implement version-control synchronisation protocol (lock file mechanism,
+  idempotent task design)
+  - `TaskLock.acquire(task_id, agent)` — file-based advisory lock
+  - `TaskLock.release(task_id, agent)` — release with ownership check
+  - `LockConflictError` on conflict; idempotent re-acquire by same agent
+  - Lock status introspection and emergency clear
+- [x] **H8-3** Implement Oracle comparison testing framework
+  - `oracle_compare(reference, experimental)` — SHA-256 fast path + line-by-line diff
+  - `OracleResult` with match/delta/hash fields
+  - `delta_debug(ref_lines, exp_lines)` — Zeller-style binary partitioning to isolate
+    minimal failure-inducing regions
+- [x] **H8-4** Implement RALPH continuous improvement loop
+  - `RALPHOrchestrator` with 6-step iteration: generate → lint → compile → execute → verify → repair
+  - `run_dry()` — dry-run showing planned execution
+  - `simulate(pass_at_iteration)` — simulated convergence for testing
+  - `RALPHResult` with convergence status, iteration count, step history
+- [x] Write `.claude/skills/arm-multi-agent.md` — positive/negative triggers, RALPH
+  flow documentation, CLI and programmatic API reference
+- [x] Add 26 eval tests to `eval_skill.py` (`MULTI_AGENT_TESTS`, `--skill multi_agent`):
+  basic invocation (4), system prompts (3), lock protocol (3), oracle (2), RALPH (3),
+  programmatic API (7), error handling (3)
+
+**Exit criteria:** ✅ `python3 tools/multi_agent.py --list-agents` shows 4 agent roles.
+`--system-prompt developer` generates XML-structured prompt. `TaskLock` prevents
+concurrent access with `LockConflictError`. `oracle_compare()` detects mismatches with
+line-level delta. `RALPHOrchestrator.simulate()` converges at the expected iteration.
+`python3 tools/eval_skill.py --skill multi_agent` — 26/26 tests pass.
 
 ---
 

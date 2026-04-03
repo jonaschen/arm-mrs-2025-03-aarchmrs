@@ -49,6 +49,7 @@ QUERY_QEMU  = str(TOOLS_DIR / 'gen_qemu_launch.py')
 QUERY_CROSS = str(TOOLS_DIR / 'setup_cross_compile.py')
 QUERY_ISAOPT = str(TOOLS_DIR / 'isa_optimize.py')
 QUERY_LINTER = str(TOOLS_DIR / 'isa_linter.py')
+QUERY_MAGENT = str(TOOLS_DIR / 'multi_agent.py')
 
 # ---------------------------------------------------------------------------
 # Test runner helpers
@@ -2209,6 +2210,233 @@ LINTER_TESTS = [
     ),
 ]
 
+# ---------------------------------------------------------------------------
+# Multi-agent orchestration (H8)
+# ---------------------------------------------------------------------------
+
+MULTI_AGENT_TESTS = [
+    # ------------------------------------------------------------------ #
+    # Basic invocation                                                    #
+    # ------------------------------------------------------------------ #
+    (
+        '--list-agents exits 0 and shows 4 roles',
+        [QUERY_MAGENT, '--list-agents'],
+        [exit_ok(), stdout_contains('developer'), stdout_contains('critic'),
+         stdout_contains('judge'), stdout_contains('executor'),
+         stdout_contains('(4 agent roles defined)')],
+    ),
+    (
+        '--list-agents --json produces valid JSON with 4 entries',
+        [QUERY_MAGENT, '--list-agents', '--json'],
+        [exit_ok(), stdout_contains('"role"'), stdout_contains('"developer"')],
+    ),
+    (
+        '--agent developer --describe exits 0',
+        [QUERY_MAGENT, '--agent', 'developer', '--describe'],
+        [exit_ok(), stdout_contains('Developer Agent'),
+         stdout_contains('Instruction selection')],
+    ),
+    (
+        '--agent judge --describe --json exits 0',
+        [QUERY_MAGENT, '--agent', 'judge', '--describe', '--json'],
+        [exit_ok(), stdout_contains('"judge"'),
+         stdout_contains('Zero-hallucination')],
+    ),
+    # ------------------------------------------------------------------ #
+    # System prompt generation                                            #
+    # ------------------------------------------------------------------ #
+    (
+        '--system-prompt developer generates XML prompt',
+        [QUERY_MAGENT, '--system-prompt', 'developer'],
+        [exit_ok(), stdout_contains('<identity>'),
+         stdout_contains('Developer Agent'),
+         stdout_contains('<constraints>')],
+    ),
+    (
+        '--system-prompt executor --arch v8Ap5 includes arch',
+        [QUERY_MAGENT, '--system-prompt', 'executor', '--arch', 'v8Ap5'],
+        [exit_ok(), stdout_contains('v8Ap5'),
+         stdout_contains('Executor Agent')],
+    ),
+    (
+        '--system-prompt nonexistent exits non-zero',
+        [QUERY_MAGENT, '--system-prompt', 'nonexistent'],
+        [exit_nonzero()],
+    ),
+    # ------------------------------------------------------------------ #
+    # Task lock protocol                                                  #
+    # ------------------------------------------------------------------ #
+    (
+        '--lock-status with no locks exits 0',
+        [QUERY_MAGENT, '--lock-status'],
+        [exit_ok(), stdout_contains('No active locks')],
+    ),
+    (
+        '--lock requires --agent',
+        [QUERY_MAGENT, '--lock', 'test_task'],
+        [exit_nonzero()],
+    ),
+    (
+        '--unlock requires --agent',
+        [QUERY_MAGENT, '--unlock', 'test_task'],
+        [exit_nonzero()],
+    ),
+    # ------------------------------------------------------------------ #
+    # Oracle comparison                                                   #
+    # ------------------------------------------------------------------ #
+    (
+        '--oracle requires --reference and --experimental',
+        [QUERY_MAGENT, '--oracle'],
+        [exit_nonzero()],
+    ),
+    (
+        '--oracle with nonexistent reference exits non-zero',
+        [QUERY_MAGENT, '--oracle', '--reference', '/tmp/nonexistent_ref_h8.txt',
+         '--experimental', '/tmp/nonexistent_exp_h8.txt'],
+        [exit_nonzero()],
+    ),
+    # ------------------------------------------------------------------ #
+    # RALPH loop                                                          #
+    # ------------------------------------------------------------------ #
+    (
+        '--ralph dry run exits 0 and shows planned steps',
+        [QUERY_MAGENT, '--ralph', '--task', 'eval_test', '--max-iters', '2'],
+        [exit_ok(), stdout_contains('RALPH Result'),
+         stdout_contains('dry_run'),
+         stdout_contains('generate'), stdout_contains('lint'),
+         stdout_contains('compile'), stdout_contains('verify')],
+    ),
+    (
+        '--ralph-simulate converges and exits 0',
+        [QUERY_MAGENT, '--ralph-simulate', '--task', 'eval_sim'],
+        [exit_ok(), stdout_contains('Converged:      True'),
+         stdout_contains('converged')],
+    ),
+    (
+        '--ralph-simulate --json produces valid JSON',
+        [QUERY_MAGENT, '--ralph-simulate', '--task', 'eval_sim_j', '--json'],
+        [exit_ok(), stdout_contains('"converged": true'),
+         stdout_contains('"schema_version"')],
+    ),
+    # ------------------------------------------------------------------ #
+    # Programmatic API                                                    #
+    # ------------------------------------------------------------------ #
+    (
+        'AGENT_ROLES has exactly 4 entries',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from multi_agent import AGENT_ROLES;\n'
+         'assert len(AGENT_ROLES) == 4, len(AGENT_ROLES);\n'
+         'print("4 roles ok")\n'],
+        [exit_ok(), stdout_contains('4 roles ok')],
+    ),
+    (
+        'RALPH_STEPS has 6 steps',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from multi_agent import RALPH_STEPS;\n'
+         'assert len(RALPH_STEPS) == 6, RALPH_STEPS;\n'
+         'print("6 steps ok")\n'],
+        [exit_ok(), stdout_contains('6 steps ok')],
+    ),
+    (
+        'generate_system_prompt() returns string with identity tag',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from multi_agent import generate_system_prompt;\n'
+         'p = generate_system_prompt("critic", "v9Ap0");\n'
+         'assert "<identity>" in p;\n'
+         'assert "Critic Agent" in p;\n'
+         'print("prompt ok")\n'],
+        [exit_ok(), stdout_contains('prompt ok')],
+    ),
+    (
+        'TaskLock acquire/release roundtrip works',
+        ['-c', 'import sys, tempfile; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from multi_agent import TaskLock;\n'
+         'tl = TaskLock(tempfile.mkdtemp());\n'
+         'info = tl.acquire("t1", "developer");\n'
+         'assert info["agent"] == "developer";\n'
+         'assert tl.release("t1", "developer");\n'
+         'assert tl.status("t1") == [];\n'
+         'print("lock roundtrip ok")\n'],
+        [exit_ok(), stdout_contains('lock roundtrip ok')],
+    ),
+    (
+        'LockConflictError raised on conflict',
+        ['-c', 'import sys, tempfile; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from multi_agent import TaskLock, LockConflictError;\n'
+         'tl = TaskLock(tempfile.mkdtemp());\n'
+         'tl.acquire("t2", "developer");\n'
+         'try:\n'
+         '    tl.acquire("t2", "critic")\n'
+         '    print("NO CONFLICT")\n'
+         'except LockConflictError:\n'
+         '    print("conflict ok")\n'],
+        [exit_ok(), stdout_contains('conflict ok')],
+    ),
+    (
+        'OracleResult.to_dict() has schema_version',
+        ['-c', 'import sys, tempfile, os; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from multi_agent import oracle_compare;\n'
+         'td = tempfile.mkdtemp();\n'
+         'r = os.path.join(td, "r.txt"); e = os.path.join(td, "e.txt");\n'
+         'open(r,"w").write("hello");\n'
+         'open(e,"w").write("hello");\n'
+         'res = oracle_compare(r, e);\n'
+         'assert res.match;\n'
+         'assert res.to_dict()["schema_version"] == "1.0";\n'
+         'print("oracle ok")\n'],
+        [exit_ok(), stdout_contains('oracle ok')],
+    ),
+    (
+        'RALPHOrchestrator.simulate() converges',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from multi_agent import RALPHOrchestrator;\n'
+         'orch = RALPHOrchestrator("test", max_iterations=10);\n'
+         'res = orch.simulate(pass_at_iteration=2);\n'
+         'assert res.converged;\n'
+         'assert res.iterations == 2;\n'
+         'd = res.to_dict();\n'
+         'assert d["schema_version"] == "1.0";\n'
+         'print("ralph ok")\n'],
+        [exit_ok(), stdout_contains('ralph ok')],
+    ),
+    (
+        'delta_debug() returns contiguous regions',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from multi_agent import delta_debug;\n'
+         'r = ["a","b","c","d"]; e = ["a","X","c","Y"];\n'
+         'regions = delta_debug(r, e);\n'
+         'assert len(regions) == 2, regions;\n'
+         'assert regions[0] == (2, 2);\n'
+         'assert regions[1] == (4, 4);\n'
+         'print("delta ok")\n'],
+        [exit_ok(), stdout_contains('delta ok')],
+    ),
+    # ------------------------------------------------------------------ #
+    # Error handling                                                      #
+    # ------------------------------------------------------------------ #
+    (
+        '--describe without --agent exits non-zero',
+        [QUERY_MAGENT, '--describe'],
+        [exit_nonzero()],
+    ),
+    (
+        '--agent nonexistent --describe exits non-zero',
+        [QUERY_MAGENT, '--agent', 'nonexistent', '--describe'],
+        [exit_nonzero()],
+    ),
+    (
+        'get_agent_profile raises ValueError for unknown role',
+        ['-c', 'import sys; sys.path.insert(0, "' +
+         str(TOOLS_DIR) + '"); from multi_agent import get_agent_profile;\n'
+         'try:\n'
+         '    get_agent_profile("nonexistent")\n'
+         '    print("NO ERROR")\n'
+         'except ValueError:\n'
+         '    print("valueerror ok")\n'],
+        [exit_ok(), stdout_contains('valueerror ok')],
+    ),
+]
+
 # Map skill name → test list
 ALL_SKILLS: dict = {
     'feat':                  FEAT_TESTS,
@@ -2232,6 +2460,7 @@ ALL_SKILLS: dict = {
     'cross':                 CROSS_TESTS,
     'isa_opt':               ISA_OPT_TESTS,
     'linter':                LINTER_TESTS,
+    'multi_agent':           MULTI_AGENT_TESTS,
 }
 
 # ---------------------------------------------------------------------------
@@ -2311,7 +2540,7 @@ def main() -> int:
     GIC_ALSO_SKILLS      = frozenset(('cross_routing',))   # needs A64 + GIC
     CS_ONLY_SKILLS       = frozenset(('coresight', 'coresight_search'))
     PMU_ONLY_SKILLS      = frozenset(('pmu', 'search_spec_pmu'))
-    NO_CACHE_SKILLS      = frozenset(('gdb', 'qemu', 'cross', 'linter'))
+    NO_CACHE_SKILLS      = frozenset(('gdb', 'qemu', 'cross', 'linter', 'multi_agent'))
 
     # Select skills to test first (so we can decide which caches to require)
     if args.skill:
