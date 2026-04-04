@@ -199,13 +199,13 @@
 
 ### EA-b — T32/A32 ISA Coverage
 
-- [x] **EA-b-1** Source T32/A32 data: hand-curated `arm-arm/T32Instructions.json` (LDR, STR, ADD, B, BL, MOV) and `arm-arm/A32Instructions.json` (LDR, STR, ADD, SUB, B, BL) from ARM DDI0487
+- [x] **EA-b-1** Source T32/A32 data: hand-curated `arm-arm/T32Instructions.json` (14 ops: LDR, STR, ADD, SUB, CMP, AND, ORR, EOR, LDRB, STRB, MUL, B, BL, MOV) and `arm-arm/A32Instructions.json` (14 ops: LDR, STR, ADD, SUB, MOV, CMP, AND, ORR, EOR, LDRB, STRB, MUL, B, BL) from ARM DDI0487
 - [x] **EA-b-2** Write `tools/build_arm_arm_index.py`: writes `cache/arm_arm/t32_operations/` and `cache/arm_arm/a32_operations/` in the same per-operation_id format as `cache/operations/`; updates `manifest.json`
 - [x] **EA-b-3** Extend `tools/query_instruction.py` with `--isa t32|a32|a64` flag (default `a64` for backward compatibility)
 - [x] **EA-b-4** Extend `tools/query_search.py` to include T32/A32 operation indexes (new `--isa a64|t32|a32|all` flag; default `all`)
 - [x] **EA-b-5** Update `.claude/skills/arm-instr.md` to document T32/A32 routing
 
-**Exit criteria:** ✅ `python3 tools/query_instruction.py LDR --isa t32` returns correct T32 encoding. `arm-instr --op ADC` ASL is deferred (no license). All 16 EA eval tests pass (7 T32 + 6 A32 + 3 search).
+**Exit criteria:** ✅ `python3 tools/query_instruction.py LDR --isa t32` returns correct T32 encoding. `arm-instr --op ADC` ASL is deferred (no license). All 34 EA eval tests pass (16 T32 + 15 A32 + 3 search).
 
 ---
 

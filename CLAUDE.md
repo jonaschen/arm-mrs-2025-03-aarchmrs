@@ -93,10 +93,10 @@ tools/
   isa_optimize.py      # [DONE] Advanced ISA optimization — SVE2/SME templates, PAC/BTI insertion, MTE helpers, 18 security rules (Milestone H6)
   isa_linter.py        # [DONE] Linter-in-the-loop — 50 AArch64 lint rules, VIXL interface, auto-repair, lint-green gate (Milestone H7)
   multi_agent.py       # [DONE] Multi-agent orchestration — 4 roles, task locks, Oracle comparison, RALPH loop (Milestone H8)
-  eval_skill.py        # [DONE] Correctness evaluation (318 tests: 51 A64 + 16 T32/A32 + 18 GIC + 24 CoreSight + 14 PMU + 14 EX + 18 H1 + 14 H3 + 23 H4 + 27 H5 + 42 H6 + 31 H7 + 26 H8)
+  eval_skill.py        # [DONE] Correctness evaluation (336 tests: 51 A64 + 34 T32/A32 + 18 GIC + 24 CoreSight + 14 PMU + 14 EX + 18 H1 + 14 H3 + 23 H4 + 27 H5 + 42 H6 + 31 H7 + 26 H8)
 arm-arm/               # Hand-curated T32/A32 instruction data (committed)
-  T32Instructions.json # T32 (Thumb-2) instruction encodings — starter set
-  A32Instructions.json # A32 (classic ARM 32-bit) instruction encodings — starter set
+  T32Instructions.json # T32 (Thumb-2) instruction encodings — 14 operations
+  A32Instructions.json # A32 (classic ARM 32-bit) instruction encodings — 14 operations
 gic/                   # Hand-curated GIC register data (committed)
   GIC.json             # GIC v3/v4 register data (GICD, GICR, GITS blocks + ICC cross-refs)
   GIC_meta.json        # GIC metadata (block titles, version descriptions)
@@ -321,7 +321,7 @@ python3 tools/multi_agent.py --oracle --reference ref.txt --experimental exp.txt
 python3 tools/multi_agent.py --ralph --task my_task --max-iters 5                 # RALPH dry run
 python3 tools/multi_agent.py --ralph-simulate --json                              # simulate convergence
 
-# Correctness evaluation (all 318 tests should pass)
+# Correctness evaluation (all 336 tests should pass)
 python3 tools/eval_skill.py
 python3 tools/eval_skill.py --skill gic
 python3 tools/eval_skill.py --skill coresight
@@ -344,7 +344,7 @@ python3 tools/eval_skill.py --skill multi_agent
 - **`operation_id` is the instruction key.** It is shared between the `operations` dict (behavior) and instruction tree nodes (encoding). Use `--list` in the probe or `arm-instr-list` in the skill to discover valid `operation_id` values for a mnemonic.
 - **Instruction encoding is assembled from the hierarchy.** Each instruction node only carries discriminating opcode bits; operand field definitions live in parent `InstructionGroup` nodes. `build_index.py` resolves this via a two-pass bit-level merge so each `cache/operations/*.json` file contains a complete, self-contained 32-bit field layout with `kind=fixed|operand|class` classification. Query scripts read from the cache only — they do not re-parse the tree.
 - **PMU event descriptions are available.** Unlike the BSD AARCHMRS release, `pmu/*.json` data (Apache 2.0, from ARM-software/data) has real prose descriptions for every event.
-- **T32/A32 coverage is a starter set.** `arm-arm/` contains 6 T32 + 6 A32 instructions hand-curated from ARM DDI0487. Use `--isa t32/a32` to query them; A64 is still the default.
+- **T32/A32 coverage is an expanded set.** `arm-arm/` contains 14 T32 + 14 A32 instructions hand-curated from ARM DDI0487 (LDR, STR, ADD, SUB, MOV, CMP, AND, ORR, EOR, LDRB, STRB, MUL, B, BL). Use `--isa t32/a32` to query them; A64 is still the default.
 
 ---
 

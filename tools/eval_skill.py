@@ -608,6 +608,52 @@ INSTR_T32_TESTS = [
         [QUERY_INSTR, 'FAKEZAP', '--isa', 't32'],
         [exit_nonzero()],
     ),
+    # New T32 instructions (v2.0 expansion)
+    (
+        'T32 SUB lookup succeeds',
+        [QUERY_INSTR, 'SUB', '--isa', 't32'],
+        [exit_ok(), stdout_contains('Subtract')],
+    ),
+    (
+        'T32 CMP encoding contains Rn operand',
+        [QUERY_INSTR, 'CMP', '--isa', 't32', '--enc'],
+        [exit_ok(), stdout_contains('Rn')],
+    ),
+    (
+        'T32 AND lookup succeeds',
+        [QUERY_INSTR, 'AND', '--isa', 't32'],
+        [exit_ok(), stdout_contains('AND')],
+    ),
+    (
+        'T32 ORR lookup succeeds',
+        [QUERY_INSTR, 'ORR', '--isa', 't32'],
+        [exit_ok(), stdout_contains('OR')],
+    ),
+    (
+        'T32 EOR lookup succeeds',
+        [QUERY_INSTR, 'EOR', '--isa', 't32'],
+        [exit_ok(), stdout_contains('Exclusive OR')],
+    ),
+    (
+        'T32 LDRB encoding contains imm12 operand',
+        [QUERY_INSTR, 'LDRB', '--isa', 't32', '--enc'],
+        [exit_ok(), stdout_contains('imm12')],
+    ),
+    (
+        'T32 STRB lookup succeeds',
+        [QUERY_INSTR, 'STRB', '--isa', 't32'],
+        [exit_ok(), stdout_contains('Store Register Byte')],
+    ),
+    (
+        'T32 MUL encoding contains Rd, Rn, Rm operands',
+        [QUERY_INSTR, 'MUL', '--isa', 't32', '--enc'],
+        [exit_ok(), stdout_contains('Rd'), stdout_contains('Rn'), stdout_contains('Rm')],
+    ),
+    (
+        'T32 --list R finds LDRB, STRB, and other R-containing ops',
+        [QUERY_INSTR, '--list', 'R', '--isa', 't32'],
+        [exit_ok(), stdout_contains('LDRB'), stdout_contains('STRB')],
+    ),
 ]
 
 INSTR_A32_TESTS = [
@@ -641,6 +687,52 @@ INSTR_A32_TESTS = [
         'A32 --list LDR finds LDR',
         [QUERY_INSTR, '--list', 'LDR', '--isa', 'a32'],
         [exit_ok(), stdout_contains('LDR')],
+    ),
+    # New A32 instructions (v2.0 expansion)
+    (
+        'A32 MOV lookup succeeds',
+        [QUERY_INSTR, 'MOV', '--isa', 'a32'],
+        [exit_ok(), stdout_contains('Move')],
+    ),
+    (
+        'A32 CMP encoding contains Rn operand',
+        [QUERY_INSTR, 'CMP', '--isa', 'a32', '--enc'],
+        [exit_ok(), stdout_contains('Rn')],
+    ),
+    (
+        'A32 AND lookup succeeds',
+        [QUERY_INSTR, 'AND', '--isa', 'a32'],
+        [exit_ok(), stdout_contains('AND')],
+    ),
+    (
+        'A32 ORR lookup succeeds',
+        [QUERY_INSTR, 'ORR', '--isa', 'a32'],
+        [exit_ok(), stdout_contains('OR')],
+    ),
+    (
+        'A32 EOR lookup succeeds',
+        [QUERY_INSTR, 'EOR', '--isa', 'a32'],
+        [exit_ok(), stdout_contains('Exclusive OR')],
+    ),
+    (
+        'A32 LDRB encoding has byte flag (bit 22 = 1)',
+        [QUERY_INSTR, 'LDRB', '--isa', 'a32', '--enc'],
+        [exit_ok(), stdout_contains('imm12')],
+    ),
+    (
+        'A32 STRB lookup succeeds',
+        [QUERY_INSTR, 'STRB', '--isa', 'a32'],
+        [exit_ok(), stdout_contains('Store Register Byte')],
+    ),
+    (
+        'A32 MUL encoding contains multiply opcode 1001',
+        [QUERY_INSTR, 'MUL', '--isa', 'a32', '--enc'],
+        [exit_ok(), stdout_contains('1001')],
+    ),
+    (
+        'A32 --list R finds LDRB, STRB, and other R-containing ops',
+        [QUERY_INSTR, '--list', 'R', '--isa', 'a32'],
+        [exit_ok(), stdout_contains('LDRB'), stdout_contains('STRB')],
     ),
 ]
 
