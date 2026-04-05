@@ -104,7 +104,7 @@ cache directory from multiple workspaces pointing at the same MRS data.
  - `arm-arm/` — hand-curated T32/A32 instruction data (14 T32 + 14 A32 operations).
  - `gic/` — GIC v3/v4 register data (24 registers: GICD, GICR, GITS blocks).
  - `coresight/` — CoreSight component register data (40 registers: ETM, CTI, STM, ITM).
- - `pmu/` — ARM PMU event data (Apache 2.0, 8 CPU files, ~900 events total).
+ - `pmu/` — ARM PMU event data (Apache 2.0, 31 CPU files, ~4,500 events total).
  - `tools/` — cache builders, query scripts, and agent skill support tools.
  - `.claude/skills/` — Claude Code skill files (auto-loaded when repo is open).
 
@@ -137,7 +137,7 @@ All 14 skills are implemented across Phases 1–3. Every skill uses only Python 
 
 | Skill | Script | Cache builder | Coverage |
 |-------|--------|--------------|----------|
-| `arm-pmu` | `query_pmu.py` | `build_pmu_index.py` | PMU events (8 CPUs, ~900 events) |
+| `arm-pmu` | `query_pmu.py` | `build_pmu_index.py` | PMU events (31 CPUs, ~4,500 events) |
 | `arm-gic` | `query_gic.py` | `build_gic_index.py` | GIC v3/v4 (24 registers) |
 | `arm-coresight` | `query_coresight.py` | `build_coresight_index.py` | CoreSight (40 registers) |
 
@@ -361,12 +361,12 @@ python3 tools/isa_linter.py --check-vixl
 
 ## Correctness evaluation
 
-`tools/eval_skill.py` runs 336 ground-truth tests across all skills, verifying that every
-query tool returns spec-grounded answers with no hallucination. All 336 tests must pass
+`tools/eval_skill.py` runs 352 ground-truth tests across all skills, verifying that every
+query tool returns spec-grounded answers with no hallucination. All 352 tests must pass
 before the caches are considered valid for daily use.
 
 ```bash
-# Full suite (all 336 tests; requires all caches)
+# Full suite (all 352 tests; requires all caches)
 python3 tools/eval_skill.py
 
 # Per-skill subsets (faster iteration)
@@ -413,7 +413,7 @@ python3 tools/probe.py --list ADD
 | ASL pseudocode deferred | `decode`/`operation` bodies are `null` in the BSD release. Unlock requires an ARM Architecture License (Milestone H2/EA-a — deferred). |
 | T32/A32 coverage | `arm-arm/` contains 14 T32 + 14 A32 hand-curated instructions (LDR, STR, ADD, SUB, MOV, CMP, AND, ORR, EOR, LDRB, STRB, MUL, B, BL). A full T32/A32 set requires the proprietary MRS XML package. |
 | GIC and CoreSight coverage | `gic/GIC.json` has 24 GICv3/v4 registers; `coresight/CoreSight.json` has 40 registers across 5 components. More registers can be added incrementally. |
-| H8 multi-agent not yet started | The Developer/Critic/Judge/Executor orchestration loop (Milestone H8) depends on H3+H4+H5+H7 and is next in the roadmap. |
+| H8 multi-agent complete | The Developer/Critic/Judge/Executor orchestration loop (Milestone H8) is fully implemented with 4 agent roles, task locks, Oracle comparison, and RALPH loop. |
 | GDB/QEMU/cross-compiler optional | H3/H4/H5 skills degrade gracefully when the tools are not installed; use `--check` to verify availability. |
 
 ---

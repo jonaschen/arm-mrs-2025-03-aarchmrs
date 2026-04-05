@@ -1092,6 +1092,88 @@ PMU_TESTS = [
         [QUERY_PMU, '--list', 'neoverse'],
         [exit_ok(), stdout_contains('neoverse-n1'), stdout_not_contains('cortex-a710')],
     ),
+    # -- New CPUs (expanded PMU coverage) --------------------------------------
+    (
+        'cortex-a57 is present in the PMU cache',
+        [QUERY_PMU, 'cortex-a57'],
+        [exit_ok(), stdout_contains('Cortex-A57')],
+    ),
+    (
+        'cortex-a57 CPU_CYCLES code is 17 (0x011)',
+        [QUERY_PMU, 'cortex-a57', 'CPU_CYCLES'],
+        [exit_ok(), stdout_contains('17 (0x011)')],
+    ),
+    (
+        'cortex-a72 is present in the PMU cache',
+        [QUERY_PMU, 'cortex-a72'],
+        [exit_ok(), stdout_contains('Cortex-A72')],
+    ),
+    (
+        'cortex-a73 architecture is armv8-a',
+        [QUERY_PMU, 'cortex-a73'],
+        [exit_ok(), stdout_contains('armv8-a')],
+    ),
+    (
+        'cortex-a75 is present in the PMU cache',
+        [QUERY_PMU, 'cortex-a75'],
+        [exit_ok(), stdout_contains('Cortex-A75')],
+    ),
+    (
+        'cortex-a77 architecture is armv8.2-a',
+        [QUERY_PMU, 'cortex-a77'],
+        [exit_ok(), stdout_contains('armv8.2-a')],
+    ),
+    (
+        'cortex-a78 is present in the PMU cache',
+        [QUERY_PMU, 'cortex-a78'],
+        [exit_ok(), stdout_contains('Cortex-A78')],
+    ),
+    (
+        'cortex-a78c is present in the PMU cache',
+        [QUERY_PMU, 'cortex-a78c'],
+        [exit_ok(), stdout_contains('Cortex-A78C')],
+    ),
+    (
+        'cortex-x1 is present in the PMU cache',
+        [QUERY_PMU, 'cortex-x1'],
+        [exit_ok(), stdout_contains('Cortex-X1')],
+    ),
+    (
+        'cortex-x1c architecture is armv8.2-a',
+        [QUERY_PMU, 'cortex-x1c'],
+        [exit_ok(), stdout_contains('armv8.2-a')],
+    ),
+    (
+        'cortex-a65 is present in the PMU cache',
+        [QUERY_PMU, 'cortex-a65'],
+        [exit_ok(), stdout_contains('Cortex-A65')],
+    ),
+    (
+        'neoverse-e1 is present in the PMU cache',
+        [QUERY_PMU, 'neoverse-e1'],
+        [exit_ok(), stdout_contains('Neoverse E1')],
+    ),
+    (
+        'neoverse-v3ae is present in the PMU cache',
+        [QUERY_PMU, 'neoverse-v3ae'],
+        [exit_ok(), stdout_contains('Neoverse V3AE')],
+    ),
+    (
+        'neoverse-v3ae CPU_CYCLES code is 17 (0x011)',
+        [QUERY_PMU, 'neoverse-v3ae', 'CPU_CYCLES'],
+        [exit_ok(), stdout_contains('17 (0x011)')],
+    ),
+    (
+        '--list shows 31 CPUs total',
+        [QUERY_PMU, '--list'],
+        [exit_ok(), stdout_contains('cortex-a57'), stdout_contains('cortex-a78'),
+         stdout_contains('neoverse-v3ae')],
+    ),
+    (
+        '--search L1D_CACHE_REFILL finds new CPUs too',
+        [QUERY_PMU, '--search', 'L1D_CACHE_REFILL'],
+        [exit_ok(), stdout_contains('cortex-a57'), stdout_contains('cortex-a78')],
+    ),
     # -- Hallucination guard -------------------------------------------------
     (
         'FAKE_CPU_ZZZZ is not found (hallucination guard)',
