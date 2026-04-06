@@ -1282,11 +1282,72 @@ PMU_TESTS = [
         [QUERY_PMU, 'neoverse-v3ae', 'CPU_CYCLES'],
         [exit_ok(), stdout_contains('17 (0x011)')],
     ),
+    # -- New CPUs (research session 2026-04-07) --------------------------------
     (
-        '--list shows 31 CPUs total',
+        'cortex-a34 is present in the PMU cache',
+        [QUERY_PMU, 'cortex-a34'],
+        [exit_ok(), stdout_contains('Cortex-A34')],
+    ),
+    (
+        'cortex-a34 architecture is armv8-a',
+        [QUERY_PMU, 'cortex-a34'],
+        [exit_ok(), stdout_contains('armv8-a')],
+    ),
+    (
+        'cortex-a34 CPU_CYCLES code is 17 (0x011)',
+        [QUERY_PMU, 'cortex-a34', 'CPU_CYCLES'],
+        [exit_ok(), stdout_contains('17 (0x011)')],
+    ),
+    (
+        'cortex-a35 is present in the PMU cache',
+        [QUERY_PMU, 'cortex-a35'],
+        [exit_ok(), stdout_contains('Cortex-A35')],
+    ),
+    (
+        'cortex-a35 has 68 events',
+        [QUERY_PMU, 'cortex-a35'],
+        [exit_ok(), stdout_contains('68')],
+    ),
+    (
+        'cortex-a65ae is present in the PMU cache',
+        [QUERY_PMU, 'cortex-a65ae'],
+        [exit_ok(), stdout_contains('Cortex-A65AE')],
+    ),
+    (
+        'cortex-a65ae CPU_CYCLES code is 17 (0x011)',
+        [QUERY_PMU, 'cortex-a65ae', 'CPU_CYCLES'],
+        [exit_ok(), stdout_contains('17 (0x011)')],
+    ),
+    (
+        'cortex-a76ae is present in the PMU cache',
+        [QUERY_PMU, 'cortex-a76ae'],
+        [exit_ok(), stdout_contains('Cortex-A76AE')],
+    ),
+    (
+        'cortex-a76ae architecture is armv8-a',
+        [QUERY_PMU, 'cortex-a76ae'],
+        [exit_ok(), stdout_contains('armv8-a')],
+    ),
+    (
+        'rainier is present in the PMU cache',
+        [QUERY_PMU, 'rainier'],
+        [exit_ok(), stdout_contains('Rainier')],
+    ),
+    (
+        'rainier architecture is armv8.2-a',
+        [QUERY_PMU, 'rainier'],
+        [exit_ok(), stdout_contains('armv8.2-a')],
+    ),
+    (
+        'rainier CPU_CYCLES code is 17 (0x011)',
+        [QUERY_PMU, 'rainier', 'CPU_CYCLES'],
+        [exit_ok(), stdout_contains('17 (0x011)')],
+    ),
+    (
+        '--list shows 36 CPUs total',
         [QUERY_PMU, '--list'],
-        [exit_ok(), stdout_contains('cortex-a57'), stdout_contains('cortex-a78'),
-         stdout_contains('neoverse-v3ae')],
+        [exit_ok(), stdout_contains('cortex-a34'), stdout_contains('cortex-a76ae'),
+         stdout_contains('rainier')],
     ),
     (
         '--search L1D_CACHE_REFILL finds new CPUs too',
