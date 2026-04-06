@@ -254,7 +254,13 @@
 - [x] **EB-4-2** Update `.claude/skills/arm-search.md` to route GIC results to `arm-gic`
 - [x] **EB-4-3** Extend `eval_skill.py` with `gic` test cases: register existence, field bit position, access type, `--icc-xref` output, hallucination guard
 
-**Exit criteria:** ✅ `python3 tools/query_gic.py GICD_CTLR EnableGrp0` returns correct bit position and access type. `arm-search EnableGrp1` returns GIC results. All gic eval tests pass (15 gic + 3 gic_search = 18 total).
+**Exit criteria:** ✅ `python3 tools/query_gic.py GICD_CTLR EnableGrp0` returns correct bit position and access type. `arm-search EnableGrp1` returns GIC results. All gic eval tests pass (38 gic + 3 gic_search = 41 total).
+
+**Data expansion (2026-04-07):** GIC register coverage expanded from 24 to 41 registers:
+- GICD: added GICD_PIDR2 (GIC version identification), GICD_SETSPI_NSR, GICD_CLRSPI_NSR (SPI pending control)
+- GICR: added 12 SGI/PPI management registers — GICR_IGROUPR0, GICR_ISENABLER0, GICR_ICENABLER0, GICR_ISPENDR0, GICR_ICPENDR0, GICR_ISACTIVER0, GICR_ICACTIVER0, GICR_IPRIORITYR\<n\>, GICR_ICFGR0, GICR_ICFGR1, GICR_IGRPMODR0, GICR_NSACR
+- GITS: added GITS_BASER\<n\> (translation table descriptors), GITS_TRANSLATER (LPI trigger register)
+- 23 new eval tests added (375 total, all pass)
 
 ---
 

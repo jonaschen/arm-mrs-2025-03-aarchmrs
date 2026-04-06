@@ -14,7 +14,7 @@ in the MRS data — eliminating hallucination for register, instruction, feature
 PMU, cross-compilation, and code-generation queries. See `AARCH64_AGENT_SKILL_DEV_PLAN.md` and
 `ROADMAP.md` for the full design and implementation plan.
 
-> **Alpha release** — all Phase 1–3 skills are implemented and passing 336 evaluation tests.
+> **Alpha release** — all Phase 1–3 skills are implemented and passing 375 evaluation tests.
 > See [Alpha Testing](#alpha-testing) below for how to report gaps and contribute feedback.
 
 ---
@@ -53,7 +53,7 @@ python3 tools/build_gic_index.py       # GIC cache (fast)
 python3 tools/build_coresight_index.py # CoreSight cache (fast)
 python3 tools/build_pmu_index.py       # PMU event cache (fast)
 
-# 3. Verify all 336 eval tests pass
+# 3. Verify all 375 eval tests pass
 python3 tools/eval_skill.py
 
 # 4. Try a query
@@ -102,7 +102,7 @@ cache directory from multiple workspaces pointing at the same MRS data.
  - [`schema/`](schema/) — 138 JSON Schema files defining the data model.
  - [`docs/`](docs/index.html) — rendered schema documentation and user guides.
  - `arm-arm/` — hand-curated T32/A32 instruction data (14 T32 + 14 A32 operations).
- - `gic/` — GIC v3/v4 register data (24 registers: GICD, GICR, GITS blocks).
+ - `gic/` — GIC v3/v4 register data (41 registers: GICD, GICR, GITS blocks).
  - `coresight/` — CoreSight component register data (40 registers: ETM, CTI, STM, ITM).
  - `pmu/` — ARM PMU event data (Apache 2.0, 31 CPU files, ~4,500 events total).
  - `tools/` — cache builders, query scripts, and agent skill support tools.
@@ -361,8 +361,8 @@ python3 tools/isa_linter.py --check-vixl
 
 ## Correctness evaluation
 
-`tools/eval_skill.py` runs 352 ground-truth tests across all skills, verifying that every
-query tool returns spec-grounded answers with no hallucination. All 352 tests must pass
+`tools/eval_skill.py` runs 375 ground-truth tests across all skills, verifying that every
+query tool returns spec-grounded answers with no hallucination. All 375 tests must pass
 before the caches are considered valid for daily use.
 
 ```bash
@@ -412,7 +412,7 @@ python3 tools/probe.py --list ADD
 | No prose in BSD MRS | `title`/`purpose`/`description` fields are `null` throughout `Features.json`, `Instructions.json`, and `Registers.json`. Skills emit "Description not available in BSD MRS release". |
 | ASL pseudocode deferred | `decode`/`operation` bodies are `null` in the BSD release. Unlock requires an ARM Architecture License (Milestone H2/EA-a — deferred). |
 | T32/A32 coverage | `arm-arm/` contains 14 T32 + 14 A32 hand-curated instructions (LDR, STR, ADD, SUB, MOV, CMP, AND, ORR, EOR, LDRB, STRB, MUL, B, BL). A full T32/A32 set requires the proprietary MRS XML package. |
-| GIC and CoreSight coverage | `gic/GIC.json` has 24 GICv3/v4 registers; `coresight/CoreSight.json` has 40 registers across 5 components. More registers can be added incrementally. |
+| GIC and CoreSight coverage | `gic/GIC.json` has 41 GICv3/v4 registers (GICD, GICR, GITS); `coresight/CoreSight.json` has 40 registers across 5 components. More registers can be added incrementally. |
 | H8 multi-agent complete | The Developer/Critic/Judge/Executor orchestration loop (Milestone H8) is fully implemented with 4 agent roles, task locks, Oracle comparison, and RALPH loop. |
 | GDB/QEMU/cross-compiler optional | H3/H4/H5 skills degrade gracefully when the tools are not installed; use `--check` to verify availability. |
 

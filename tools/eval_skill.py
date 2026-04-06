@@ -847,6 +847,125 @@ GIC_TESTS = [
         [QUERY_GIC, 'ICC_NONEXISTENT_EL9'],
         [exit_nonzero()],
     ),
+    # --- New GICR SGI/PPI management registers ---
+    (
+        'GICR_ISENABLER0 lookup succeeds',
+        [QUERY_GIC, 'GICR_ISENABLER0'],
+        [exit_ok(), stdout_contains('GICR')],
+    ),
+    (
+        'GICR_ISENABLER0 Set_enable field access is RW1S',
+        [QUERY_GIC, 'GICR_ISENABLER0', 'Set_enable'],
+        [exit_ok(), stdout_contains('RW1S')],
+    ),
+    (
+        'GICR_ICENABLER0 lookup succeeds',
+        [QUERY_GIC, 'GICR_ICENABLER0'],
+        [exit_ok(), stdout_contains('GICR')],
+    ),
+    (
+        'GICR_IGROUPR0 lookup succeeds (interrupt grouping)',
+        [QUERY_GIC, 'GICR_IGROUPR0'],
+        [exit_ok(), stdout_contains('Group')],
+    ),
+    (
+        'GICR_ISPENDR0 lookup succeeds',
+        [QUERY_GIC, 'GICR_ISPENDR0'],
+        [exit_ok(), stdout_contains('pending')],
+    ),
+    (
+        'GICR_ICPENDR0 lookup succeeds',
+        [QUERY_GIC, 'GICR_ICPENDR0'],
+        [exit_ok(), stdout_contains('pending')],
+    ),
+    (
+        'GICR_ISACTIVER0 lookup succeeds',
+        [QUERY_GIC, 'GICR_ISACTIVER0'],
+        [exit_ok(), stdout_contains('active')],
+    ),
+    (
+        'GICR_ICACTIVER0 lookup succeeds',
+        [QUERY_GIC, 'GICR_ICACTIVER0'],
+        [exit_ok(), stdout_contains('active')],
+    ),
+    (
+        'GICR_IPRIORITYR<n> lookup succeeds',
+        [QUERY_GIC, 'GICR_IPRIORITYR<n>'],
+        [exit_ok(), stdout_contains('Priority')],
+    ),
+    (
+        'GICR_ICFGR0 lookup succeeds (SGI config)',
+        [QUERY_GIC, 'GICR_ICFGR0'],
+        [exit_ok(), stdout_contains('edge')],
+    ),
+    (
+        'GICR_ICFGR1 lookup succeeds (PPI config)',
+        [QUERY_GIC, 'GICR_ICFGR1'],
+        [exit_ok(), stdout_contains('edge')],
+    ),
+    (
+        'GICR_IGRPMODR0 lookup succeeds',
+        [QUERY_GIC, 'GICR_IGRPMODR0'],
+        [exit_ok(), stdout_contains('GroupMod')],
+    ),
+    (
+        'GICR_NSACR lookup succeeds',
+        [QUERY_GIC, 'GICR_NSACR'],
+        [exit_ok(), stdout_contains('Non-secure')],
+    ),
+    # --- New GICD registers ---
+    (
+        'GICD_PIDR2 lookup succeeds (GIC version identification)',
+        [QUERY_GIC, 'GICD_PIDR2'],
+        [exit_ok(), stdout_contains('ArchRev')],
+    ),
+    (
+        'GICD_PIDR2 ArchRev field is at bits [7:4]',
+        [QUERY_GIC, 'GICD_PIDR2', 'ArchRev'],
+        [exit_ok(), stdout_contains('[7:4]')],
+    ),
+    (
+        'GICD_SETSPI_NSR lookup succeeds',
+        [QUERY_GIC, 'GICD_SETSPI_NSR'],
+        [exit_ok(), stdout_contains('INTID')],
+    ),
+    (
+        'GICD_CLRSPI_NSR lookup succeeds',
+        [QUERY_GIC, 'GICD_CLRSPI_NSR'],
+        [exit_ok(), stdout_contains('INTID')],
+    ),
+    # --- New GITS registers ---
+    (
+        'GITS_BASER<n> lookup succeeds (ITS translation tables)',
+        [QUERY_GIC, 'GITS_BASER<n>'],
+        [exit_ok(), stdout_contains('Type')],
+    ),
+    (
+        'GITS_BASER<n> Valid field at bit [63]',
+        [QUERY_GIC, 'GITS_BASER<n>', 'Valid'],
+        [exit_ok(), stdout_contains('[63]')],
+    ),
+    (
+        'GITS_TRANSLATER lookup succeeds (LPI trigger register)',
+        [QUERY_GIC, 'GITS_TRANSLATER'],
+        [exit_ok(), stdout_contains('EventID')],
+    ),
+    (
+        'GITS_TRANSLATER EventID field access is WO',
+        [QUERY_GIC, 'GITS_TRANSLATER', 'EventID'],
+        [exit_ok(), stdout_contains('WO')],
+    ),
+    # --- Block listing with new registers ---
+    (
+        '--block GICR lists GICR_ISENABLER0',
+        [QUERY_GIC, '--block', 'GICR'],
+        [exit_ok(), stdout_contains('GICR_ISENABLER0')],
+    ),
+    (
+        '--block GITS lists GITS_TRANSLATER',
+        [QUERY_GIC, '--block', 'GITS'],
+        [exit_ok(), stdout_contains('GITS_TRANSLATER')],
+    ),
 ]
 
 # GIC search integration tests

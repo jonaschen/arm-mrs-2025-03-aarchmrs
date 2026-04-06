@@ -93,7 +93,7 @@ tools/
   isa_optimize.py      # [DONE] Advanced ISA optimization — SVE2/SME templates, PAC/BTI insertion, MTE helpers, 18 security rules (Milestone H6)
   isa_linter.py        # [DONE] Linter-in-the-loop — 50 AArch64 lint rules, VIXL interface, auto-repair, lint-green gate (Milestone H7)
   multi_agent.py       # [DONE] Multi-agent orchestration — 4 roles, task locks, Oracle comparison, RALPH loop (Milestone H8)
-  eval_skill.py        # [DONE] Correctness evaluation (352 tests: 51 A64 + 34 T32/A32 + 18 GIC + 24 CoreSight + 30 PMU + 14 EX + 18 H1 + 14 H3 + 23 H4 + 27 H5 + 42 H6 + 31 H7 + 26 H8)
+  eval_skill.py        # [DONE] Correctness evaluation (375 tests: 51 A64 + 34 T32/A32 + 41 GIC + 24 CoreSight + 30 PMU + 14 EX + 18 H1 + 14 H3 + 23 H4 + 27 H5 + 42 H6 + 31 H7 + 26 H8)
 arm-arm/               # Hand-curated T32/A32 instruction data (committed)
   T32Instructions.json # T32 (Thumb-2) instruction encodings — 14 operations
   A32Instructions.json # A32 (classic ARM 32-bit) instruction encodings — 14 operations

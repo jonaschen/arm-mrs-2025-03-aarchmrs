@@ -506,6 +506,345 @@
       ]
     },
     {
+      "name": "GICR_IGROUPR0",
+      "block": "GICR",
+      "offset": "0x0080",
+      "title": "Redistributor Interrupt Group Register 0",
+      "brief": "Controls whether each SGI and PPI is a Group 0 or Group 1 interrupt. Each bit corresponds to one interrupt (INTID 0-31). When bit n is 0, INTID n is Group 0; when bit n is 1, INTID n is Group 1.",
+      "width": 32,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "Group_status", "bits": [{"start": 0, "width": 32}], "access": "RW", "reset": "0", "brief": "Group status bits. For each bit n: 0 = INTID n is Group 0; 1 = INTID n is Group 1."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GICR_ISENABLER0",
+      "block": "GICR",
+      "offset": "0x0100",
+      "title": "Redistributor Interrupt Set-Enable Register 0",
+      "brief": "Enables forwarding of the corresponding SGI or PPI to the CPU interface. Writing 1 to a bit enables the corresponding interrupt. Reading a bit returns 1 if the interrupt is enabled.",
+      "width": 32,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "Set_enable", "bits": [{"start": 0, "width": 32}], "access": "RW1S", "reset": "0", "brief": "Set-enable bits. For each bit n: write 1 = enable INTID n; write 0 = no effect. Read: 1 = enabled; 0 = disabled."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GICR_ICENABLER0",
+      "block": "GICR",
+      "offset": "0x0180",
+      "title": "Redistributor Interrupt Clear-Enable Register 0",
+      "brief": "Disables forwarding of the corresponding SGI or PPI to the CPU interface. Writing 1 to a bit disables the corresponding interrupt. Reading a bit returns 1 if the interrupt is enabled.",
+      "width": 32,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "Clear_enable", "bits": [{"start": 0, "width": 32}], "access": "RW1C", "reset": "0", "brief": "Clear-enable bits. For each bit n: write 1 = disable INTID n; write 0 = no effect. Read: 1 = enabled; 0 = disabled."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GICR_ISPENDR0",
+      "block": "GICR",
+      "offset": "0x0200",
+      "title": "Redistributor Interrupt Set-Pending Register 0",
+      "brief": "Sets the pending state of the corresponding SGI or PPI. Writing 1 to a bit sets the corresponding interrupt to pending. Reading a bit returns the pending state.",
+      "width": 32,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "Set_pending", "bits": [{"start": 0, "width": 32}], "access": "RW1S", "reset": "0", "brief": "Set-pending bits. For each bit n: write 1 = set INTID n to pending; write 0 = no effect. Read: 1 = pending; 0 = not pending."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GICR_ICPENDR0",
+      "block": "GICR",
+      "offset": "0x0280",
+      "title": "Redistributor Interrupt Clear-Pending Register 0",
+      "brief": "Clears the pending state of the corresponding SGI or PPI. Writing 1 to a bit clears the pending state. Reading a bit returns the pending state.",
+      "width": 32,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "Clear_pending", "bits": [{"start": 0, "width": 32}], "access": "RW1C", "reset": "0", "brief": "Clear-pending bits. For each bit n: write 1 = clear pending state of INTID n; write 0 = no effect. Read: 1 = pending; 0 = not pending."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GICR_ISACTIVER0",
+      "block": "GICR",
+      "offset": "0x0300",
+      "title": "Redistributor Interrupt Set-Active Register 0",
+      "brief": "Sets the active state of the corresponding SGI or PPI. Writing 1 to a bit activates the corresponding interrupt. Reading a bit returns the active state.",
+      "width": 32,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "Set_active", "bits": [{"start": 0, "width": 32}], "access": "RW1S", "reset": "0", "brief": "Set-active bits. For each bit n: write 1 = activate INTID n; write 0 = no effect. Read: 1 = active; 0 = not active."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GICR_ICACTIVER0",
+      "block": "GICR",
+      "offset": "0x0380",
+      "title": "Redistributor Interrupt Clear-Active Register 0",
+      "brief": "Clears the active state of the corresponding SGI or PPI. Writing 1 to a bit deactivates the corresponding interrupt. Reading a bit returns the active state.",
+      "width": 32,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "Clear_active", "bits": [{"start": 0, "width": 32}], "access": "RW1C", "reset": "0", "brief": "Clear-active bits. For each bit n: write 1 = deactivate INTID n; write 0 = no effect. Read: 1 = active; 0 = not active."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GICR_IPRIORITYR<n>",
+      "block": "GICR",
+      "offset": "0x0400",
+      "title": "Redistributor Interrupt Priority Registers",
+      "brief": "Provides an 8-bit priority field for each SGI and PPI. Each register holds priority values for 4 interrupts. n ranges from 0 to 7 (covering INTIDs 0-31).",
+      "width": 32,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "Priority_byte3", "bits": [{"start": 24, "width": 8}], "access": "RW", "reset": "0", "brief": "Priority of INTID (4n+3). Lower values indicate higher priority."},
+            {"name": "Priority_byte2", "bits": [{"start": 16, "width": 8}], "access": "RW", "reset": "0", "brief": "Priority of INTID (4n+2). Lower values indicate higher priority."},
+            {"name": "Priority_byte1", "bits": [{"start": 8,  "width": 8}], "access": "RW", "reset": "0", "brief": "Priority of INTID (4n+1). Lower values indicate higher priority."},
+            {"name": "Priority_byte0", "bits": [{"start": 0,  "width": 8}], "access": "RW", "reset": "0", "brief": "Priority of INTID (4n+0). Lower values indicate higher priority."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GICR_ICFGR0",
+      "block": "GICR",
+      "offset": "0x0C00",
+      "title": "Redistributor Interrupt Configuration Register 0",
+      "brief": "Determines whether each SGI (INTIDs 0-15) is edge-triggered or level-sensitive. For SGIs, this register is read-only and all fields read as 0b10 (edge-triggered).",
+      "width": 32,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "Int_config", "bits": [{"start": 0, "width": 32}], "access": "RO", "reset": "0xAAAAAAAA", "brief": "Interrupt configuration bits. For each 2-bit field: 00/01 = level-sensitive; 10/11 = edge-triggered. SGIs are always edge-triggered."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GICR_ICFGR1",
+      "block": "GICR",
+      "offset": "0x0C04",
+      "title": "Redistributor Interrupt Configuration Register 1",
+      "brief": "Determines whether each PPI (INTIDs 16-31) is edge-triggered or level-sensitive. Each PPI has a 2-bit configuration field.",
+      "width": 32,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "Int_config", "bits": [{"start": 0, "width": 32}], "access": "RW", "reset": "0", "brief": "Interrupt configuration bits. For each 2-bit field: 00/01 = level-sensitive; 10/11 = edge-triggered."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GICR_IGRPMODR0",
+      "block": "GICR",
+      "offset": "0x0D00",
+      "title": "Redistributor Interrupt Group Modifier Register 0",
+      "brief": "Provides the Group modifier bit for each SGI and PPI. Together with the corresponding bit in GICR_IGROUPR0, determines the interrupt group: Group 0, Secure Group 1, or Non-secure Group 1.",
+      "width": 32,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "GroupMod", "bits": [{"start": 0, "width": 32}], "access": "RW", "reset": "0", "brief": "Group modifier bits. For each bit n, combined with GICR_IGROUPR0 bit n: {GroupMod,Group}=00 → Group 0; 01 → Secure Group 1; 10 → Non-secure Group 1; 11 → Reserved."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GICR_NSACR",
+      "block": "GICR",
+      "offset": "0x0E00",
+      "title": "Redistributor Non-Secure Access Control Register",
+      "brief": "Controls Non-secure access permission for each SGI and PPI. Each interrupt has a 2-bit field. This register is only relevant in a two-Security-state system.",
+      "width": 32,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": "Two-Security-state system",
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "NS_access", "bits": [{"start": 0, "width": 32}], "access": "RW", "reset": "0", "brief": "Non-secure access control bits. For each 2-bit field for INTID n: 00 = no NS access; 01 = NS read/write for ISENABLER/ICENABLER/ISPENDR/ICPENDR/ISACTIVER/ICACTIVER/IPRIORITYR; 10 = also NS write for GICD_SGIR; 11 = reserved."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GICD_PIDR2",
+      "block": "GICD",
+      "offset": "0xFFE8",
+      "title": "Distributor Peripheral ID2 Register",
+      "brief": "Provides information for identifying the GIC. Contains the architecture version field that indicates GICv3 or GICv4.",
+      "width": 32,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "RES0_31_8", "bits": [{"start": 8, "width": 24}], "access": "RES0", "reset": "0", "brief": "Reserved."},
+            {"name": "ArchRev",   "bits": [{"start": 4, "width": 4}],  "access": "RO",   "reset": "IMP", "brief": "Architecture version. 0x1 = GICv1; 0x2 = GICv2; 0x3 = GICv3; 0x4 = GICv4. Read this field to determine the GIC architecture version."},
+            {"name": "JEP106",    "bits": [{"start": 0, "width": 4}],  "access": "RO",   "reset": "IMP", "brief": "JEP106 continuation code and identity. Bits[3] is the continuation code; bits[2:0] are the identity code bits[6:4]."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GICD_SETSPI_NSR",
+      "block": "GICD",
+      "offset": "0x0040",
+      "title": "Distributor Set SPI Register (Non-Secure)",
+      "brief": "Allows software to set the pending state of a Non-secure SPI. Writing the INTID of an SPI causes that interrupt to become pending.",
+      "width": 32,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "RES0_31_13", "bits": [{"start": 13, "width": 19}], "access": "RES0", "reset": "0", "brief": "Reserved."},
+            {"name": "INTID",      "bits": [{"start": 0,  "width": 13}], "access": "WO",   "reset": "0", "brief": "The INTID of the SPI to set as pending. Valid range is 32 to 1019."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GICD_CLRSPI_NSR",
+      "block": "GICD",
+      "offset": "0x0048",
+      "title": "Distributor Clear SPI Register (Non-Secure)",
+      "brief": "Allows software to clear the pending state of a Non-secure SPI. Writing the INTID of an SPI causes that interrupt to be no longer pending.",
+      "width": 32,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "RES0_31_13", "bits": [{"start": 13, "width": 19}], "access": "RES0", "reset": "0", "brief": "Reserved."},
+            {"name": "INTID",      "bits": [{"start": 0,  "width": 13}], "access": "WO",   "reset": "0", "brief": "The INTID of the SPI to clear from pending. Valid range is 32 to 1019."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GITS_BASER<n>",
+      "block": "GITS",
+      "offset": "0x0100",
+      "title": "ITS Translation Table Descriptor Register",
+      "brief": "Provides the base address, size, page size, and attributes of an ITS translation table. n ranges from 0 to 7. Each register describes one type of table (Devices, vPEs, Collections, etc.).",
+      "width": 64,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "Valid",        "bits": [{"start": 63, "width": 1}],  "access": "RW",   "reset": "0",   "brief": "Valid. When set to 1, the contents of this register are valid and the ITS uses this table."},
+            {"name": "Indirect",     "bits": [{"start": 62, "width": 1}],  "access": "RW",   "reset": "0",   "brief": "Indirect. When set to 1, the table is two-level (indirect)."},
+            {"name": "InnerCache",   "bits": [{"start": 59, "width": 3}],  "access": "RW",   "reset": "0",   "brief": "Inner cacheability attribute for accesses to the table."},
+            {"name": "Type",         "bits": [{"start": 56, "width": 3}],  "access": "RO",   "reset": "IMP", "brief": "Table type. 0b000 = unimplemented; 0b001 = Devices; 0b010 = vPEs; 0b100 = Collections."},
+            {"name": "OuterCache",   "bits": [{"start": 53, "width": 3}],  "access": "RW",   "reset": "0",   "brief": "Outer cacheability attribute for accesses to the table."},
+            {"name": "Entry_Size",   "bits": [{"start": 48, "width": 5}],  "access": "RO",   "reset": "IMP", "brief": "Table entry size in bytes, minus one."},
+            {"name": "PA",           "bits": [{"start": 12, "width": 36}], "access": "RW",   "reset": "0",   "brief": "Physical Address. Bits[47:12] of the base address of the table."},
+            {"name": "Shareability", "bits": [{"start": 10, "width": 2}],  "access": "RW",   "reset": "0",   "brief": "Shareability attribute."},
+            {"name": "Page_Size",    "bits": [{"start": 8,  "width": 2}],  "access": "RW",   "reset": "0",   "brief": "Page size. 00 = 4KB; 01 = 16KB; 10 = 64KB; 11 = reserved."},
+            {"name": "Size",         "bits": [{"start": 0,  "width": 8}],  "access": "RW",   "reset": "0",   "brief": "Number of pages, minus one."}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GITS_TRANSLATER",
+      "block": "GITS",
+      "offset": "0x10040",
+      "title": "ITS Translation Register",
+      "brief": "Receives writes from peripherals to generate LPIs. A write of an EventID to this register, along with the DeviceID on the bus, triggers an interrupt translation via the ITS.",
+      "width": 32,
+      "gic_versions": ["v3", "v4"],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "gic_versions": ["v3", "v4"],
+          "fields": [
+            {"name": "EventID", "bits": [{"start": 0, "width": 32}], "access": "WO", "reset": "0", "brief": "Event identifier. When written, the ITS translates the {DeviceID, EventID} pair into an INTID and routes the LPI to the target PE."}
+          ]
+        }
+      ]
+    },
+    {
       "name": "GITS_CTLR",
       "block": "GITS",
       "offset": "0x0000",
