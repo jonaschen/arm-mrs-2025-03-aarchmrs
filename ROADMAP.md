@@ -309,6 +309,11 @@
 
 **Exit criteria:** `python3 tools/query_coresight.py etm TRCPRGCTLR` returns field layout. `arm-search TRC` returns CoreSight ETM results. All coresight eval tests pass.
 
+**Data expansion (2026-04-08):** CoreSight coverage expanded from 40 to 54 registers across 6 components (was 5):
+- ETM: added 8 registers — TRCEVENTCTL0R (event control 0), TRCEVENTCTL1R (event control 1), TRCTSCTLR (timestamp control), TRCSYNCPR (synchronization period), TRCCCCTLR (cycle count control), TRCVIIECTLR (ViewInst include/exclude), TRCVISSCTLR (ViewInst start/stop), TRCEXTINSELR (external input select)
+- TPIU: new component — 6 registers added — TPIU_SSPSR (supported port sizes), TPIU_CSPSR (current port size), TPIU_ACPR (async clock prescaler), TPIU_SPPR (pin protocol), TPIU_FFSR (formatter status), TPIU_FFCR (formatter control)
+- 19 new eval tests added (406 total, all pass)
+
 ---
 
 ## Milestone EX — Cross-Extension Integration ✅

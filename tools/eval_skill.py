@@ -1092,10 +1092,108 @@ CORESIGHT_TESTS = [
         [exit_ok(), stdout_contains('TRCPRGCTLR')],
     ),
     (
-        '--list-components lists all 5 components',
+        '--list-components lists all 6 components',
         [QUERY_CS, '--list-components'],
         [exit_ok(), stdout_contains('ETM'), stdout_contains('CTI'),
-         stdout_contains('STM'), stdout_contains('ITM')],
+         stdout_contains('STM'), stdout_contains('ITM'), stdout_contains('TPIU')],
+    ),
+    # New ETM registers (expanded coverage)
+    (
+        'ETM TRCEVENTCTL0R lookup succeeds',
+        [QUERY_CS, 'etm', 'TRCEVENTCTL0R'],
+        [exit_ok(), stdout_contains('Event Control 0')],
+    ),
+    (
+        'ETM TRCEVENTCTL0R SEL0 field is at bits [4:0]',
+        [QUERY_CS, 'etm', 'TRCEVENTCTL0R', 'SEL0'],
+        [exit_ok(), stdout_contains('[4:0]')],
+    ),
+    (
+        'ETM TRCEVENTCTL1R ATB field is at bit [11]',
+        [QUERY_CS, 'etm', 'TRCEVENTCTL1R', 'ATB'],
+        [exit_ok(), stdout_contains('[11]')],
+    ),
+    (
+        'ETM TRCTSCTLR lookup succeeds',
+        [QUERY_CS, 'etm', 'TRCTSCTLR'],
+        [exit_ok(), stdout_contains('Timestamp Control')],
+    ),
+    (
+        'ETM TRCSYNCPR PERIOD field reset is 0x0C',
+        [QUERY_CS, 'etm', 'TRCSYNCPR', 'PERIOD'],
+        [exit_ok(), stdout_contains('0x0C')],
+    ),
+    (
+        'ETM TRCCCCTLR THRESHOLD field at bits [11:0]',
+        [QUERY_CS, 'etm', 'TRCCCCTLR', 'THRESHOLD'],
+        [exit_ok(), stdout_contains('[11:0]')],
+    ),
+    (
+        'ETM TRCVIIECTLR INCLUDE field at bits [3:0]',
+        [QUERY_CS, 'etm', 'TRCVIIECTLR', 'INCLUDE'],
+        [exit_ok(), stdout_contains('[3:0]')],
+    ),
+    (
+        'ETM TRCVISSCTLR STOP field at bits [19:16]',
+        [QUERY_CS, 'etm', 'TRCVISSCTLR', 'STOP'],
+        [exit_ok(), stdout_contains('[19:16]')],
+    ),
+    (
+        'ETM TRCEXTINSELR lookup succeeds',
+        [QUERY_CS, 'etm', 'TRCEXTINSELR'],
+        [exit_ok(), stdout_contains('External Input')],
+    ),
+    # TPIU component (new)
+    (
+        'TPIU component listing succeeds',
+        [QUERY_CS, '--component', 'tpiu'],
+        [exit_ok(), stdout_contains('Trace Port Interface Unit')],
+    ),
+    (
+        'TPIU TPIU_SPPR lookup succeeds',
+        [QUERY_CS, 'tpiu', 'TPIU_SPPR'],
+        [exit_ok(), stdout_contains('Selected Pin Protocol')],
+    ),
+    (
+        'TPIU TPIU_SPPR TXMODE field at bits [1:0]',
+        [QUERY_CS, 'tpiu', 'TPIU_SPPR', 'TXMODE'],
+        [exit_ok(), stdout_contains('[1:0]')],
+    ),
+    (
+        'TPIU TPIU_FFCR lookup succeeds',
+        [QUERY_CS, 'tpiu', 'TPIU_FFCR'],
+        [exit_ok(), stdout_contains('Formatter and Flush Control')],
+    ),
+    (
+        'TPIU TPIU_FFCR EnFTC field at bit [0]',
+        [QUERY_CS, 'tpiu', 'TPIU_FFCR', 'EnFTC'],
+        [exit_ok(), stdout_contains('[0]')],
+    ),
+    (
+        'TPIU TPIU_FFSR FlInProg field is read-only',
+        [QUERY_CS, 'tpiu', 'TPIU_FFSR', 'FlInProg'],
+        [exit_ok(), stdout_contains('RO')],
+    ),
+    (
+        'TPIU TPIU_ACPR PRESCALER field at bits [15:0]',
+        [QUERY_CS, 'tpiu', 'TPIU_ACPR', 'PRESCALER'],
+        [exit_ok(), stdout_contains('[15:0]')],
+    ),
+    (
+        'TPIU TPIU_CSPSR lookup succeeds',
+        [QUERY_CS, 'tpiu', 'TPIU_CSPSR'],
+        [exit_ok(), stdout_contains('Current Port Size')],
+    ),
+    (
+        'TPIU TPIU_SSPSR PORT_SIZE_SUPPORT is read-only',
+        [QUERY_CS, 'tpiu', 'TPIU_SSPSR', 'PORT_SIZE_SUPPORT'],
+        [exit_ok(), stdout_contains('RO')],
+    ),
+    # Search finds TPIU registers
+    (
+        '--list TPIU finds TPIU registers',
+        [QUERY_CS, '--list', 'TPIU'],
+        [exit_ok(), stdout_contains('TPIU_SPPR')],
     ),
     # Hallucination guard
     (

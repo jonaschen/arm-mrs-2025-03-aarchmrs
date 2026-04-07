@@ -47,6 +47,7 @@ COMPONENT_PATHS = {
     'CTI':      CS_CACHE / 'CTI.json',
     'STM':      CS_CACHE / 'STM.json',
     'ITM':      CS_CACHE / 'ITM.json',
+    'TPIU':     CS_CACHE / 'TPIU.json',
     'ID_BLOCK': CS_CACHE / 'ID_BLOCK.json',
 }
 
@@ -56,6 +57,7 @@ COMPONENT_TITLES = {
     'CTI':      'Cross-Trigger Interface',
     'STM':      'System Trace Macrocell',
     'ITM':      'Instrumentation Trace Macrocell',
+    'TPIU':     'Trace Port Interface Unit',
     'ID_BLOCK': 'Common Identification Block',
 }
 
@@ -92,7 +94,7 @@ def load_component(component: str) -> dict:
 def load_all_registers() -> list:
     """Load all registers from all component caches."""
     regs = []
-    for comp in ('ETM', 'CTI', 'STM', 'ITM', 'ID_BLOCK'):
+    for comp in ('ETM', 'CTI', 'STM', 'ITM', 'TPIU', 'ID_BLOCK'):
         data = load_component(comp)
         regs.extend(data.get('registers', []))
     return regs

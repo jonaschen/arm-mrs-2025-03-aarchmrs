@@ -25,6 +25,11 @@
         "brief": "ITM stimulus port and control registers for software trace on Cortex-M profiles.",
         "base_offset": "0xE0000000"
       },
+      "TPIU": {
+        "title": "Trace Port Interface Unit",
+        "brief": "TPIU registers configure the trace output port: port width, pin protocol (parallel/SWO), and formatter/flush control.",
+        "base_offset": "implementation-defined"
+      },
       "ID_BLOCK": {
         "title": "Common Identification Block",
         "brief": "Standard CoreSight identification registers present in every 4 KB component frame (offsets 0xF00–0xFFC).",
