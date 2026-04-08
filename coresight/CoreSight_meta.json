@@ -30,6 +30,16 @@
         "brief": "TPIU registers configure the trace output port: port width, pin protocol (parallel/SWO), and formatter/flush control.",
         "base_offset": "implementation-defined"
       },
+      "CSTF": {
+        "title": "CoreSight Trace Funnel",
+        "brief": "CSTF registers control the ATB trace funnel that merges multiple trace sources into a single ATB output. Supports up to 8 slave ports with priority-based arbitration.",
+        "base_offset": "implementation-defined"
+      },
+      "CSRT": {
+        "title": "CoreSight Trace Replicator",
+        "brief": "CSRT registers control the ATB trace replicator that duplicates a single ATB input to two master ports. ID-based filtering directs trace IDs to specific output ports.",
+        "base_offset": "implementation-defined"
+      },
       "ID_BLOCK": {
         "title": "Common Identification Block",
         "brief": "Standard CoreSight identification registers present in every 4 KB component frame (offsets 0xF00–0xFFC).",

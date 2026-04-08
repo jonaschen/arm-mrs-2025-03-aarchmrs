@@ -1092,10 +1092,11 @@ CORESIGHT_TESTS = [
         [exit_ok(), stdout_contains('TRCPRGCTLR')],
     ),
     (
-        '--list-components lists all 6 components',
+        '--list-components lists all 8 components',
         [QUERY_CS, '--list-components'],
         [exit_ok(), stdout_contains('ETM'), stdout_contains('CTI'),
-         stdout_contains('STM'), stdout_contains('ITM'), stdout_contains('TPIU')],
+         stdout_contains('STM'), stdout_contains('ITM'), stdout_contains('TPIU'),
+         stdout_contains('CSTF'), stdout_contains('CSRT')],
     ),
     # New ETM registers (expanded coverage)
     (
@@ -1194,6 +1195,93 @@ CORESIGHT_TESTS = [
         '--list TPIU finds TPIU registers',
         [QUERY_CS, '--list', 'TPIU'],
         [exit_ok(), stdout_contains('TPIU_SPPR')],
+    ),
+    # CSTF (CoreSight Trace Funnel) — new component
+    (
+        'CSTF component listing succeeds',
+        [QUERY_CS, '--component', 'cstf'],
+        [exit_ok(), stdout_contains('CoreSight Trace Funnel')],
+    ),
+    (
+        'CSTF CSTF_FUNNEL_CTRL lookup succeeds',
+        [QUERY_CS, 'cstf', 'CSTF_FUNNEL_CTRL'],
+        [exit_ok(), stdout_contains('Funnel Control')],
+    ),
+    (
+        'CSTF CSTF_FUNNEL_CTRL ENS0 field at bit [0]',
+        [QUERY_CS, 'cstf', 'CSTF_FUNNEL_CTRL', 'ENS0'],
+        [exit_ok(), stdout_contains('[0]')],
+    ),
+    (
+        'CSTF CSTF_FUNNEL_CTRL HT field at bits [11:8]',
+        [QUERY_CS, 'cstf', 'CSTF_FUNNEL_CTRL', 'HT'],
+        [exit_ok(), stdout_contains('[11:8]')],
+    ),
+    (
+        'CSTF CSTF_PRICTL lookup succeeds',
+        [QUERY_CS, 'cstf', 'CSTF_PRICTL'],
+        [exit_ok(), stdout_contains('Priority Control')],
+    ),
+    (
+        'CSTF CSTF_PRICTL PRIPORT0 field at bits [2:0]',
+        [QUERY_CS, 'cstf', 'CSTF_PRICTL', 'PRIPORT0'],
+        [exit_ok(), stdout_contains('[2:0]')],
+    ),
+    (
+        'CSTF CSTF_ITCTRL IME field at bit [0]',
+        [QUERY_CS, 'cstf', 'CSTF_ITCTRL', 'IME'],
+        [exit_ok(), stdout_contains('[0]')],
+    ),
+    (
+        'CSTF CSTF_CLAIMSET SET field at bits [3:0]',
+        [QUERY_CS, 'cstf', 'CSTF_CLAIMSET', 'SET'],
+        [exit_ok(), stdout_contains('[3:0]')],
+    ),
+    (
+        '--list CSTF finds Funnel registers',
+        [QUERY_CS, '--list', 'CSTF'],
+        [exit_ok(), stdout_contains('CSTF_FUNNEL_CTRL'), stdout_contains('CSTF_PRICTL')],
+    ),
+    # CSRT (CoreSight Trace Replicator) — new component
+    (
+        'CSRT component listing succeeds',
+        [QUERY_CS, '--component', 'csrt'],
+        [exit_ok(), stdout_contains('CoreSight Trace Replicator')],
+    ),
+    (
+        'CSRT CSRT_IDFILTER0 lookup succeeds',
+        [QUERY_CS, 'csrt', 'CSRT_IDFILTER0'],
+        [exit_ok(), stdout_contains('ID Filter 0')],
+    ),
+    (
+        'CSRT CSRT_IDFILTER0 ID_31_0 field at bits [31:0]',
+        [QUERY_CS, 'csrt', 'CSRT_IDFILTER0', 'ID_31_0'],
+        [exit_ok(), stdout_contains('[31:0]')],
+    ),
+    (
+        'CSRT CSRT_IDFILTER0 ID_31_0 reset is 0xFFFFFFFF',
+        [QUERY_CS, 'csrt', 'CSRT_IDFILTER0', 'ID_31_0'],
+        [exit_ok(), stdout_contains('0xFFFFFFFF')],
+    ),
+    (
+        'CSRT CSRT_IDFILTER2 ID_69_64 field at bits [5:0]',
+        [QUERY_CS, 'csrt', 'CSRT_IDFILTER2', 'ID_69_64'],
+        [exit_ok(), stdout_contains('[5:0]')],
+    ),
+    (
+        'CSRT CSRT_ITCTRL IME field at bit [0]',
+        [QUERY_CS, 'csrt', 'CSRT_ITCTRL', 'IME'],
+        [exit_ok(), stdout_contains('[0]')],
+    ),
+    (
+        'CSRT CSRT_CLAIMSET SET field at bits [3:0]',
+        [QUERY_CS, 'csrt', 'CSRT_CLAIMSET', 'SET'],
+        [exit_ok(), stdout_contains('[3:0]')],
+    ),
+    (
+        '--list CSRT finds Replicator registers',
+        [QUERY_CS, '--list', 'CSRT'],
+        [exit_ok(), stdout_contains('CSRT_IDFILTER0'), stdout_contains('CSRT_IDFILTER1')],
     ),
     # Hallucination guard
     (

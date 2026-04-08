@@ -8,6 +8,8 @@ Reads coresight/CoreSight.json and writes per-component cache files to cache/cor
   cache/coresight/STM.json       — all STM (System Trace Macrocell) registers
   cache/coresight/ITM.json       — all ITM (Instrumentation Trace Macrocell) registers
   cache/coresight/TPIU.json      — all TPIU (Trace Port Interface Unit) registers
+  cache/coresight/CSTF.json      — all CSTF (CoreSight Trace Funnel) registers
+  cache/coresight/CSRT.json      — all CSRT (CoreSight Trace Replicator) registers
   cache/coresight/ID_BLOCK.json  — common identification block registers
   cache/coresight/cs_meta.json   — name-to-component lookup index and field index
 
@@ -62,6 +64,8 @@ COMPONENT_FILES = {
     'STM':      CS_CACHE / 'STM.json',
     'ITM':      CS_CACHE / 'ITM.json',
     'TPIU':     CS_CACHE / 'TPIU.json',
+    'CSTF':     CS_CACHE / 'CSTF.json',
+    'CSRT':     CS_CACHE / 'CSRT.json',
     'ID_BLOCK': CS_CACHE / 'ID_BLOCK.json',
 }
 META_FILE = CS_CACHE / 'cs_meta.json'
@@ -253,7 +257,7 @@ def main() -> None:
     log('Done. CoreSight cache is ready.')
     counts = '  '.join(
         f'{c} ({components[c]["meta"]["count"]} regs)'
-        for c in ('ETM', 'CTI', 'STM', 'ITM', 'TPIU', 'ID_BLOCK')
+        for c in ('ETM', 'CTI', 'STM', 'ITM', 'TPIU', 'CSTF', 'CSRT', 'ID_BLOCK')
     )
     log(f'  Components: {counts}')
 

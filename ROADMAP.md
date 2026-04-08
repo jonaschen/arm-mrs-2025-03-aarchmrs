@@ -28,6 +28,7 @@
 | H6 | Advanced ISA optimization (SVE2/SME/PAC/BTI/MTE) | ✅ Complete |
 | H7 | Linter-in-the-loop (VIXL) | ✅ Complete |
 | H8 | Multi-agent orchestration | ✅ Complete |
+| EX-2 | Comprehensive data coverage (CoreSight/PMU/GIC/Eval) | 🔄 In Progress |
 
 ---
 
@@ -313,6 +314,12 @@
 - ETM: added 8 registers — TRCEVENTCTL0R (event control 0), TRCEVENTCTL1R (event control 1), TRCTSCTLR (timestamp control), TRCSYNCPR (synchronization period), TRCCCCTLR (cycle count control), TRCVIIECTLR (ViewInst include/exclude), TRCVISSCTLR (ViewInst start/stop), TRCEXTINSELR (external input select)
 - TPIU: new component — 6 registers added — TPIU_SSPSR (supported port sizes), TPIU_CSPSR (current port size), TPIU_ACPR (async clock prescaler), TPIU_SPPR (pin protocol), TPIU_FFSR (formatter status), TPIU_FFCR (formatter control)
 - 19 new eval tests added (406 total, all pass)
+
+**Data expansion (2026-04-09):** CoreSight coverage expanded from 54 to 69 registers across 8 components (was 6):
+- CSTF (CoreSight Trace Funnel): new component — 8 registers added — CSTF_FUNNEL_CTRL (port enable + hold time), CSTF_PRICTL (port priority), CSTF_ITATBDATA0/ITATBCTR2/ITATBCTR0 (integration test), CSTF_ITCTRL, CSTF_CLAIMSET, CSTF_CLAIMCLR
+- CSRT (CoreSight Trace Replicator): new component — 7 registers added — CSRT_IDFILTER0/1/2 (trace ID filtering), CSRT_ITATBCTR0 (integration test), CSRT_ITCTRL, CSRT_CLAIMSET, CSRT_CLAIMCLR
+- Fixed parameterized register resolution bug (exact match now takes priority over suffix-stripping)
+- 17 new eval tests added (423 total, all pass)
 
 ---
 
@@ -667,6 +674,72 @@ M0 (Cache builder)
 
 **Parallelism:** E0, EA, and EB-0 probe (data acquisition only) can all start immediately after M5.
 EA and EB/EC have no code dependencies on each other. EX requires all of E0, EA, EB, EC.
+
+---
+
+# Phase 4 — Comprehensive Data Coverage
+
+## Milestone EX-2 — Comprehensive Data Coverage 🔄
+
+**Goal:** Expand all hand-curated data sources to comprehensive coverage with formal numeric targets. Track ongoing data expansion work that has been proceeding informally since H8 completion.
+
+**Status:** In progress (started 2026-04-05)
+
+### EX-2a — CoreSight: 70+ registers across 8+ components
+
+Current: 69 registers across 8 components (ETM, CTI, STM, ITM, TPIU, CSTF, CSRT, ID_BLOCK)
+
+- [x] ETM: expanded from 6 to 14 registers (2026-04-08)
+- [x] TPIU: added as new component with 6 registers (2026-04-08)
+- [x] CSTF (Funnel): added as new component with 8 registers (2026-04-09)
+- [x] CSRT (Replicator): added as new component with 7 registers (2026-04-09)
+- [ ] ETM: expand to 20+ registers (remaining event, resource, and address comparator registers)
+- [ ] CTI: expand from 8 to 15+ registers (remaining channel and trigger registers)
+
+### EX-2b — PMU: 40+ CPU profiles
+
+Current: 36 CPUs with 5,014 events
+
+- [x] Expanded from 8 to 36 CPUs (2026-04-06)
+- [ ] Add Cortex-A520AE, Cortex-A720AE (automotive variants)
+- [ ] Add Cortex-X925AE (automotive variant, when available)
+- [ ] Track ARM-software/data for new CPU profile additions
+- [ ] Target: 40+ CPUs
+
+### EX-2c — GIC: 50+ registers including GICv4.1 features
+
+Current: 41 registers across 3 blocks (GICD, GICR, GITS)
+
+- [x] Expanded from 24 to 41 registers (2026-04-07)
+- [ ] Add GICD: GICD_IROUTER\<n\>, GICD_IROUTERnE (affinity routing)
+- [ ] Add GICD: GICD_STATUSR (error reporting)
+- [ ] Add GICR: GICR_PROPBASER, GICR_PENDBASER (LPI configuration)
+- [ ] Add GICR: GICR_INVLPIR, GICR_INVALLR (LPI invalidation)
+- [ ] Add GICv4.1 vPE registers: GICR_VPENDBASER, GICR_VPROPBASER
+- [ ] Target: 50+ registers
+
+### EX-2d — Eval suite: 450+ tests
+
+Current: 423 tests (100% pass)
+
+- [x] Grew from 137 (EX completion) to 423 (2026-04-09)
+- [ ] Add tests for new CoreSight components (Funnel, Replicator)
+- [ ] Add tests for new GIC registers (affinity routing, LPI)
+- [ ] Add edge-case tests for cross-spec search
+- [ ] Target: 450+ tests
+
+**Exit criteria:** CoreSight ≥ 70 registers across ≥ 8 components. PMU ≥ 40 CPUs. GIC ≥ 50 registers. Eval ≥ 450 tests, 100% pass rate.
+
+---
+
+## Future Milestones (Tracked, Not Active)
+
+| Milestone | Description | Status |
+|-----------|-------------|--------|
+| GICv5 | GICv5 architecture support (new data directory, new skill) | 🔲 Blocked: spec in beta, not yet stable |
+| SMMU | SMMU (IHI0070) register coverage | 🔲 Planned: logical extension of GIC/CoreSight |
+| CI/CD | Automated cache rebuild and eval on commit | 🔲 Planned |
+| MRS Refresh | Ingest new MRS builds (v9Ap7+) when released | 🔲 Waiting: no new build available |
 
 ---
 

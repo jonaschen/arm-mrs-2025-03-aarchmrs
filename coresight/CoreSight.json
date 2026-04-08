@@ -3,7 +3,7 @@
     "source": "ARM CoreSight Architecture Specification (IHI0029)",
     "spec_version": "CoreSight Architecture v3.0",
     "schema_version": "1.0.0",
-    "note": "Hand-curated data based on IHI0029. Components: ETM v4/ETE, CTI, STM, ITM, TPIU. Common ID block included.",
+    "note": "Hand-curated data based on IHI0029. Components: ETM v4/ETE, CTI, STM, ITM, TPIU, CSTF (Funnel), CSRT (Replicator). Common ID block included.",
     "data_path": "coresight/CoreSight.json",
     "components": [
       "ETM",
@@ -11,6 +11,8 @@
       "STM",
       "ITM",
       "TPIU",
+      "CSTF",
+      "CSRT",
       "ID_BLOCK"
     ]
   },
@@ -2672,6 +2674,996 @@
               "access": "RW",
               "reset": "0",
               "brief": "Enable Formatter. When 1, enable the formatter. When 0, only pass-through mode."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CSTF_FUNNEL_CTRL",
+      "component": "CSTF",
+      "offset": "0x000",
+      "title": "Funnel Control Register",
+      "brief": "Controls which slave ports are enabled on the trace funnel. Each bit enables one slave port. Port 0 is the highest priority.",
+      "width": 32,
+      "cs_arch_versions": [
+        "v1",
+        "v2",
+        "v3"
+      ],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": [
+            "v1",
+            "v2",
+            "v3"
+          ],
+          "fields": [
+            {
+              "name": "RES0_31_12",
+              "bits": [
+                {
+                  "start": 12,
+                  "width": 20
+                }
+              ],
+              "access": "RES0",
+              "reset": "0",
+              "brief": "Reserved."
+            },
+            {
+              "name": "HT",
+              "bits": [
+                {
+                  "start": 8,
+                  "width": 4
+                }
+              ],
+              "access": "RW",
+              "reset": "0x3",
+              "brief": "Hold Time. Defines minimum hold time for trace data on a slave port before switching. Value N means N+1 transaction minimum."
+            },
+            {
+              "name": "ENS7",
+              "bits": [
+                {
+                  "start": 7,
+                  "width": 1
+                }
+              ],
+              "access": "RW",
+              "reset": "0",
+              "brief": "Enable Slave Port 7. When 1, slave port 7 is enabled."
+            },
+            {
+              "name": "ENS6",
+              "bits": [
+                {
+                  "start": 6,
+                  "width": 1
+                }
+              ],
+              "access": "RW",
+              "reset": "0",
+              "brief": "Enable Slave Port 6. When 1, slave port 6 is enabled."
+            },
+            {
+              "name": "ENS5",
+              "bits": [
+                {
+                  "start": 5,
+                  "width": 1
+                }
+              ],
+              "access": "RW",
+              "reset": "0",
+              "brief": "Enable Slave Port 5. When 1, slave port 5 is enabled."
+            },
+            {
+              "name": "ENS4",
+              "bits": [
+                {
+                  "start": 4,
+                  "width": 1
+                }
+              ],
+              "access": "RW",
+              "reset": "0",
+              "brief": "Enable Slave Port 4. When 1, slave port 4 is enabled."
+            },
+            {
+              "name": "ENS3",
+              "bits": [
+                {
+                  "start": 3,
+                  "width": 1
+                }
+              ],
+              "access": "RW",
+              "reset": "0",
+              "brief": "Enable Slave Port 3. When 1, slave port 3 is enabled."
+            },
+            {
+              "name": "ENS2",
+              "bits": [
+                {
+                  "start": 2,
+                  "width": 1
+                }
+              ],
+              "access": "RW",
+              "reset": "0",
+              "brief": "Enable Slave Port 2. When 1, slave port 2 is enabled."
+            },
+            {
+              "name": "ENS1",
+              "bits": [
+                {
+                  "start": 1,
+                  "width": 1
+                }
+              ],
+              "access": "RW",
+              "reset": "0",
+              "brief": "Enable Slave Port 1. When 1, slave port 1 is enabled."
+            },
+            {
+              "name": "ENS0",
+              "bits": [
+                {
+                  "start": 0,
+                  "width": 1
+                }
+              ],
+              "access": "RW",
+              "reset": "0",
+              "brief": "Enable Slave Port 0. When 1, slave port 0 is enabled. Port 0 is the highest priority."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CSTF_PRICTL",
+      "component": "CSTF",
+      "offset": "0x004",
+      "title": "Priority Control Register",
+      "brief": "Controls the priority ordering of slave ports on the trace funnel. Each 3-bit field assigns a priority to a port. Lower value means higher priority.",
+      "width": 32,
+      "cs_arch_versions": [
+        "v1",
+        "v2",
+        "v3"
+      ],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": [
+            "v1",
+            "v2",
+            "v3"
+          ],
+          "fields": [
+            {
+              "name": "RES0_31_24",
+              "bits": [
+                {
+                  "start": 24,
+                  "width": 8
+                }
+              ],
+              "access": "RES0",
+              "reset": "0",
+              "brief": "Reserved."
+            },
+            {
+              "name": "PRIPORT7",
+              "bits": [
+                {
+                  "start": 21,
+                  "width": 3
+                }
+              ],
+              "access": "RW",
+              "reset": "0",
+              "brief": "Priority of slave port 7. Lower value is higher priority."
+            },
+            {
+              "name": "PRIPORT6",
+              "bits": [
+                {
+                  "start": 18,
+                  "width": 3
+                }
+              ],
+              "access": "RW",
+              "reset": "0",
+              "brief": "Priority of slave port 6. Lower value is higher priority."
+            },
+            {
+              "name": "PRIPORT5",
+              "bits": [
+                {
+                  "start": 15,
+                  "width": 3
+                }
+              ],
+              "access": "RW",
+              "reset": "0",
+              "brief": "Priority of slave port 5. Lower value is higher priority."
+            },
+            {
+              "name": "PRIPORT4",
+              "bits": [
+                {
+                  "start": 12,
+                  "width": 3
+                }
+              ],
+              "access": "RW",
+              "reset": "0",
+              "brief": "Priority of slave port 4. Lower value is higher priority."
+            },
+            {
+              "name": "PRIPORT3",
+              "bits": [
+                {
+                  "start": 9,
+                  "width": 3
+                }
+              ],
+              "access": "RW",
+              "reset": "0",
+              "brief": "Priority of slave port 3. Lower value is higher priority."
+            },
+            {
+              "name": "PRIPORT2",
+              "bits": [
+                {
+                  "start": 6,
+                  "width": 3
+                }
+              ],
+              "access": "RW",
+              "reset": "0",
+              "brief": "Priority of slave port 2. Lower value is higher priority."
+            },
+            {
+              "name": "PRIPORT1",
+              "bits": [
+                {
+                  "start": 3,
+                  "width": 3
+                }
+              ],
+              "access": "RW",
+              "reset": "0",
+              "brief": "Priority of slave port 1. Lower value is higher priority."
+            },
+            {
+              "name": "PRIPORT0",
+              "bits": [
+                {
+                  "start": 0,
+                  "width": 3
+                }
+              ],
+              "access": "RW",
+              "reset": "0",
+              "brief": "Priority of slave port 0. Lower value is higher priority."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CSTF_ITATBDATA0",
+      "component": "CSTF",
+      "offset": "0xEEC",
+      "title": "Integration Test ATB Data 0 Register",
+      "brief": "Integration test register for ATB data input testing. Used for design verification only.",
+      "width": 32,
+      "cs_arch_versions": [
+        "v1",
+        "v2",
+        "v3"
+      ],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": [
+            "v1",
+            "v2",
+            "v3"
+          ],
+          "fields": [
+            {
+              "name": "RES0_31_5",
+              "bits": [
+                {
+                  "start": 5,
+                  "width": 27
+                }
+              ],
+              "access": "RES0",
+              "reset": "0",
+              "brief": "Reserved."
+            },
+            {
+              "name": "ATDATAM31",
+              "bits": [
+                {
+                  "start": 4,
+                  "width": 1
+                }
+              ],
+              "access": "RW",
+              "reset": "0",
+              "brief": "Test ATDATAM[31] input."
+            },
+            {
+              "name": "ATDATAM23",
+              "bits": [
+                {
+                  "start": 3,
+                  "width": 1
+                }
+              ],
+              "access": "RW",
+              "reset": "0",
+              "brief": "Test ATDATAM[23] input."
+            },
+            {
+              "name": "ATDATAM15",
+              "bits": [
+                {
+                  "start": 2,
+                  "width": 1
+                }
+              ],
+              "access": "RW",
+              "reset": "0",
+              "brief": "Test ATDATAM[15] input."
+            },
+            {
+              "name": "ATDATAM7",
+              "bits": [
+                {
+                  "start": 1,
+                  "width": 1
+                }
+              ],
+              "access": "RW",
+              "reset": "0",
+              "brief": "Test ATDATAM[7] input."
+            },
+            {
+              "name": "ATDATAM0",
+              "bits": [
+                {
+                  "start": 0,
+                  "width": 1
+                }
+              ],
+              "access": "RW",
+              "reset": "0",
+              "brief": "Test ATDATAM[0] input."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CSTF_ITATBCTR2",
+      "component": "CSTF",
+      "offset": "0xEF0",
+      "title": "Integration Test ATB Control 2 Register",
+      "brief": "Integration test register for ATB control signal monitoring on the master port.",
+      "width": 32,
+      "cs_arch_versions": [
+        "v1",
+        "v2",
+        "v3"
+      ],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": [
+            "v1",
+            "v2",
+            "v3"
+          ],
+          "fields": [
+            {
+              "name": "RES0_31_2",
+              "bits": [
+                {
+                  "start": 2,
+                  "width": 30
+                }
+              ],
+              "access": "RES0",
+              "reset": "0",
+              "brief": "Reserved."
+            },
+            {
+              "name": "AFVALIDM",
+              "bits": [
+                {
+                  "start": 1,
+                  "width": 1
+                }
+              ],
+              "access": "RO",
+              "reset": "0",
+              "brief": "Read value of AFVALIDM master port signal."
+            },
+            {
+              "name": "ATREADYM",
+              "bits": [
+                {
+                  "start": 0,
+                  "width": 1
+                }
+              ],
+              "access": "RO",
+              "reset": "0",
+              "brief": "Read value of ATREADYM master port signal."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CSTF_ITATBCTR0",
+      "component": "CSTF",
+      "offset": "0xEF8",
+      "title": "Integration Test ATB Control 0 Register",
+      "brief": "Integration test register for ATB control signal injection on the master port.",
+      "width": 32,
+      "cs_arch_versions": [
+        "v1",
+        "v2",
+        "v3"
+      ],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": [
+            "v1",
+            "v2",
+            "v3"
+          ],
+          "fields": [
+            {
+              "name": "RES0_31_2",
+              "bits": [
+                {
+                  "start": 2,
+                  "width": 30
+                }
+              ],
+              "access": "RES0",
+              "reset": "0",
+              "brief": "Reserved."
+            },
+            {
+              "name": "AFREADYS",
+              "bits": [
+                {
+                  "start": 1,
+                  "width": 1
+                }
+              ],
+              "access": "RW",
+              "reset": "0",
+              "brief": "Drive AFREADYS slave port signal."
+            },
+            {
+              "name": "ATVALIDS",
+              "bits": [
+                {
+                  "start": 0,
+                  "width": 1
+                }
+              ],
+              "access": "RW",
+              "reset": "0",
+              "brief": "Drive ATVALIDS slave port signal."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CSTF_ITCTRL",
+      "component": "CSTF",
+      "offset": "0xF00",
+      "title": "Integration Mode Control Register",
+      "brief": "Enables integration testing mode. When set, the funnel enters integration test mode for design verification.",
+      "width": 32,
+      "cs_arch_versions": [
+        "v1",
+        "v2",
+        "v3"
+      ],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": [
+            "v1",
+            "v2",
+            "v3"
+          ],
+          "fields": [
+            {
+              "name": "RES0_31_1",
+              "bits": [
+                {
+                  "start": 1,
+                  "width": 31
+                }
+              ],
+              "access": "RES0",
+              "reset": "0",
+              "brief": "Reserved."
+            },
+            {
+              "name": "IME",
+              "bits": [
+                {
+                  "start": 0,
+                  "width": 1
+                }
+              ],
+              "access": "RW",
+              "reset": "0",
+              "brief": "Integration Mode Enable. When 1, the component enters integration test mode."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CSTF_CLAIMSET",
+      "component": "CSTF",
+      "offset": "0xFA0",
+      "title": "Claim Tag Set Register",
+      "brief": "Used to set claim tag bits. Each claim tag is a single bit that software can use to track ownership of the debug resource.",
+      "width": 32,
+      "cs_arch_versions": [
+        "v1",
+        "v2",
+        "v3"
+      ],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": [
+            "v1",
+            "v2",
+            "v3"
+          ],
+          "fields": [
+            {
+              "name": "RES0_31_4",
+              "bits": [
+                {
+                  "start": 4,
+                  "width": 28
+                }
+              ],
+              "access": "RES0",
+              "reset": "0",
+              "brief": "Reserved."
+            },
+            {
+              "name": "SET",
+              "bits": [
+                {
+                  "start": 0,
+                  "width": 4
+                }
+              ],
+              "access": "RW",
+              "reset": "0xF",
+              "brief": "On write, sets the corresponding claim tag bit. On read, returns current claim tag state."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CSTF_CLAIMCLR",
+      "component": "CSTF",
+      "offset": "0xFA4",
+      "title": "Claim Tag Clear Register",
+      "brief": "Used to clear claim tag bits. Reading returns current claim tag state.",
+      "width": 32,
+      "cs_arch_versions": [
+        "v1",
+        "v2",
+        "v3"
+      ],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": [
+            "v1",
+            "v2",
+            "v3"
+          ],
+          "fields": [
+            {
+              "name": "RES0_31_4",
+              "bits": [
+                {
+                  "start": 4,
+                  "width": 28
+                }
+              ],
+              "access": "RES0",
+              "reset": "0",
+              "brief": "Reserved."
+            },
+            {
+              "name": "CLR",
+              "bits": [
+                {
+                  "start": 0,
+                  "width": 4
+                }
+              ],
+              "access": "RW",
+              "reset": "0",
+              "brief": "On write, clears the corresponding claim tag bit. On read, returns current claim tag state."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CSRT_IDFILTER0",
+      "component": "CSRT",
+      "offset": "0x000",
+      "title": "ID Filter 0 Register",
+      "brief": "Controls trace ID filtering for master port 0. Bits correspond to ATB trace source IDs 0-31. When a bit is set, trace with that ID is passed to master port 0.",
+      "width": 32,
+      "cs_arch_versions": [
+        "v1",
+        "v2",
+        "v3"
+      ],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": [
+            "v1",
+            "v2",
+            "v3"
+          ],
+          "fields": [
+            {
+              "name": "ID_31_0",
+              "bits": [
+                {
+                  "start": 0,
+                  "width": 32
+                }
+              ],
+              "access": "RW",
+              "reset": "0xFFFFFFFF",
+              "brief": "Trace ID filter for IDs 0-31. Bit N enables ID N on master port 0. Reset to all-pass."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CSRT_IDFILTER1",
+      "component": "CSRT",
+      "offset": "0x004",
+      "title": "ID Filter 1 Register",
+      "brief": "Controls trace ID filtering for master port 0. Bits correspond to ATB trace source IDs 32-63. When a bit is set, trace with that ID is passed to master port 0.",
+      "width": 32,
+      "cs_arch_versions": [
+        "v1",
+        "v2",
+        "v3"
+      ],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": [
+            "v1",
+            "v2",
+            "v3"
+          ],
+          "fields": [
+            {
+              "name": "ID_63_32",
+              "bits": [
+                {
+                  "start": 0,
+                  "width": 32
+                }
+              ],
+              "access": "RW",
+              "reset": "0xFFFFFFFF",
+              "brief": "Trace ID filter for IDs 32-63. Bit N enables ID N+32 on master port 0. Reset to all-pass."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CSRT_IDFILTER2",
+      "component": "CSRT",
+      "offset": "0x008",
+      "title": "ID Filter 2 Register",
+      "brief": "Controls trace ID filtering for master port 0. Bits correspond to ATB trace source IDs 64-69 (max 70 IDs per CoreSight specification).",
+      "width": 32,
+      "cs_arch_versions": [
+        "v1",
+        "v2",
+        "v3"
+      ],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": [
+            "v1",
+            "v2",
+            "v3"
+          ],
+          "fields": [
+            {
+              "name": "RES0_31_6",
+              "bits": [
+                {
+                  "start": 6,
+                  "width": 26
+                }
+              ],
+              "access": "RES0",
+              "reset": "0",
+              "brief": "Reserved."
+            },
+            {
+              "name": "ID_69_64",
+              "bits": [
+                {
+                  "start": 0,
+                  "width": 6
+                }
+              ],
+              "access": "RW",
+              "reset": "0x3F",
+              "brief": "Trace ID filter for IDs 64-69. Bit N enables ID N+64 on master port 0. Reset to all-pass."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CSRT_ITATBCTR0",
+      "component": "CSRT",
+      "offset": "0xEF8",
+      "title": "Integration Test ATB Control 0 Register",
+      "brief": "Integration test register for ATB control signal injection. Used for design verification only.",
+      "width": 32,
+      "cs_arch_versions": [
+        "v1",
+        "v2",
+        "v3"
+      ],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": [
+            "v1",
+            "v2",
+            "v3"
+          ],
+          "fields": [
+            {
+              "name": "RES0_31_2",
+              "bits": [
+                {
+                  "start": 2,
+                  "width": 30
+                }
+              ],
+              "access": "RES0",
+              "reset": "0",
+              "brief": "Reserved."
+            },
+            {
+              "name": "AFVALIDM1",
+              "bits": [
+                {
+                  "start": 1,
+                  "width": 1
+                }
+              ],
+              "access": "RW",
+              "reset": "0",
+              "brief": "Drive AFVALIDM signal on master port 1."
+            },
+            {
+              "name": "AFVALIDM0",
+              "bits": [
+                {
+                  "start": 0,
+                  "width": 1
+                }
+              ],
+              "access": "RW",
+              "reset": "0",
+              "brief": "Drive AFVALIDM signal on master port 0."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CSRT_ITCTRL",
+      "component": "CSRT",
+      "offset": "0xF00",
+      "title": "Integration Mode Control Register",
+      "brief": "Enables integration testing mode for the replicator. When set, the component enters integration test mode for design verification.",
+      "width": 32,
+      "cs_arch_versions": [
+        "v1",
+        "v2",
+        "v3"
+      ],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": [
+            "v1",
+            "v2",
+            "v3"
+          ],
+          "fields": [
+            {
+              "name": "RES0_31_1",
+              "bits": [
+                {
+                  "start": 1,
+                  "width": 31
+                }
+              ],
+              "access": "RES0",
+              "reset": "0",
+              "brief": "Reserved."
+            },
+            {
+              "name": "IME",
+              "bits": [
+                {
+                  "start": 0,
+                  "width": 1
+                }
+              ],
+              "access": "RW",
+              "reset": "0",
+              "brief": "Integration Mode Enable. When 1, the component enters integration test mode."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CSRT_CLAIMSET",
+      "component": "CSRT",
+      "offset": "0xFA0",
+      "title": "Claim Tag Set Register",
+      "brief": "Used to set claim tag bits for the replicator. Each claim tag is a single bit that software can use to track ownership of the debug resource.",
+      "width": 32,
+      "cs_arch_versions": [
+        "v1",
+        "v2",
+        "v3"
+      ],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": [
+            "v1",
+            "v2",
+            "v3"
+          ],
+          "fields": [
+            {
+              "name": "RES0_31_4",
+              "bits": [
+                {
+                  "start": 4,
+                  "width": 28
+                }
+              ],
+              "access": "RES0",
+              "reset": "0",
+              "brief": "Reserved."
+            },
+            {
+              "name": "SET",
+              "bits": [
+                {
+                  "start": 0,
+                  "width": 4
+                }
+              ],
+              "access": "RW",
+              "reset": "0xF",
+              "brief": "On write, sets the corresponding claim tag bit. On read, returns current claim tag state."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CSRT_CLAIMCLR",
+      "component": "CSRT",
+      "offset": "0xFA4",
+      "title": "Claim Tag Clear Register",
+      "brief": "Used to clear claim tag bits for the replicator. Reading returns current claim tag state.",
+      "width": 32,
+      "cs_arch_versions": [
+        "v1",
+        "v2",
+        "v3"
+      ],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": [
+            "v1",
+            "v2",
+            "v3"
+          ],
+          "fields": [
+            {
+              "name": "RES0_31_4",
+              "bits": [
+                {
+                  "start": 4,
+                  "width": 28
+                }
+              ],
+              "access": "RES0",
+              "reset": "0",
+              "brief": "Reserved."
+            },
+            {
+              "name": "CLR",
+              "bits": [
+                {
+                  "start": 0,
+                  "width": 4
+                }
+              ],
+              "access": "RW",
+              "reset": "0",
+              "brief": "On write, clears the corresponding claim tag bit. On read, returns current claim tag state."
             }
           ]
         }

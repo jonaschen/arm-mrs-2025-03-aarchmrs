@@ -48,6 +48,8 @@ COMPONENT_PATHS = {
     'STM':      CS_CACHE / 'STM.json',
     'ITM':      CS_CACHE / 'ITM.json',
     'TPIU':     CS_CACHE / 'TPIU.json',
+    'CSTF':     CS_CACHE / 'CSTF.json',
+    'CSRT':     CS_CACHE / 'CSRT.json',
     'ID_BLOCK': CS_CACHE / 'ID_BLOCK.json',
 }
 
@@ -58,6 +60,8 @@ COMPONENT_TITLES = {
     'STM':      'System Trace Macrocell',
     'ITM':      'Instrumentation Trace Macrocell',
     'TPIU':     'Trace Port Interface Unit',
+    'CSTF':     'CoreSight Trace Funnel',
+    'CSRT':     'CoreSight Trace Replicator',
     'ID_BLOCK': 'Common Identification Block',
 }
 
@@ -94,7 +98,7 @@ def load_component(component: str) -> dict:
 def load_all_registers() -> list:
     """Load all registers from all component caches."""
     regs = []
-    for comp in ('ETM', 'CTI', 'STM', 'ITM', 'TPIU', 'ID_BLOCK'):
+    for comp in ('ETM', 'CTI', 'STM', 'ITM', 'TPIU', 'CSTF', 'CSRT', 'ID_BLOCK'):
         data = load_component(comp)
         regs.extend(data.get('registers', []))
     return regs
@@ -156,11 +160,14 @@ def resolve_register(name: str, component_hint: str | None, meta: dict) -> dict 
     registers  = comp_data.get('registers', [])
     upper_name = name.upper()
 
+    # Pass 1: exact match (case-insensitive, with <N> removal)
     for reg in registers:
         reg_name_upper = reg['name'].upper().replace('<N>', '')
         if reg_name_upper == upper_name or reg['name'].upper() == upper_name:
             return reg
-        # Parameterized: CTIINEN<n> vs CTIINEN0
+
+    # Pass 2: parameterized match (CTIINEN<n> vs CTIINEN0)
+    for reg in registers:
         base = reg['name'].upper().replace('<N>', '')
         if upper_name.startswith(base) or base.startswith(upper_name.rstrip('0123456789')):
             return reg
@@ -175,10 +182,13 @@ def _scan_component_for_register(name: str, component: str) -> dict | None:
     except SystemExit:
         return None
     upper_name = name.upper()
+    # Pass 1: exact match
     for reg in data.get('registers', []):
         reg_name_upper = reg['name'].upper().replace('<N>', '')
         if reg_name_upper == upper_name or reg['name'].upper() == upper_name:
             return reg
+    # Pass 2: parameterized match
+    for reg in data.get('registers', []):
         base = reg['name'].upper().replace('<N>', '')
         if upper_name.startswith(base) or base.startswith(upper_name.rstrip('0123456789')):
             return reg
@@ -386,13 +396,13 @@ Examples:
 """,
     )
     parser.add_argument('component_or_reg', nargs='?',
-                        help='Component name (etm, cti, stm, itm) OR register name for --list/--id-block')
+                        help='Component name (etm, cti, stm, itm, tpiu, cstf, csrt) OR register name for --list/--id-block')
     parser.add_argument('register',         nargs='?',
                         help='Register name (e.g. TRCPRGCTLR) when first arg is a component')
     parser.add_argument('field',            nargs='?',
                         help='Field name (e.g. EN) for single-field detail')
     parser.add_argument('--component',  metavar='COMP',
-                        help='List all registers in component: ETM, CTI, STM, ITM, ID_BLOCK')
+                        help='List all registers in component: ETM, CTI, STM, ITM, TPIU, CSTF, CSRT, ID_BLOCK')
     parser.add_argument('--list-components', action='store_true',
                         help='List all known CoreSight component types')
     parser.add_argument('--list',       metavar='PATTERN',
