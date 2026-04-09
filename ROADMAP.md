@@ -706,25 +706,27 @@ Current: 36 CPUs with 5,014 events
 - [ ] Track ARM-software/data for new CPU profile additions
 - [ ] Target: 40+ CPUs
 
-### EX-2c — GIC: 50+ registers including GICv4.1 features
+### EX-2c — GIC: 50+ registers including GICv4.1 features ✅
 
-Current: 41 registers across 3 blocks (GICD, GICR, GITS)
+Current: 52 registers across 3 blocks (GICD 19, GICR 25, GITS 8)
 
 - [x] Expanded from 24 to 41 registers (2026-04-07)
-- [ ] Add GICD: GICD_IROUTER\<n\>, GICD_IROUTERnE (affinity routing)
-- [ ] Add GICD: GICD_STATUSR (error reporting)
-- [ ] Add GICR: GICR_PROPBASER, GICR_PENDBASER (LPI configuration)
-- [ ] Add GICR: GICR_INVLPIR, GICR_INVALLR (LPI invalidation)
-- [ ] Add GICv4.1 vPE registers: GICR_VPENDBASER, GICR_VPROPBASER
-- [ ] Target: 50+ registers
+- [x] Expanded from 41 to 52 registers (2026-04-10):
+  - GICD: GICD_ISPENDR\<n\>, GICD_ICPENDR\<n\>, GICD_ISACTIVER\<n\>, GICD_ICACTIVER\<n\>, GICD_NSACR\<n\>
+  - GICR: GICR_INVLPIR, GICR_INVALLR, GICR_SYNCR, GICR_PIDR2
+  - GICv4: GICR_VPROPBASER, GICR_VPENDBASER
+- [x] GICD_IROUTER\<n\> already present from 2026-04-07 expansion
+- [x] GICD_STATUSR already present from 2026-04-07 expansion
+- [x] GICR_PROPBASER, GICR_PENDBASER already present from 2026-04-07 expansion
+- [x] Target met: 52 registers ≥ 50
 
 ### EX-2d — Eval suite: 450+ tests
 
-Current: 423 tests (100% pass)
+Current: 441 tests (100% pass)
 
 - [x] Grew from 137 (EX completion) to 423 (2026-04-09)
-- [ ] Add tests for new CoreSight components (Funnel, Replicator)
-- [ ] Add tests for new GIC registers (affinity routing, LPI)
+- [x] Added 18 GIC tests for new registers (pending/active, LPI, GICv4 vPE) → 441 (2026-04-10)
+- [x] CSTF/CSRT tests already added in 2026-04-09 session
 - [ ] Add edge-case tests for cross-spec search
 - [ ] Target: 450+ tests
 

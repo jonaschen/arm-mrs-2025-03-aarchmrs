@@ -966,6 +966,99 @@ GIC_TESTS = [
         [QUERY_GIC, '--block', 'GITS'],
         [exit_ok(), stdout_contains('GITS_TRANSLATER')],
     ),
+    # --- GICD pending/active state registers (EX-2c expansion) ---
+    (
+        'GICD_ISPENDR<n> lookup succeeds (set-pending)',
+        [QUERY_GIC, 'GICD_ISPENDR<n>'],
+        [exit_ok(), stdout_contains('Set-Pending')],
+    ),
+    (
+        'GICD_ICPENDR<n> lookup succeeds (clear-pending)',
+        [QUERY_GIC, 'GICD_ICPENDR<n>'],
+        [exit_ok(), stdout_contains('Clear-Pending')],
+    ),
+    (
+        'GICD_ISACTIVER<n> lookup succeeds (set-active)',
+        [QUERY_GIC, 'GICD_ISACTIVER<n>'],
+        [exit_ok(), stdout_contains('Set-Active')],
+    ),
+    (
+        'GICD_ICACTIVER<n> lookup succeeds (clear-active)',
+        [QUERY_GIC, 'GICD_ICACTIVER<n>'],
+        [exit_ok(), stdout_contains('Clear-Active')],
+    ),
+    (
+        'GICD_NSACR<n> lookup succeeds (non-secure access control)',
+        [QUERY_GIC, 'GICD_NSACR<n>'],
+        [exit_ok(), stdout_contains('Non-secure Access Control')],
+    ),
+    # --- GICR LPI management registers (EX-2c expansion) ---
+    (
+        'GICR_INVLPIR lookup succeeds (invalidate LPI)',
+        [QUERY_GIC, 'GICR_INVLPIR'],
+        [exit_ok(), stdout_contains('Invalidate LPI')],
+    ),
+    (
+        'GICR_INVLPIR INTID field access is WO',
+        [QUERY_GIC, 'GICR_INVLPIR', 'INTID'],
+        [exit_ok(), stdout_contains('WO')],
+    ),
+    (
+        'GICR_INVALLR lookup succeeds (invalidate all LPIs)',
+        [QUERY_GIC, 'GICR_INVALLR'],
+        [exit_ok(), stdout_contains('Invalidate All')],
+    ),
+    (
+        'GICR_SYNCR lookup succeeds (synchronize)',
+        [QUERY_GIC, 'GICR_SYNCR'],
+        [exit_ok(), stdout_contains('Synchronize')],
+    ),
+    (
+        'GICR_SYNCR Busy field at bit [0]',
+        [QUERY_GIC, 'GICR_SYNCR', 'Busy'],
+        [exit_ok(), stdout_contains('[0]')],
+    ),
+    (
+        'GICR_PIDR2 lookup succeeds (peripheral ID)',
+        [QUERY_GIC, 'GICR_PIDR2'],
+        [exit_ok(), stdout_contains('Peripheral ID2')],
+    ),
+    (
+        'GICR_PIDR2 ArchRev field at bits [7:4]',
+        [QUERY_GIC, 'GICR_PIDR2', 'ArchRev'],
+        [exit_ok(), stdout_contains('[7:4]')],
+    ),
+    # --- GICv4 virtual LPI registers (EX-2c expansion) ---
+    (
+        'GICR_VPROPBASER lookup succeeds (GICv4)',
+        [QUERY_GIC, 'GICR_VPROPBASER'],
+        [exit_ok(), stdout_contains('Virtual LPI Properties')],
+    ),
+    (
+        'GICR_VPROPBASER is GICv4 only',
+        [QUERY_GIC, 'GICR_VPROPBASER'],
+        [exit_ok(), stdout_contains('v4')],
+    ),
+    (
+        'GICR_VPENDBASER lookup succeeds (GICv4)',
+        [QUERY_GIC, 'GICR_VPENDBASER'],
+        [exit_ok(), stdout_contains('Virtual LPI Pending')],
+    ),
+    (
+        'GICR_VPENDBASER Valid field at bit [63]',
+        [QUERY_GIC, 'GICR_VPENDBASER', 'Valid'],
+        [exit_ok(), stdout_contains('[63]')],
+    ),
+    (
+        '--list INVLPIR finds GICR_INVLPIR',
+        [QUERY_GIC, '--list', 'INVLPIR'],
+        [exit_ok(), stdout_contains('GICR_INVLPIR')],
+    ),
+    (
+        '--block GICR lists GICR_SYNCR',
+        [QUERY_GIC, '--block', 'GICR'],
+        [exit_ok(), stdout_contains('GICR_SYNCR')],
+    ),
 ]
 
 # GIC search integration tests
