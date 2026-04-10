@@ -1082,6 +1082,110 @@
       ]
     },
     {
+      "name": "TRCSEQEVR0",
+      "component": "ETM",
+      "offset": "0x100",
+      "title": "Sequencer State Transition Event Register 0",
+      "brief": "Defines the event that causes a sequencer state transition from state 0 to state 1. Part of the ETMv4 sequencer resource.",
+      "width": 32,
+      "cs_arch_versions": [
+        "v3"
+      ],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": [
+            "v3"
+          ],
+          "fields": [
+            {
+              "name": "RES0_31_16",
+              "bits": [
+                {
+                  "start": 16,
+                  "width": 16
+                }
+              ],
+              "access": "RES0",
+              "reset": "0",
+              "brief": "Reserved."
+            },
+            {
+              "name": "B",
+              "bits": [
+                {
+                  "start": 8,
+                  "width": 8
+                }
+              ],
+              "access": "RW",
+              "reset": "0",
+              "brief": "Back event selector. Selects the event resource number for the back transition (state 1 to state 0)."
+            },
+            {
+              "name": "F",
+              "bits": [
+                {
+                  "start": 0,
+                  "width": 8
+                }
+              ],
+              "access": "RW",
+              "reset": "0",
+              "brief": "Forward event selector. Selects the event resource number for the forward transition (state 0 to state 1)."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "TRCSEQRSTEVR",
+      "component": "ETM",
+      "offset": "0x118",
+      "title": "Sequencer Reset Event Register",
+      "brief": "Defines the event that causes the sequencer to reset to state 0, regardless of the current sequencer state.",
+      "width": 32,
+      "cs_arch_versions": [
+        "v3"
+      ],
+      "fieldsets": [
+        {
+          "id": 0,
+          "condition": null,
+          "cs_arch_versions": [
+            "v3"
+          ],
+          "fields": [
+            {
+              "name": "RES0_31_8",
+              "bits": [
+                {
+                  "start": 8,
+                  "width": 24
+                }
+              ],
+              "access": "RES0",
+              "reset": "0",
+              "brief": "Reserved."
+            },
+            {
+              "name": "RST_EVENT",
+              "bits": [
+                {
+                  "start": 0,
+                  "width": 8
+                }
+              ],
+              "access": "RW",
+              "reset": "0",
+              "brief": "Reset event selector. Selects the event resource number that causes the sequencer to return to state 0."
+            }
+          ]
+        }
+      ]
+    },
+    {
       "name": "CTICONTROL",
       "component": "CTI",
       "offset": "0x000",

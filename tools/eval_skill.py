@@ -1078,6 +1078,22 @@ GIC_SEARCH_TESTS = [
         [QUERY_SRCH, '--spec', 'gic', 'FAKECTRL_ZZZZ'],
         [exit_nonzero()],
     ),
+    # Cross-spec search edge cases (expanded 2026-04-11)
+    (
+        'search --spec gic SYNCR finds GICR_SYNCR',
+        [QUERY_SRCH, '--spec', 'gic', 'SYNCR'],
+        [exit_ok(), stdout_contains('GICR_SYNCR')],
+    ),
+    (
+        'search --spec gic VPROPBASER finds GICv4 register',
+        [QUERY_SRCH, '--spec', 'gic', 'VPROPBASER'],
+        [exit_ok(), stdout_contains('GICR_VPROPBASER')],
+    ),
+    (
+        'search --spec gic PIDR2 finds GICD and GICR variants',
+        [QUERY_SRCH, '--spec', 'gic', 'PIDR2'],
+        [exit_ok(), stdout_contains('PIDR2')],
+    ),
 ]
 
 # ---------------------------------------------------------------------------
@@ -1375,6 +1391,37 @@ CORESIGHT_TESTS = [
         '--list CSRT finds Replicator registers',
         [QUERY_CS, '--list', 'CSRT'],
         [exit_ok(), stdout_contains('CSRT_IDFILTER0'), stdout_contains('CSRT_IDFILTER1')],
+    ),
+    # ETM Sequencer registers (expanded 2026-04-11)
+    (
+        'ETM TRCSEQEVR0 lookup succeeds',
+        [QUERY_CS, 'etm', 'TRCSEQEVR0'],
+        [exit_ok(), stdout_contains('Sequencer State Transition')],
+    ),
+    (
+        'ETM TRCSEQEVR0 F field at bits [7:0]',
+        [QUERY_CS, 'etm', 'TRCSEQEVR0', 'F'],
+        [exit_ok(), stdout_contains('[7:0]')],
+    ),
+    (
+        'ETM TRCSEQEVR0 B field at bits [15:8]',
+        [QUERY_CS, 'etm', 'TRCSEQEVR0', 'B'],
+        [exit_ok(), stdout_contains('[15:8]')],
+    ),
+    (
+        'ETM TRCSEQRSTEVR lookup succeeds',
+        [QUERY_CS, 'etm', 'TRCSEQRSTEVR'],
+        [exit_ok(), stdout_contains('Sequencer Reset Event')],
+    ),
+    (
+        'ETM TRCSEQRSTEVR RST_EVENT field at bits [7:0]',
+        [QUERY_CS, 'etm', 'TRCSEQRSTEVR', 'RST_EVENT'],
+        [exit_ok(), stdout_contains('[7:0]')],
+    ),
+    (
+        'ETM TRCSEQRSTEVR RST_EVENT access type is RW',
+        [QUERY_CS, 'etm', 'TRCSEQRSTEVR', 'RST_EVENT'],
+        [exit_ok(), stdout_contains('RW')],
     ),
     # Hallucination guard
     (
@@ -1735,6 +1782,22 @@ SEARCH_SPEC_PMU_TESTS = [
         '--spec pmu FAKE_EVENT_ZZZZ exits non-zero',
         [QUERY_SRCH, '--spec', 'pmu', 'FAKE_EVENT_ZZZZ'],
         [exit_nonzero()],
+    ),
+    # Cross-CPU PMU search edge cases (expanded 2026-04-11)
+    (
+        '--spec pmu BR_MIS finds branch misprediction event',
+        [QUERY_SRCH, '--spec', 'pmu', 'BR_MIS'],
+        [exit_ok(), stdout_contains('BR_MIS_PRED')],
+    ),
+    (
+        '--spec pmu STALL finds stall-related events',
+        [QUERY_SRCH, '--spec', 'pmu', 'STALL'],
+        [exit_ok(), stdout_contains('STALL')],
+    ),
+    (
+        '--spec pmu INST_RETIRED finds instruction retired event',
+        [QUERY_SRCH, '--spec', 'pmu', 'INST_RETIRED'],
+        [exit_ok(), stdout_contains('INST_RETIRED')],
     ),
 ]
 
