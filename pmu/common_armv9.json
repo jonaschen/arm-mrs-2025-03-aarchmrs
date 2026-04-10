@@ -1,0 +1,5113 @@
+{
+    "_type": "Events",
+    "timestamp": "Fri Jan 17 16:05:20 2025",
+    "cpu": "common ARMv9.0",
+    "architecture": "armv9-a",
+    "pmu_architecture": "pmuv3",
+    "refs": [
+        {
+            "ref": "ARM ARM v8",
+            "public": true
+        },
+        {
+            "ref": "ARM v9 Supplement",
+            "public": true
+        }
+    ],
+    "events": [
+        {
+            "code": 0,
+            "refs": [
+                0
+            ],
+            "name": "SW_INCR",
+            "architectural": true,
+            "type": "INS",
+            "description": "Instruction architecturally executed, condition code check pass, software increment"
+        },
+        {
+            "code": 1,
+            "refs": [
+                0
+            ],
+            "name": "L1I_CACHE_REFILL",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "REFILL",
+            "component": "L1I",
+            "description": "Level 1 instruction cache refill"
+        },
+        {
+            "code": 2,
+            "refs": [
+                0
+            ],
+            "name": "L1I_TLB_REFILL",
+            "architectural": false,
+            "type": "UEVT",
+            "component": "L1ITLB",
+            "description": "Level 1 instruction TLB refill"
+        },
+        {
+            "code": 3,
+            "refs": [
+                0
+            ],
+            "name": "L1D_CACHE_REFILL",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "REFILL",
+            "component": "L1D",
+            "description": "Level 1 data cache refill"
+        },
+        {
+            "code": 4,
+            "refs": [
+                0
+            ],
+            "name": "L1D_CACHE",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "ACCESS",
+            "component": "L1D",
+            "description": "Level 1 data cache access"
+        },
+        {
+            "code": 5,
+            "refs": [
+                0
+            ],
+            "name": "L1D_TLB_REFILL",
+            "architectural": false,
+            "type": "UEVT",
+            "component": "L1DTLB",
+            "description": "Level 1 data TLB refill"
+        },
+        {
+            "code": 6,
+            "refs": [
+                0
+            ],
+            "name": "LD_RETIRED",
+            "architectural": true,
+            "type": "INS",
+            "description": "Instruction architecturally executed, condition code check pass, load"
+        },
+        {
+            "code": 7,
+            "refs": [
+                0
+            ],
+            "name": "ST_RETIRED",
+            "architectural": true,
+            "type": "INS",
+            "description": "Instruction architecturally executed, condition code check pass, store"
+        },
+        {
+            "code": 8,
+            "refs": [
+                0
+            ],
+            "name": "INST_RETIRED",
+            "architectural": true,
+            "type": "INS",
+            "description": "Instruction architecturally executed"
+        },
+        {
+            "code": 9,
+            "refs": [
+                0
+            ],
+            "name": "EXC_TAKEN",
+            "architectural": true,
+            "type": "EXC",
+            "description": "Exception taken"
+        },
+        {
+            "code": 10,
+            "refs": [
+                0
+            ],
+            "name": "EXC_RETURN",
+            "architectural": true,
+            "type": "EXC",
+            "description": "Instruction architecturally executed, condition code check pass, exception return"
+        },
+        {
+            "code": 11,
+            "refs": [
+                0
+            ],
+            "name": "CID_WRITE_RETIRED",
+            "architectural": true,
+            "type": "INS",
+            "description": "Instruction architecturally executed, condition code check pass, write to CONTEXTIDR"
+        },
+        {
+            "code": 12,
+            "refs": [
+                0
+            ],
+            "name": "PC_WRITE_RETIRED",
+            "architectural": true,
+            "type": "INS",
+            "description": "Instruction architecturally executed, condition code check pass, software change of the PC"
+        },
+        {
+            "code": 13,
+            "refs": [
+                0
+            ],
+            "name": "BR_IMMED_RETIRED",
+            "architectural": true,
+            "type": "INS",
+            "description": "Instruction architecturally executed, immediate branch"
+        },
+        {
+            "code": 14,
+            "refs": [
+                0
+            ],
+            "name": "BR_RETURN_RETIRED",
+            "architectural": true,
+            "type": "INS",
+            "description": "Instruction architecturally executed, condition code check pass, procedure return"
+        },
+        {
+            "code": 15,
+            "refs": [
+                0
+            ],
+            "name": "UNALIGNED_LDST_RETIRED",
+            "architectural": true,
+            "type": "INS",
+            "description": "Instruction architecturally executed, condition code check pass, unaligned"
+        },
+        {
+            "code": 16,
+            "refs": [
+                0
+            ],
+            "name": "BR_MIS_PRED",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "MISPREDICT",
+            "component": "BPU",
+            "description": "Mispredicted or not predicted branch speculatively executed"
+        },
+        {
+            "code": 17,
+            "refs": [
+                0
+            ],
+            "name": "CPU_CYCLES",
+            "architectural": false,
+            "type": "CYCLE",
+            "description": "Cycle"
+        },
+        {
+            "code": 18,
+            "refs": [
+                0
+            ],
+            "name": "BR_PRED",
+            "architectural": false,
+            "type": "UEVT",
+            "component": "BPU",
+            "description": "Predictable branch speculatively executed"
+        },
+        {
+            "code": 19,
+            "refs": [
+                0
+            ],
+            "name": "MEM_ACCESS",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Data memory access"
+        },
+        {
+            "code": 20,
+            "refs": [
+                0
+            ],
+            "name": "L1I_CACHE",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "ACCESS",
+            "component": "L1I",
+            "description": "Level 1 instruction cache access"
+        },
+        {
+            "code": 21,
+            "refs": [
+                0
+            ],
+            "name": "L1D_CACHE_WB",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "WRITE",
+            "component": "L1D",
+            "description": "Level 1 data cache write-back"
+        },
+        {
+            "code": 22,
+            "refs": [
+                0
+            ],
+            "name": "L2D_CACHE",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "ACCESS",
+            "component": "L2",
+            "description": "Level 2 data cache access"
+        },
+        {
+            "code": 23,
+            "refs": [
+                0
+            ],
+            "name": "L2D_CACHE_REFILL",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "REFILL",
+            "component": "L2",
+            "description": "Level 2 data cache refill"
+        },
+        {
+            "code": 24,
+            "refs": [
+                0
+            ],
+            "name": "L2D_CACHE_WB",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "WRITE",
+            "component": "L2",
+            "description": "Level 2 data cache write-back"
+        },
+        {
+            "code": 25,
+            "refs": [
+                0
+            ],
+            "name": "BUS_ACCESS",
+            "architectural": false,
+            "type": "UEVT",
+            "component": "BUS",
+            "description": "Bus access"
+        },
+        {
+            "code": 26,
+            "refs": [
+                0
+            ],
+            "name": "MEMORY_ERROR",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Local memory error"
+        },
+        {
+            "code": 27,
+            "refs": [
+                0
+            ],
+            "name": "INST_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Operation speculatively executed"
+        },
+        {
+            "code": 28,
+            "refs": [
+                0
+            ],
+            "name": "TTBR_WRITE_RETIRED",
+            "architectural": true,
+            "type": "INS",
+            "description": "Instruction architecturally executed, condition code check pass, write to TTBR"
+        },
+        {
+            "code": 29,
+            "refs": [
+                0
+            ],
+            "name": "BUS_CYCLES",
+            "architectural": false,
+            "type": "UEVT",
+            "component": "BUS",
+            "description": "Bus cycle"
+        },
+        {
+            "code": 30,
+            "refs": [
+                0
+            ],
+            "name": "CHAIN",
+            "for_driver": true,
+            "architectural": true,
+            "type": "UEVT",
+            "description": "For odd-numbered counters, increments the count by one for each overflow of the preceding even-numbered counter. For even-numbered counters there is no increment"
+        },
+        {
+            "code": 31,
+            "refs": [
+                0
+            ],
+            "name": "L1D_CACHE_ALLOCATE",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "REFILL",
+            "component": "L1D",
+            "description": "Level 1 data cache allocation without refill"
+        },
+        {
+            "code": 32,
+            "refs": [
+                0
+            ],
+            "name": "L2D_CACHE_ALLOCATE",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "REFILL",
+            "component": "L2",
+            "description": "Level 2 data cache allocation without refill"
+        },
+        {
+            "code": 33,
+            "refs": [
+                0
+            ],
+            "name": "BR_RETIRED",
+            "architectural": true,
+            "type": "INS",
+            "description": "Instruction architecturally executed, branch"
+        },
+        {
+            "code": 34,
+            "refs": [
+                0
+            ],
+            "name": "BR_MIS_PRED_RETIRED",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "MISPREDICT",
+            "component": "BPU",
+            "description": "Instruction architecturally executed, mispredicted branch"
+        },
+        {
+            "code": 35,
+            "refs": [
+                0
+            ],
+            "name": "STALL_FRONTEND",
+            "architectural": false,
+            "type": "CYCLE",
+            "description": "No operation issued due to the front end"
+        },
+        {
+            "code": 36,
+            "refs": [
+                0
+            ],
+            "name": "STALL_BACKEND",
+            "architectural": false,
+            "type": "CYCLE",
+            "description": "No operation issued due to the back end"
+        },
+        {
+            "code": 37,
+            "refs": [
+                0
+            ],
+            "name": "L1D_TLB",
+            "architectural": false,
+            "type": "UEVT",
+            "component": "L1DTLB",
+            "description": "Level 1 data or unified TLB access"
+        },
+        {
+            "code": 38,
+            "refs": [
+                0
+            ],
+            "name": "L1I_TLB",
+            "architectural": false,
+            "type": "UEVT",
+            "component": "L1ITLB",
+            "description": "Level 1 instruction TLB access"
+        },
+        {
+            "code": 39,
+            "refs": [
+                0
+            ],
+            "name": "L2I_CACHE",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "ACCESS",
+            "component": "L2",
+            "description": "Attributable Level 2 instruction cache access"
+        },
+        {
+            "code": 40,
+            "refs": [
+                0
+            ],
+            "name": "L2I_CACHE_REFILL",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "REFILL",
+            "component": "L2",
+            "description": "Attributable Level 2 instruction cache refill"
+        },
+        {
+            "code": 41,
+            "refs": [
+                0
+            ],
+            "name": "L3D_CACHE_ALLOCATE",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "REFILL",
+            "component": "L3",
+            "description": "Attributable Level 3 data or unified cache allocation without refill"
+        },
+        {
+            "code": 42,
+            "refs": [
+                0
+            ],
+            "name": "L3D_CACHE_REFILL",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "REFILL",
+            "component": "L3",
+            "description": "Attributable Level 3 data or unified cache refill"
+        },
+        {
+            "code": 43,
+            "refs": [
+                0
+            ],
+            "name": "L3D_CACHE",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "ACCESS",
+            "component": "L3",
+            "description": "Attributable Level 3 data or unified cache access"
+        },
+        {
+            "code": 44,
+            "refs": [
+                0
+            ],
+            "name": "L3D_CACHE_WB",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "WRITE",
+            "component": "L3",
+            "description": "Attributable Level 3 data or unified cache write-back"
+        },
+        {
+            "code": 45,
+            "refs": [
+                0
+            ],
+            "name": "L2D_TLB_REFILL",
+            "architectural": false,
+            "type": "UEVT",
+            "component": "L2TLB",
+            "description": "Attributable Level 2 data or unified TLB refill"
+        },
+        {
+            "code": 46,
+            "refs": [
+                0
+            ],
+            "name": "L2I_TLB_REFILL",
+            "architectural": false,
+            "type": "UEVT",
+            "component": "L2TLB",
+            "description": "Attributable Level 2 instruction TLB refill"
+        },
+        {
+            "code": 47,
+            "refs": [
+                0
+            ],
+            "name": "L2D_TLB",
+            "architectural": false,
+            "type": "UEVT",
+            "component": "L2TLB",
+            "description": "Attributable Level 2 data or unified TLB access"
+        },
+        {
+            "code": 48,
+            "refs": [
+                0
+            ],
+            "name": "L2I_TLB",
+            "architectural": false,
+            "type": "UEVT",
+            "component": "L2TLB",
+            "description": "Attributable Level 2 instruction TLB access"
+        },
+        {
+            "code": 49,
+            "refs": [
+                0
+            ],
+            "name": "REMOTE_ACCESS",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Attributable access to another socket in a multi-socket system"
+        },
+        {
+            "code": 50,
+            "refs": [
+                0
+            ],
+            "name": "LL_CACHE",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "ACCESS",
+            "description": "Attributable Last Level data cache access"
+        },
+        {
+            "code": 51,
+            "refs": [
+                0
+            ],
+            "name": "LL_CACHE_MISS",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Attributable Last level data or unified cache miss"
+        },
+        {
+            "code": 52,
+            "refs": [
+                0
+            ],
+            "name": "DTLB_WALK",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Attributable data or unified TLB access with at least one translation table walk"
+        },
+        {
+            "code": 53,
+            "refs": [
+                0
+            ],
+            "name": "ITLB_WALK",
+            "architectural": false,
+            "type": "INS",
+            "description": "Attributable instruction TLB access with at least one translation table walk"
+        },
+        {
+            "code": 54,
+            "refs": [
+                0
+            ],
+            "name": "LL_CACHE_RD",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "READ",
+            "description": "Attributable Last Level cache memory read"
+        },
+        {
+            "code": 55,
+            "refs": [
+                0
+            ],
+            "name": "LL_CACHE_MISS_RD",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "READ",
+            "description": "Attributable Last Level cache memory read miss"
+        },
+        {
+            "code": 56,
+            "refs": [
+                0
+            ],
+            "name": "REMOTE_ACCESS_RD",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Attributable memory read access to another socket in a multi-socket system"
+        },
+        {
+            "code": 57,
+            "refs": [
+                0
+            ],
+            "name": "L1D_CACHE_LMISS_RD",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "READ",
+            "component": "L1D",
+            "description": "Level 1 data cache long-latency read miss"
+        },
+        {
+            "code": 58,
+            "refs": [
+                0
+            ],
+            "name": "OP_RETIRED",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Micro-operation architecturally executed"
+        },
+        {
+            "code": 59,
+            "refs": [
+                0
+            ],
+            "name": "OP_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Micro-operation Speculatively executed"
+        },
+        {
+            "code": 60,
+            "refs": [
+                0
+            ],
+            "name": "STALL",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "No operation sent for execution"
+        },
+        {
+            "code": 61,
+            "refs": [
+                0
+            ],
+            "name": "STALL_SLOT_BACKEND",
+            "architectural": false,
+            "type": "CYCLE",
+            "description": "No operation sent for execution on a Slot due to the backend"
+        },
+        {
+            "code": 62,
+            "refs": [
+                0
+            ],
+            "name": "STALL_SLOT_FRONTEND",
+            "architectural": false,
+            "type": "CYCLE",
+            "description": "No operation send for execution on a Slot due to the frontend"
+        },
+        {
+            "code": 63,
+            "refs": [
+                0
+            ],
+            "name": "STALL_SLOT",
+            "architectural": false,
+            "type": "CYCLE",
+            "description": "No operation sent for execution on a Slot"
+        },
+        {
+            "code": 64,
+            "refs": [
+                0
+            ],
+            "name": "L1D_CACHE_RD",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "READ",
+            "component": "L1D",
+            "description": "Level 1 data cache access, read"
+        },
+        {
+            "code": 65,
+            "refs": [
+                0
+            ],
+            "name": "L1D_CACHE_WR",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "WRITE",
+            "component": "L1D",
+            "description": "Level 1 data cache access, write"
+        },
+        {
+            "code": 66,
+            "refs": [
+                0
+            ],
+            "name": "L1D_CACHE_REFILL_RD",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "READ",
+            "component": "L1D",
+            "description": "Level 1 data cache refill, read"
+        },
+        {
+            "code": 67,
+            "refs": [
+                0
+            ],
+            "name": "L1D_CACHE_REFILL_WR",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "WRITE",
+            "component": "L1D",
+            "description": "Level 1 data cache refill, write"
+        },
+        {
+            "code": 68,
+            "refs": [
+                0
+            ],
+            "name": "L1D_CACHE_REFILL_INNER",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "REFILL",
+            "component": "L1D",
+            "description": "Level 1 data cache refill, inner"
+        },
+        {
+            "code": 69,
+            "refs": [
+                0
+            ],
+            "name": "L1D_CACHE_REFILL_OUTER",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "REFILL",
+            "component": "L1D",
+            "description": "Level 1 data cache refill, outer"
+        },
+        {
+            "code": 70,
+            "refs": [
+                0
+            ],
+            "name": "L1D_CACHE_WB_VICTIM",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "WRITE",
+            "component": "L1D",
+            "description": "Level 1 data cache write-back, victim"
+        },
+        {
+            "code": 71,
+            "refs": [
+                0
+            ],
+            "name": "L1D_CACHE_WB_CLEAN",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "WRITE",
+            "component": "L1D",
+            "description": "Level 1 data cache write-back, cleaning and coherency"
+        },
+        {
+            "code": 72,
+            "refs": [
+                0
+            ],
+            "name": "L1D_CACHE_INVAL",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "component": "L1D",
+            "description": "Level 1 data cache invalidate"
+        },
+        {
+            "code": 76,
+            "refs": [
+                0
+            ],
+            "name": "L1D_TLB_REFILL_RD",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "component": "L1DTLB",
+            "description": "Level 1 data TLB refill, read"
+        },
+        {
+            "code": 77,
+            "refs": [
+                0
+            ],
+            "name": "L1D_TLB_REFILL_WR",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "component": "L1DTLB",
+            "description": "Level 1 data TLB refill, write"
+        },
+        {
+            "code": 78,
+            "refs": [
+                0
+            ],
+            "name": "L1D_TLB_RD",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "component": "L1DTLB",
+            "description": "Level 1 data or unified TLB access, read"
+        },
+        {
+            "code": 79,
+            "refs": [
+                0
+            ],
+            "name": "L1D_TLB_WR",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "component": "L1DTLB",
+            "description": "Level 1 data or unified TLB access, write"
+        },
+        {
+            "code": 80,
+            "refs": [
+                0
+            ],
+            "name": "L2D_CACHE_RD",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "READ",
+            "component": "L2",
+            "description": "Level 2 data cache access, read"
+        },
+        {
+            "code": 81,
+            "refs": [
+                0
+            ],
+            "name": "L2D_CACHE_WR",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "WRITE",
+            "component": "L2",
+            "description": "Level 2 data cache access, write"
+        },
+        {
+            "code": 82,
+            "refs": [
+                0
+            ],
+            "name": "L2D_CACHE_REFILL_RD",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "READ",
+            "component": "L2",
+            "description": "Level 2 data cache refill, read"
+        },
+        {
+            "code": 83,
+            "refs": [
+                0
+            ],
+            "name": "L2D_CACHE_REFILL_WR",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "WRITE",
+            "component": "L2",
+            "description": "Level 2 data cache refill, write"
+        },
+        {
+            "code": 86,
+            "refs": [
+                0
+            ],
+            "name": "L2D_CACHE_WB_VICTIM",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "WRITE",
+            "component": "L2",
+            "description": "Level 2 data cache write-back, victim"
+        },
+        {
+            "code": 87,
+            "refs": [
+                0
+            ],
+            "name": "L2D_CACHE_WB_CLEAN",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "WRITE",
+            "component": "L2",
+            "description": "Level 2 data cache write-back, cleaning and coherency"
+        },
+        {
+            "code": 88,
+            "refs": [
+                0
+            ],
+            "name": "L2D_CACHE_INVAL",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "component": "L2",
+            "description": "Level 2 data cache invalidate"
+        },
+        {
+            "code": 92,
+            "refs": [
+                0
+            ],
+            "name": "L2D_TLB_REFILL_RD",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "component": "L2TLB",
+            "description": "Attributable Level 2 data or unified TLB refill, read"
+        },
+        {
+            "code": 93,
+            "refs": [
+                0
+            ],
+            "name": "L2D_TLB_REFILL_WR",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "component": "L2TLB",
+            "description": "Attributable Level 2 data or unified TLB refill, write"
+        },
+        {
+            "code": 94,
+            "refs": [
+                0
+            ],
+            "name": "L2D_TLB_RD",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "component": "L2TLB",
+            "description": "Attributable Level 2 data or unified TLB access, read"
+        },
+        {
+            "code": 95,
+            "refs": [
+                0
+            ],
+            "name": "L2D_TLB_WR",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "component": "L2TLB",
+            "description": "Attributable Level 2 data or unified TLB access, write"
+        },
+        {
+            "code": 96,
+            "refs": [
+                0
+            ],
+            "name": "BUS_ACCESS_RD",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "component": "BUS",
+            "description": "Bus access, read"
+        },
+        {
+            "code": 97,
+            "refs": [
+                0
+            ],
+            "name": "BUS_ACCESS_WR",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "component": "BUS",
+            "description": "Bus access, write"
+        },
+        {
+            "code": 98,
+            "refs": [
+                0
+            ],
+            "name": "BUS_ACCESS_SHARED",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "ACCESS",
+            "component": "BUS",
+            "description": "Bus access, Normal, Cacheable, Shareable"
+        },
+        {
+            "code": 99,
+            "refs": [
+                0
+            ],
+            "name": "BUS_ACCESS_NOT_SHARED",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "ACCESS",
+            "component": "BUS",
+            "description": "Bus access, not Normal, Cacheable, Shareable"
+        },
+        {
+            "code": 100,
+            "refs": [
+                0
+            ],
+            "name": "BUS_ACCESS_NORMAL",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "component": "BUS",
+            "description": "Bus access, normal"
+        },
+        {
+            "code": 101,
+            "refs": [
+                0
+            ],
+            "name": "BUS_ACCESS_PERIPH",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "component": "BUS",
+            "description": "Bus access, peripheral"
+        },
+        {
+            "code": 102,
+            "refs": [
+                0
+            ],
+            "name": "MEM_ACCESS_RD",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Data memory access, read"
+        },
+        {
+            "code": 103,
+            "refs": [
+                0
+            ],
+            "name": "MEM_ACCESS_WR",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Data memory access, write"
+        },
+        {
+            "code": 104,
+            "refs": [
+                0
+            ],
+            "name": "UNALIGNED_LD_SPEC",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Unaligned access, read"
+        },
+        {
+            "code": 105,
+            "refs": [
+                0
+            ],
+            "name": "UNALIGNED_ST_SPEC",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Unaligned access, write"
+        },
+        {
+            "code": 106,
+            "refs": [
+                0
+            ],
+            "name": "UNALIGNED_LDST_SPEC",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Unaligned access"
+        },
+        {
+            "code": 108,
+            "refs": [
+                0
+            ],
+            "name": "LDREX_SPEC",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Exclusive operation speculatively executed, LDREX or LDX"
+        },
+        {
+            "code": 109,
+            "refs": [
+                0
+            ],
+            "name": "STREX_PASS_SPEC",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Exclusive operation speculatively executed, STREX or STX pass"
+        },
+        {
+            "code": 110,
+            "refs": [
+                0
+            ],
+            "name": "STREX_FAIL_SPEC",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Exclusive operation speculatively executed, STREX or STX pass"
+        },
+        {
+            "code": 111,
+            "refs": [
+                0
+            ],
+            "name": "STREX_SPEC",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Exclusive operation speculatively executed, STREX or STX"
+        },
+        {
+            "code": 112,
+            "refs": [
+                0
+            ],
+            "name": "LD_SPEC",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Operation speculatively executed, load"
+        },
+        {
+            "code": 113,
+            "refs": [
+                0
+            ],
+            "name": "ST_SPEC",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Operation speculatively executed, store"
+        },
+        {
+            "code": 114,
+            "refs": [
+                0
+            ],
+            "name": "LDST_SPEC",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Operation speculatively executed, load or store"
+        },
+        {
+            "code": 115,
+            "refs": [
+                0
+            ],
+            "name": "DP_SPEC",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Operation speculatively executed, integer data-processing"
+        },
+        {
+            "code": 116,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SPEC",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "INS",
+            "description": "Operation speculatively executed, Advanced SIMD instruction"
+        },
+        {
+            "code": 117,
+            "refs": [
+                0
+            ],
+            "name": "VFP_SPEC",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "INS",
+            "description": "Operation speculatively executed, floating-point instruction"
+        },
+        {
+            "code": 118,
+            "refs": [
+                0
+            ],
+            "name": "PC_WRITE_SPEC",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Operation speculatively executed, software change of the PC"
+        },
+        {
+            "code": 119,
+            "refs": [
+                0
+            ],
+            "name": "CRYPTO_SPEC",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "INS",
+            "description": "Operation speculatively executed, Cryptographic instruction"
+        },
+        {
+            "code": 120,
+            "refs": [
+                0
+            ],
+            "name": "BR_IMMED_SPEC",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Branch speculatively executed, immediate branch"
+        },
+        {
+            "code": 121,
+            "refs": [
+                0
+            ],
+            "name": "BR_RETURN_SPEC",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Branch speculatively executed, procedure return"
+        },
+        {
+            "code": 122,
+            "refs": [
+                0
+            ],
+            "name": "BR_INDIRECT_SPEC",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Branch speculatively executed, indirect branch"
+        },
+        {
+            "code": 124,
+            "refs": [
+                0
+            ],
+            "name": "ISB_SPEC",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Barrier speculatively executed, ISB"
+        },
+        {
+            "code": 125,
+            "refs": [
+                0
+            ],
+            "name": "DSB_SPEC",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Barrier speculatively executed, DSB"
+        },
+        {
+            "code": 126,
+            "refs": [
+                0
+            ],
+            "name": "DMB_SPEC",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Barrier speculatively executed, DMB"
+        },
+        {
+            "code": 129,
+            "refs": [
+                0
+            ],
+            "name": "EXC_UNDEF",
+            "recommended": true,
+            "impdef": true,
+            "architectural": true,
+            "type": "EXC",
+            "description": "Exception taken, Other synchronous"
+        },
+        {
+            "code": 130,
+            "refs": [
+                0
+            ],
+            "name": "EXC_SVC",
+            "recommended": true,
+            "impdef": true,
+            "architectural": true,
+            "type": "EXC",
+            "description": "Exception taken, Supervisor Call"
+        },
+        {
+            "code": 131,
+            "refs": [
+                0
+            ],
+            "name": "EXC_PABORT",
+            "recommended": true,
+            "impdef": true,
+            "architectural": true,
+            "type": "EXC",
+            "description": "Exception taken, Instruction Abort"
+        },
+        {
+            "code": 132,
+            "refs": [
+                0
+            ],
+            "name": "EXC_DABORT",
+            "recommended": true,
+            "impdef": true,
+            "architectural": true,
+            "type": "EXC",
+            "description": "Exception taken, Data Abort and SError"
+        },
+        {
+            "code": 134,
+            "refs": [
+                0
+            ],
+            "name": "EXC_IRQ",
+            "recommended": true,
+            "impdef": true,
+            "architectural": true,
+            "type": "EXC",
+            "description": "Exception taken, IRQ"
+        },
+        {
+            "code": 135,
+            "refs": [
+                0
+            ],
+            "name": "EXC_FIQ",
+            "recommended": true,
+            "impdef": true,
+            "architectural": true,
+            "type": "EXC",
+            "description": "Exception taken, FIQ"
+        },
+        {
+            "code": 136,
+            "refs": [
+                0
+            ],
+            "name": "EXC_SMC",
+            "recommended": true,
+            "impdef": true,
+            "architectural": true,
+            "type": "EXC",
+            "description": "Exception taken, Secure Monitor Call"
+        },
+        {
+            "code": 138,
+            "refs": [
+                0
+            ],
+            "name": "EXC_HVC",
+            "recommended": true,
+            "impdef": true,
+            "architectural": true,
+            "type": "EXC",
+            "description": "Exception taken, Hypervisor Call"
+        },
+        {
+            "code": 139,
+            "refs": [
+                0
+            ],
+            "name": "EXC_TRAP_PABORT",
+            "recommended": true,
+            "impdef": true,
+            "architectural": true,
+            "type": "EXC",
+            "description": "Exception taken, Instruction Abort not taken locally"
+        },
+        {
+            "code": 140,
+            "refs": [
+                0
+            ],
+            "name": "EXC_TRAP_DABORT",
+            "recommended": true,
+            "impdef": true,
+            "architectural": true,
+            "type": "EXC",
+            "description": "Exception taken, Data Abort or SError not taken locally"
+        },
+        {
+            "code": 141,
+            "refs": [
+                0
+            ],
+            "name": "EXC_TRAP_OTHER",
+            "recommended": true,
+            "impdef": true,
+            "architectural": true,
+            "type": "EXC",
+            "description": "Exception taken, Other traps not taken locally"
+        },
+        {
+            "code": 142,
+            "refs": [
+                0
+            ],
+            "name": "EXC_TRAP_IRQ",
+            "recommended": true,
+            "impdef": true,
+            "architectural": true,
+            "type": "EXC",
+            "description": "Exception taken, IRQ not taken locally"
+        },
+        {
+            "code": 143,
+            "refs": [
+                0
+            ],
+            "name": "EXC_TRAP_FIQ",
+            "recommended": true,
+            "impdef": true,
+            "architectural": true,
+            "type": "EXC",
+            "description": "Exception taken, FIQ not taken locally"
+        },
+        {
+            "code": 144,
+            "refs": [
+                0
+            ],
+            "name": "RC_LD_SPEC",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Release consistency operation speculatively executed, Load-Acquire"
+        },
+        {
+            "code": 145,
+            "refs": [
+                0
+            ],
+            "name": "RC_ST_SPEC",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Release consistency operation speculatively executed, Store-Release"
+        },
+        {
+            "code": 160,
+            "refs": [
+                0
+            ],
+            "name": "L3D_CACHE_RD",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "READ",
+            "component": "L3",
+            "description": "Attributable Level 3 data or unified cache access, read"
+        },
+        {
+            "code": 161,
+            "refs": [
+                0
+            ],
+            "name": "L3D_CACHE_WR",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "WRITE",
+            "component": "L3",
+            "description": "Attributable Level 3 data or unified cache access, write"
+        },
+        {
+            "code": 162,
+            "refs": [
+                0
+            ],
+            "name": "L3D_CACHE_REFILL_RD",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "READ",
+            "component": "L3",
+            "description": "Attributable Level 3 data or unified cache refill, read"
+        },
+        {
+            "code": 163,
+            "refs": [
+                0
+            ],
+            "name": "L3D_CACHE_REFILL_WR",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "WRITE",
+            "component": "L3",
+            "description": "Attributable Level 3 data or unified cache refill, write"
+        },
+        {
+            "code": 166,
+            "refs": [
+                0
+            ],
+            "name": "L3D_CACHE_WB_VICTIM",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "WRITE",
+            "component": "L3",
+            "description": "Attributable Level 3 data or unified cache write-back, victim"
+        },
+        {
+            "code": 167,
+            "refs": [
+                0
+            ],
+            "name": "L3D_CACHE_WB_CLEAN",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "WRITE",
+            "component": "L3",
+            "description": "Attributable Level 3 data or unified cache write-back, cache clean"
+        },
+        {
+            "code": 168,
+            "refs": [
+                0
+            ],
+            "name": "L3D_CACHE_INVAL",
+            "recommended": true,
+            "impdef": true,
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "ACCESS",
+            "component": "L3",
+            "description": "Attributable Level 3 data or unified cache access, invalidate"
+        },
+        {
+            "code": 16384,
+            "refs": [
+                0
+            ],
+            "name": "SAMPLE_POP",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Sample Population"
+        },
+        {
+            "code": 16385,
+            "refs": [
+                0
+            ],
+            "name": "SAMPLE_FEED",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Sample Taken"
+        },
+        {
+            "code": 16386,
+            "refs": [
+                0
+            ],
+            "name": "SAMPLE_FILTRATE",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Sample Taken and not removed by filtering"
+        },
+        {
+            "code": 16387,
+            "refs": [
+                0
+            ],
+            "name": "SAMPLE_COLLISION",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Sample collided with previous sample"
+        },
+        {
+            "code": 16388,
+            "refs": [
+                0
+            ],
+            "name": "CNT_CYCLES",
+            "architectural": false,
+            "type": "CYCLE",
+            "description": "Constant frequency cycles"
+        },
+        {
+            "code": 16389,
+            "refs": [
+                0
+            ],
+            "name": "STALL_BACKEND_MEM",
+            "architectural": false,
+            "type": "CYCLE",
+            "description": "Memory stall cycles"
+        },
+        {
+            "code": 16390,
+            "refs": [
+                0
+            ],
+            "name": "L1I_CACHE_LMISS",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "READ",
+            "component": "L1I",
+            "description": "Level 1 instruction cache long-latency read miss"
+        },
+        {
+            "code": 16393,
+            "refs": [
+                0
+            ],
+            "name": "L2D_CACHE_LMISS_RD",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "READ",
+            "component": "L2",
+            "description": "Level 2 data cache long-latency read miss"
+        },
+        {
+            "code": 16394,
+            "refs": [
+                0
+            ],
+            "name": "L2I_CACHE_LMISS",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "READ",
+            "component": "L2",
+            "description": "Level 2 instruction cache long-latency read miss"
+        },
+        {
+            "code": 16395,
+            "refs": [
+                0
+            ],
+            "name": "L3D_CACHE_LMISS_RD",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "READ",
+            "component": "L3",
+            "description": "Level 3 data cache long-latency read miss"
+        },
+        {
+            "code": 16396,
+            "refs": [
+                1
+            ],
+            "name": "TRB_WRAP",
+            "architectural": true,
+            "type": "UEVT",
+            "description": "Trace buffer current write pointer wrapped"
+        },
+        {
+            "code": 16397,
+            "refs": [
+                1
+            ],
+            "name": "PMU_OVFS",
+            "architectural": true,
+            "type": "UEVT",
+            "description": "PMU overflow, counters accessible to EL1 and EL0"
+        },
+        {
+            "code": 16398,
+            "refs": [
+                1
+            ],
+            "name": "TRB_TRIG",
+            "architectural": true,
+            "type": "UEVT",
+            "description": "Trace buffer Trigger Event"
+        },
+        {
+            "code": 16399,
+            "refs": [
+                1
+            ],
+            "name": "PMU_HOVFS",
+            "architectural": true,
+            "type": "UEVT",
+            "description": "PMU overflow, counters reserved for use by EL2"
+        },
+        {
+            "code": 16400,
+            "refs": [
+                1
+            ],
+            "name": "TRCEXTOUT0",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "PE Trace Unit external output 0"
+        },
+        {
+            "code": 16401,
+            "refs": [
+                1
+            ],
+            "name": "TRCEXTOUT1",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "PE Trace Unit external output 1"
+        },
+        {
+            "code": 16402,
+            "refs": [
+                1
+            ],
+            "name": "TRCEXTOUT2",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "PE Trace Unit external output 2"
+        },
+        {
+            "code": 16403,
+            "refs": [
+                1
+            ],
+            "name": "TRCEXTOUT3",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "PE Trace Unit external output 3"
+        },
+        {
+            "code": 16408,
+            "refs": [
+                1
+            ],
+            "name": "CTI_TRIGOUT4",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Cross-trigger Interface output trigger 4"
+        },
+        {
+            "code": 16409,
+            "refs": [
+                1
+            ],
+            "name": "CTI_TRIGOUT5",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Cross-trigger Interface output trigger 5 "
+        },
+        {
+            "code": 16410,
+            "refs": [
+                1
+            ],
+            "name": "CTI_TRIGOUT6",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Cross-trigger Interface output trigger 6"
+        },
+        {
+            "code": 16411,
+            "refs": [
+                1
+            ],
+            "name": "CTI_TRIGOUT7",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Cross-trigger Interface output trigger 7"
+        },
+        {
+            "code": 16416,
+            "refs": [
+                0
+            ],
+            "name": "LDST_ALIGN_LAT",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Access with additional latency from alignment"
+        },
+        {
+            "code": 16417,
+            "refs": [
+                0
+            ],
+            "name": "LD_ALIGN_LAT",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Load with additional latency from alignment"
+        },
+        {
+            "code": 16418,
+            "refs": [
+                0
+            ],
+            "name": "ST_ALIGN_LAT",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Store with additional latency from alignment"
+        },
+        {
+            "code": 16420,
+            "refs": [
+                0
+            ],
+            "name": "MEM_ACCESS_CHECKED",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Checked data memory access"
+        },
+        {
+            "code": 16421,
+            "refs": [
+                0
+            ],
+            "name": "MEM_ACCESS_CHECKED_RD",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Checked data memory access, read"
+        },
+        {
+            "code": 16422,
+            "refs": [
+                0
+            ],
+            "name": "MEM_ACCESS_CHECKED_WR",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Checked data memory access, write"
+        },
+        {
+            "code": 32768,
+            "refs": [
+                0
+            ],
+            "name": "SIMD_INST_RETIRED",
+            "architectural": true,
+            "type": "INS",
+            "description": "SIMD instructions architecturally executed"
+        },
+        {
+            "code": 32769,
+            "refs": [
+                0
+            ],
+            "name": "ASE_INST_RETIRED",
+            "architectural": true,
+            "type": "INS",
+            "description": "ASE instructions architecturally executed"
+        },
+        {
+            "code": 32770,
+            "refs": [
+                0
+            ],
+            "name": "SVE_INST_RETIRED",
+            "architectural": true,
+            "type": "INS",
+            "description": "SVE instructions architecturally executed"
+        },
+        {
+            "code": 32771,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_INST_RETIRED",
+            "architectural": true,
+            "type": "INS",
+            "description": "ASE and SVE instructions architecturally executed"
+        },
+        {
+            "code": 32772,
+            "refs": [
+                0
+            ],
+            "name": "SIMD_INST_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SIMD operations speculatively executed"
+        },
+        {
+            "code": 32773,
+            "refs": [
+                0
+            ],
+            "name": "ASE_INST_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE operations speculatively executed"
+        },
+        {
+            "code": 32774,
+            "refs": [
+                0
+            ],
+            "name": "SVE_INST_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE operations speculatively executed"
+        },
+        {
+            "code": 32775,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_INST_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE and SVE operations speculatively executed"
+        },
+        {
+            "code": 32776,
+            "refs": [
+                0
+            ],
+            "name": "UOP_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Any +ALU--ops speculatively executed"
+        },
+        {
+            "code": 32777,
+            "refs": [
+                0
+            ],
+            "name": "ASE_UOP_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE +ALU--ops speculatively executed"
+        },
+        {
+            "code": 32778,
+            "refs": [
+                0
+            ],
+            "name": "SVE_UOP_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE +ALU--ops speculatively executed"
+        },
+        {
+            "code": 32779,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_UOP_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE and SVE +ALU--ops speculatively executed"
+        },
+        {
+            "code": 32780,
+            "refs": [
+                0
+            ],
+            "name": "SIMD_UOP_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SIMD +ALU--ops speculatively executed"
+        },
+        {
+            "code": 32782,
+            "refs": [
+                0
+            ],
+            "name": "SVE_MATH_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE math operations speculatively executed"
+        },
+        {
+            "code": 32784,
+            "refs": [
+                0
+            ],
+            "name": "FP_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Floating-point operations speculatively executed"
+        },
+        {
+            "code": 32785,
+            "refs": [
+                0
+            ],
+            "name": "ASE_FP_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE floating-point operations speculatively executed"
+        },
+        {
+            "code": 32786,
+            "refs": [
+                0
+            ],
+            "name": "SVE_FP_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE floating-point operations speculatively executed"
+        },
+        {
+            "code": 32787,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_FP_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE and SVE floating-point operations speculatively executed"
+        },
+        {
+            "code": 32788,
+            "refs": [
+                0
+            ],
+            "name": "FP_HP_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Floating-point half-precision operations speculatively executed"
+        },
+        {
+            "code": 32789,
+            "refs": [
+                0
+            ],
+            "name": "ASE_FP_HP_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE floating-point half-precision operations speculatively executed"
+        },
+        {
+            "code": 32790,
+            "refs": [
+                0
+            ],
+            "name": "SVE_FP_HP_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE floating-point half-precision operations speculatively executed"
+        },
+        {
+            "code": 32791,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_FP_HP_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE and SVE floating-point half-precision operations speculatively executed"
+        },
+        {
+            "code": 32792,
+            "refs": [
+                0
+            ],
+            "name": "FP_SP_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Floating-point single-precision operations speculatively executed"
+        },
+        {
+            "code": 32793,
+            "refs": [
+                0
+            ],
+            "name": "ASE_FP_SP_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE floating-point single-precision operations speculatively executed"
+        },
+        {
+            "code": 32794,
+            "refs": [
+                0
+            ],
+            "name": "SVE_FP_SP_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE floating-point single-precision operations speculatively executed"
+        },
+        {
+            "code": 32795,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_FP_SP_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE and SVE floating-point single-precision operations speculatively executed"
+        },
+        {
+            "code": 32796,
+            "refs": [
+                0
+            ],
+            "name": "FP_DP_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Floating-point double-precision operations speculatively executed"
+        },
+        {
+            "code": 32797,
+            "refs": [
+                0
+            ],
+            "name": "ASE_FP_DP_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE floating-point double-precision operations speculatively executed"
+        },
+        {
+            "code": 32798,
+            "refs": [
+                0
+            ],
+            "name": "SVE_FP_DP_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE floating-point double-precision operations speculatively executed"
+        },
+        {
+            "code": 32799,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_FP_DP_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE and SVE floating-point double-precision operations speculatively executed"
+        },
+        {
+            "code": 32800,
+            "refs": [
+                0
+            ],
+            "name": "FP_DIV_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Floating-point divide operations speculatively executed"
+        },
+        {
+            "code": 32801,
+            "refs": [
+                0
+            ],
+            "name": "ASE_FP_DIV_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE floating-point divide operations speculatively executed"
+        },
+        {
+            "code": 32802,
+            "refs": [
+                0
+            ],
+            "name": "SVE_FP_DIV_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE floating-point divide operations speculatively executed"
+        },
+        {
+            "code": 32803,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_FP_DIV_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE and SVE floating-point divide operations speculatively executed"
+        },
+        {
+            "code": 32804,
+            "refs": [
+                0
+            ],
+            "name": "FP_SQRT_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Floating-point square-root operations speculatively executed"
+        },
+        {
+            "code": 32805,
+            "refs": [
+                0
+            ],
+            "name": "ASE_FP_SQRT_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE floating-point square-root operations speculatively executed"
+        },
+        {
+            "code": 32806,
+            "refs": [
+                0
+            ],
+            "name": "SVE_FP_SQRT_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE floating-point square-root operations speculatively executed"
+        },
+        {
+            "code": 32807,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_FP_SQRT_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE and SVE floating-point square-root operations speculatively executed"
+        },
+        {
+            "code": 32808,
+            "refs": [
+                0
+            ],
+            "name": "FP_FMA_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Floating-point FMA operations speculatively executed"
+        },
+        {
+            "code": 32809,
+            "refs": [
+                0
+            ],
+            "name": "ASE_FP_FMA_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE floating-point FMA operations speculatively executed"
+        },
+        {
+            "code": 32810,
+            "refs": [
+                0
+            ],
+            "name": "SVE_FP_FMA_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE floating-point FMA operation s speculatively executed"
+        },
+        {
+            "code": 32811,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_FP_FMA_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE and SVE floating-point FMA operations speculatively executed"
+        },
+        {
+            "code": 32812,
+            "refs": [
+                0
+            ],
+            "name": "FP_MUL_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Floating-point multiply operations speculatively executed"
+        },
+        {
+            "code": 32813,
+            "refs": [
+                0
+            ],
+            "name": "ASE_FP_MUL_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE floating-point multiply operations speculatively executed"
+        },
+        {
+            "code": 32814,
+            "refs": [
+                0
+            ],
+            "name": "SVE_FP_MUL_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE floating-point multiply operations speculatively executed"
+        },
+        {
+            "code": 32815,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_FP_MUL_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE and SVE floating-point multiply operations speculatively executed"
+        },
+        {
+            "code": 32816,
+            "refs": [
+                0
+            ],
+            "name": "FP_ADDSUB_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Floating-point add & subtract operations speculatively executed"
+        },
+        {
+            "code": 32817,
+            "refs": [
+                0
+            ],
+            "name": "ASE_FP_ADDSUB_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE floating-point add & subtract operations speculatively executed"
+        },
+        {
+            "code": 32818,
+            "refs": [
+                0
+            ],
+            "name": "SVE_FP_ADDSUB_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE floating-point add & subtract operations speculatively executed"
+        },
+        {
+            "code": 32819,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_FP_ADDSUB_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE and SVE floating-point add & subtract operations speculatively executed"
+        },
+        {
+            "code": 32820,
+            "refs": [
+                0
+            ],
+            "name": "FP_RECPE_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Floating-point reciprocal estimate operations speculatively executed"
+        },
+        {
+            "code": 32821,
+            "refs": [
+                0
+            ],
+            "name": "ASE_FP_RECPE_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE floating-point reciprocal estimate operations speculatively executed"
+        },
+        {
+            "code": 32822,
+            "refs": [
+                0
+            ],
+            "name": "SVE_FP_RECPE_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE floating-point reciprocal estimate operations speculatively executed"
+        },
+        {
+            "code": 32823,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_FP_RECPE_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE and SVE floating-point reciprocal estimate operations speculatively executed"
+        },
+        {
+            "code": 32824,
+            "refs": [
+                0
+            ],
+            "name": "FP_CVT_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Floating-point convert operations speculatively executed"
+        },
+        {
+            "code": 32825,
+            "refs": [
+                0
+            ],
+            "name": "ASE_FP_CVT_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE floating-point convert operations speculatively executed"
+        },
+        {
+            "code": 32826,
+            "refs": [
+                0
+            ],
+            "name": "SVE_FP_CVT_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE floating-point convert operations speculatively executed"
+        },
+        {
+            "code": 32827,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_FP_CVT_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE and SVE floating-point convert operations speculatively executed"
+        },
+        {
+            "code": 32828,
+            "refs": [
+                0
+            ],
+            "name": "SVE_FP_AREDUCE_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE floating-point accumulating reduction operations speculatively executed"
+        },
+        {
+            "code": 32829,
+            "refs": [
+                0
+            ],
+            "name": "ASE_FP_PREDUCE_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE floating-point pairwise add step operations speculatively executed"
+        },
+        {
+            "code": 32830,
+            "refs": [
+                0
+            ],
+            "name": "SVE_FP_VREDUCE_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE floating-point vector reduction operations speculatively executed"
+        },
+        {
+            "code": 32831,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_FP_VREDUCE_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE and SVE floating-point vector reduction operations speculatively executed"
+        },
+        {
+            "code": 32832,
+            "refs": [
+                0
+            ],
+            "name": "INT_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Integer operations speculatively executed"
+        },
+        {
+            "code": 32833,
+            "refs": [
+                0
+            ],
+            "name": "ASE_INT_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE integer operations speculatively executed"
+        },
+        {
+            "code": 32834,
+            "refs": [
+                0
+            ],
+            "name": "SVE_INT_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE integer operations speculatively executed"
+        },
+        {
+            "code": 32835,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_INT_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE and SVE integer operations speculatively executed"
+        },
+        {
+            "code": 32836,
+            "refs": [
+                0
+            ],
+            "name": "INT_DIV_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Integer divide operations speculatively executed"
+        },
+        {
+            "code": 32837,
+            "refs": [
+                0
+            ],
+            "name": "INT_DIV64_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Integer 64-bit divide operations speculatively executed"
+        },
+        {
+            "code": 32838,
+            "refs": [
+                0
+            ],
+            "name": "SVE_INT_DIV_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE  integer divide operations speculatively executed"
+        },
+        {
+            "code": 32839,
+            "refs": [
+                0
+            ],
+            "name": "SVE_INT_DIV64_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE integer 64-bit divide operations speculatively executed"
+        },
+        {
+            "code": 32840,
+            "refs": [
+                0
+            ],
+            "name": "INT_MUL_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Integer multiply operations speculatively executed"
+        },
+        {
+            "code": 32841,
+            "refs": [
+                0
+            ],
+            "name": "ASE_INT_MUL_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE integer multiply operations speculatively executed"
+        },
+        {
+            "code": 32842,
+            "refs": [
+                0
+            ],
+            "name": "SVE_INT_MUL_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE integer multiply operations speculatively executed"
+        },
+        {
+            "code": 32843,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_INT_MUL_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE and SVE integer multiply operations speculatively executed"
+        },
+        {
+            "code": 32844,
+            "refs": [
+                0
+            ],
+            "name": "INT_MUL64_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Integer 64-bit multiply operations speculatively executed"
+        },
+        {
+            "code": 32845,
+            "refs": [
+                0
+            ],
+            "name": "SVE_INT_MUL64_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE integer 64-bit multiply operations speculatively executed"
+        },
+        {
+            "code": 32846,
+            "refs": [
+                0
+            ],
+            "name": "INT_MULH64_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Integer 64-bit multiply high part operations speculatively executed"
+        },
+        {
+            "code": 32847,
+            "refs": [
+                0
+            ],
+            "name": "SVE_INT_MULH64_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE integer 64-bit multiply high part operations speculatively executed"
+        },
+        {
+            "code": 32856,
+            "refs": [
+                0
+            ],
+            "name": "NONFP_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Non-floating-point operations speculatively executed"
+        },
+        {
+            "code": 32857,
+            "refs": [
+                0
+            ],
+            "name": "ASE_NONFP_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE non-floating-point operations speculatively executed"
+        },
+        {
+            "code": 32858,
+            "refs": [
+                0
+            ],
+            "name": "SVE_NONFP_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE non-floating operations speculatively executed"
+        },
+        {
+            "code": 32859,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_NONFP_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE and SVE non-floating-point operations speculatively executed"
+        },
+        {
+            "code": 32861,
+            "refs": [
+                0
+            ],
+            "name": "ASE_INT_VREDUCE_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE integer vector reduction operations speculatively executed"
+        },
+        {
+            "code": 32862,
+            "refs": [
+                0
+            ],
+            "name": "SVE_INT_VREDUCE_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE integer reduction operations speculatively executed"
+        },
+        {
+            "code": 32863,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_INT_VREDUCE_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE and SVE integer reduction operations speculatively executed"
+        },
+        {
+            "code": 32864,
+            "refs": [
+                0
+            ],
+            "name": "SVE_PERM_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE permute operations speculatively executed"
+        },
+        {
+            "code": 32865,
+            "refs": [
+                0
+            ],
+            "name": "SVE_PERM_IGRANULE_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE intra-granule permute operations speculatively"
+        },
+        {
+            "code": 32866,
+            "refs": [
+                0
+            ],
+            "name": "SVE_PERM_XGRANULE_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE cross-granule permute operations speculatively executed"
+        },
+        {
+            "code": 32867,
+            "refs": [
+                0
+            ],
+            "name": "SVE_PERM_VARIABLE_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE variable permute operations speculatively executed"
+        },
+        {
+            "code": 32868,
+            "refs": [
+                0
+            ],
+            "name": "SVE_XPIPE_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE cross-pipe operations speculatively executed"
+        },
+        {
+            "code": 32869,
+            "refs": [
+                0
+            ],
+            "name": "SVE_XPIPE_Z2R_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE vector to scalar cross-pipe operations speculatively executed"
+        },
+        {
+            "code": 32870,
+            "refs": [
+                0
+            ],
+            "name": "SVE_XPIPE_R2Z_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE scalar to vector cross-pipe operations speculatively executed"
+        },
+        {
+            "code": 32871,
+            "refs": [
+                0
+            ],
+            "name": "SVE_PGEN_NVEC_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE predicate-only operations speculatively executed"
+        },
+        {
+            "code": 32872,
+            "refs": [
+                0
+            ],
+            "name": "SVE_PGEN_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE predicate generating operations speculatively executed"
+        },
+        {
+            "code": 32873,
+            "refs": [
+                0
+            ],
+            "name": "SVE_PGEN_FLG_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE predicate flag setting operations speculatively executed"
+        },
+        {
+            "code": 32874,
+            "refs": [
+                0
+            ],
+            "name": "SVE_PGEN_CMP_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE vector compare operations speculatively executed"
+        },
+        {
+            "code": 32875,
+            "refs": [
+                0
+            ],
+            "name": "SVE_PGEN_FCM_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE floating-point vector compare operations speculatively executed"
+        },
+        {
+            "code": 32876,
+            "refs": [
+                0
+            ],
+            "name": "SVE_PGEN_LOGIC_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE predicate logical operations speculatively executed"
+        },
+        {
+            "code": 32877,
+            "refs": [
+                0
+            ],
+            "name": "SVE_PPERM_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE predicate permute operations speculatively executed"
+        },
+        {
+            "code": 32878,
+            "refs": [
+                0
+            ],
+            "name": "SVE_PSCAN_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE predicate scan operations speculatively executed"
+        },
+        {
+            "code": 32879,
+            "refs": [
+                0
+            ],
+            "name": "SVE_PCNT_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE predicate count operations speculatively executed"
+        },
+        {
+            "code": 32880,
+            "refs": [
+                0
+            ],
+            "name": "SVE_PLOOP_WHILE_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE predicate loop while operations speculatively executed"
+        },
+        {
+            "code": 32881,
+            "refs": [
+                0
+            ],
+            "name": "SVE_PLOOP_TEST_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE predicate loop test operations speculatively executed"
+        },
+        {
+            "code": 32882,
+            "refs": [
+                0
+            ],
+            "name": "SVE_PLOOP_ELTS_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE predicate loop elements speculatively executed"
+        },
+        {
+            "code": 32883,
+            "refs": [
+                0
+            ],
+            "name": "SVE_PLOOP_TERM_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE predicate loop termination speculatively executed"
+        },
+        {
+            "code": 32884,
+            "refs": [
+                0
+            ],
+            "name": "SVE_PRED_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE predicated operations speculatively executed"
+        },
+        {
+            "code": 32885,
+            "refs": [
+                0
+            ],
+            "name": "SVE_PRED_EMPTY_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE predicated operations with no active predicates speculatively executed"
+        },
+        {
+            "code": 32886,
+            "refs": [
+                0
+            ],
+            "name": "SVE_PRED_FULL_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE predicated operations speculatively executed with all active predicates"
+        },
+        {
+            "code": 32887,
+            "refs": [
+                0
+            ],
+            "name": "SVE_PRED_PARTIAL_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE predicated operations speculatively executed with partially active predicates"
+        },
+        {
+            "code": 32888,
+            "refs": [
+                0
+            ],
+            "name": "SVE_UNPRED_SPEC",
+            "architectural": false,
+            "type": "INS",
+            "description": "SVE unpredicated vector operations speculatively executed Counts speculatively executed SIMD data-processing and load/store operations due to SVE instructions without a governing predicate"
+        },
+        {
+            "code": 32889,
+            "refs": [
+                0
+            ],
+            "name": "SVE_PRED_NOT_FULL_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE predicated operations with empty or partially active predicates"
+        },
+        {
+            "code": 32892,
+            "refs": [
+                0
+            ],
+            "name": "SVE_MOVPRFX_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE MOVPRFX operations speculatively executed"
+        },
+        {
+            "code": 32893,
+            "refs": [
+                0
+            ],
+            "name": "SVE_MOVPRFX_Z_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE MOVPRFX zeroing predication speculatively executed"
+        },
+        {
+            "code": 32894,
+            "refs": [
+                0
+            ],
+            "name": "SVE_MOVPRFX_M_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE MOVPRFX merging predication speculatively executed"
+        },
+        {
+            "code": 32895,
+            "refs": [
+                0
+            ],
+            "name": "SVE_MOVPRFX_U_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE  MOVPRFX unfused operations speculatively executed"
+        },
+        {
+            "code": 32896,
+            "refs": [
+                0
+            ],
+            "name": "SVE_LDST_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE load/store operations speculatively executed"
+        },
+        {
+            "code": 32897,
+            "refs": [
+                0
+            ],
+            "name": "SVE_LD_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE load operations speculatively executed"
+        },
+        {
+            "code": 32898,
+            "refs": [
+                0
+            ],
+            "name": "SVE_ST_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE store operations speculatively executed"
+        },
+        {
+            "code": 32899,
+            "refs": [
+                0
+            ],
+            "name": "SVE_PRF_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE prefetch operations speculatively executed"
+        },
+        {
+            "code": 32900,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_LDST_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE and SVE load/store operations speculatively executed"
+        },
+        {
+            "code": 32901,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_LD_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE and SVE load operations speculatively executed"
+        },
+        {
+            "code": 32902,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_ST_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE and SVE store operations speculatively executed"
+        },
+        {
+            "code": 32903,
+            "refs": [
+                0
+            ],
+            "name": "PRF_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Prefetch operations speculatively executed"
+        },
+        {
+            "code": 32904,
+            "refs": [
+                0
+            ],
+            "name": "BASE_LDST_REG_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "General-purpose register load/store/prefetch operations speculatively executed"
+        },
+        {
+            "code": 32905,
+            "refs": [
+                0
+            ],
+            "name": "BASE_LD_REG_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "General-purpose register load operations speculatively executed"
+        },
+        {
+            "code": 32906,
+            "refs": [
+                0
+            ],
+            "name": "BASE_ST_REG_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "General-purpose register store operations speculatively executed"
+        },
+        {
+            "code": 32907,
+            "refs": [
+                0
+            ],
+            "name": "BASE_PRF_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "General-purpose prefetch operations speculatively executed"
+        },
+        {
+            "code": 32908,
+            "refs": [
+                0
+            ],
+            "name": "FPASE_LDST_REG_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "FP and ASE register load/store operations speculatively executed"
+        },
+        {
+            "code": 32909,
+            "refs": [
+                0
+            ],
+            "name": "FPASE_LD_REG_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "FP and ASE register load operations speculatively executed"
+        },
+        {
+            "code": 32910,
+            "refs": [
+                0
+            ],
+            "name": "FPASE_ST_REG_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "FP and ASE register store operations speculatively executed"
+        },
+        {
+            "code": 32912,
+            "refs": [
+                0
+            ],
+            "name": "SVE_LDST_REG_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE unpredicated load/store register operations speculatively executed"
+        },
+        {
+            "code": 32913,
+            "refs": [
+                0
+            ],
+            "name": "SVE_LDR_REG_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE unpredicated load register operations speculatively executed"
+        },
+        {
+            "code": 32914,
+            "refs": [
+                0
+            ],
+            "name": "SVE_STR_REG_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE unpredicated store register operations speculatively executed"
+        },
+        {
+            "code": 32916,
+            "refs": [
+                0
+            ],
+            "name": "SVE_LDST_PREG_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE load/store predicate register operations speculatively executed"
+        },
+        {
+            "code": 32917,
+            "refs": [
+                0
+            ],
+            "name": "SVE_LDR_PREG_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE load predicate register operations speculatively executed"
+        },
+        {
+            "code": 32918,
+            "refs": [
+                0
+            ],
+            "name": "SVE_STR_PREG_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE store predicate register operations speculatively executed"
+        },
+        {
+            "code": 32920,
+            "refs": [
+                0
+            ],
+            "name": "SVE_LDST_ZREG_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE load/store vector register operations speculatively executed"
+        },
+        {
+            "code": 32921,
+            "refs": [
+                0
+            ],
+            "name": "SVE_LDR_ZREG_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE load vector register operations speculatively executed"
+        },
+        {
+            "code": 32922,
+            "refs": [
+                0
+            ],
+            "name": "SVE_STR_ZREG_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE store vector register operations speculatively executed"
+        },
+        {
+            "code": 32924,
+            "refs": [
+                0
+            ],
+            "name": "SVE_LDST_CONTIG_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE contiguous load/store/prefetch element operations speculatively executed"
+        },
+        {
+            "code": 32925,
+            "refs": [
+                0
+            ],
+            "name": "SVE_LD_CONTIG_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE contiguous load element operations speculatively executed"
+        },
+        {
+            "code": 32926,
+            "refs": [
+                0
+            ],
+            "name": "SVE_ST_CONTIG_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE contiguous store element operations speculatively executed"
+        },
+        {
+            "code": 32927,
+            "refs": [
+                0
+            ],
+            "name": "SVE_PRF_CONTIG_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE contiguous prefetch element operations speculatively executed"
+        },
+        {
+            "code": 32928,
+            "refs": [
+                0
+            ],
+            "name": "SVE_LDSTNT_CONTIG_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE non-temporal contiguous load/store element operations speculatively executed"
+        },
+        {
+            "code": 32929,
+            "refs": [
+                0
+            ],
+            "name": "SVE_LDNT_CONTIG_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE non-temporal contiguous load element operations speculatively executed"
+        },
+        {
+            "code": 32930,
+            "refs": [
+                0
+            ],
+            "name": "SVE_STNT_CONTIG_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE non-temporal contiguous store element operations speculatively executed"
+        },
+        {
+            "code": 32932,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_LDST_MULTI_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE and SVE contiguous load/store multiple vector operations speculatively executed"
+        },
+        {
+            "code": 32933,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_LD_MULTI_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE and SVE contiguous load multiple vector operations speculatively executed"
+        },
+        {
+            "code": 32934,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_ST_MULTI_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE and SVE contiguous store multiple vector operations speculatively executed"
+        },
+        {
+            "code": 32936,
+            "refs": [
+                0
+            ],
+            "name": "SVE_LDST_MULTI_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE contiguous load/store multiple vector operations speculatively executed"
+        },
+        {
+            "code": 32937,
+            "refs": [
+                0
+            ],
+            "name": "SVE_LD_MULTI_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE contiguous load multiple vector operations speculatively executed"
+        },
+        {
+            "code": 32938,
+            "refs": [
+                0
+            ],
+            "name": "SVE_ST_MULTI_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE contiguous store multiple vector operations speculatively executed"
+        },
+        {
+            "code": 32940,
+            "refs": [
+                0
+            ],
+            "name": "SVE_LDST_NONCONTIG_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE non-contiguous load/store/prefetch operations speculatively executed"
+        },
+        {
+            "code": 32941,
+            "refs": [
+                0
+            ],
+            "name": "SVE_LD_GATHER_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE gather-load operations speculatively executed"
+        },
+        {
+            "code": 32942,
+            "refs": [
+                0
+            ],
+            "name": "SVE_ST_SCATTER_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE scatter-store operations speculatively executed"
+        },
+        {
+            "code": 32943,
+            "refs": [
+                0
+            ],
+            "name": "SVE_PRF_GATHER_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE gather-prefetch operations speculatively executed"
+        },
+        {
+            "code": 32944,
+            "refs": [
+                0
+            ],
+            "name": "SVE_LDST64_NONCONTIG_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE 64-bit non-contiguous load/store/prefetch operations speculatively executed"
+        },
+        {
+            "code": 32945,
+            "refs": [
+                0
+            ],
+            "name": "SVE_LD64_GATHER_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE 64-bit gather-load operations speculatively executed"
+        },
+        {
+            "code": 32946,
+            "refs": [
+                0
+            ],
+            "name": "SVE_ST64_SCATTER_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE 64-bit scatter-store operations speculatively executed"
+        },
+        {
+            "code": 32947,
+            "refs": [
+                0
+            ],
+            "name": "SVE_PRF64_GATHER_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE 64-bit gather-prefetch operations speculatively executed"
+        },
+        {
+            "code": 32948,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_UNALIGNED_LDST_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE and SVE unaligned accesses"
+        },
+        {
+            "code": 32949,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_UNALIGNED_LD_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE and SVE unaligned read accesses"
+        },
+        {
+            "code": 32950,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_UNALIGNED_ST_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE and SVE unaligned write accesses"
+        },
+        {
+            "code": 32952,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_UNALIGNED_CONTIG_LDST_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE and SVE unaligned contiguous accesses"
+        },
+        {
+            "code": 32953,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_UNALIGNED_CONTIG_LD_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE and SVE unaligned contiguous read accesses"
+        },
+        {
+            "code": 32954,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_UNALIGNED_CONTIG_ST_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "ASE and SVE unaligned contiguous write accesses"
+        },
+        {
+            "code": 32956,
+            "refs": [
+                0
+            ],
+            "name": "SVE_LDFF_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE first-fault load operations speculatively executed"
+        },
+        {
+            "code": 32957,
+            "refs": [
+                0
+            ],
+            "name": "SVE_LDFF_FAULT_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE first-fault load operations speculatively executed which set FFR bit to 0"
+        },
+        {
+            "code": 32960,
+            "refs": [
+                0
+            ],
+            "name": "FP_SCALE_OPS_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Scalable floating-point element operations speculatively executed"
+        },
+        {
+            "code": 32961,
+            "refs": [
+                0
+            ],
+            "name": "FP_FIXED_OPS_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Non-scalable floating-point element operations speculatively executed"
+        },
+        {
+            "code": 32962,
+            "refs": [
+                0
+            ],
+            "name": "FP_HP_SCALE_OPS_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Scalable half-precision floating-point element operations speculatively executed"
+        },
+        {
+            "code": 32963,
+            "refs": [
+                0
+            ],
+            "name": "FP_HP_FIXED_OPS_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Non-scalable half-precision floating-point element operations speculatively executed"
+        },
+        {
+            "code": 32964,
+            "refs": [
+                0
+            ],
+            "name": "FP_SP_SCALE_OPS_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Scalable single-precision floating-point element operations speculatively executed"
+        },
+        {
+            "code": 32965,
+            "refs": [
+                0
+            ],
+            "name": "FP_SP_FIXED_OPS_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Non-scalable floating-point single-precision floating-point element operations speculatively executed"
+        },
+        {
+            "code": 32966,
+            "refs": [
+                0
+            ],
+            "name": "FP_DP_SCALE_OPS_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Scalable floating-point double-precision floating-point element operations speculatively executed"
+        },
+        {
+            "code": 32967,
+            "refs": [
+                0
+            ],
+            "name": "FP_DP_FIXED_OPS_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Non-scalable floating-point double-precision floating-point element operations speculatively executed"
+        },
+        {
+            "code": 32968,
+            "refs": [
+                0
+            ],
+            "name": "INT_SCALE_OPS_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Scalable integer element operations speculatively executed"
+        },
+        {
+            "code": 32969,
+            "refs": [
+                0
+            ],
+            "name": "INT_FIXED_OPS_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Non-scalable integer element operations speculatively executed"
+        },
+        {
+            "code": 32970,
+            "refs": [
+                0
+            ],
+            "name": "LDST_SCALE_OPS_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Scalable load/store element operations speculatively executed"
+        },
+        {
+            "code": 32971,
+            "refs": [
+                0
+            ],
+            "name": "LDST_FIXED_OPS_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Non-scalable load/store element operations speculatively executed"
+        },
+        {
+            "code": 32972,
+            "refs": [
+                0
+            ],
+            "name": "LD_SCALE_OPS_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Scalable load element operations speculatively executed"
+        },
+        {
+            "code": 32973,
+            "refs": [
+                0
+            ],
+            "name": "LD_FIXED_OPS_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Non-scalable load element operations speculatively executed"
+        },
+        {
+            "code": 32974,
+            "refs": [
+                0
+            ],
+            "name": "ST_SCALE_OPS_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Scalable store element operations speculatively executed"
+        },
+        {
+            "code": 32975,
+            "refs": [
+                0
+            ],
+            "name": "ST_FIXED_OPS_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Non-scalable store element operations speculatively executed"
+        },
+        {
+            "code": 32986,
+            "refs": [
+                0
+            ],
+            "name": "LDST_SCALE_BYTES_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Scalable load/store bytes speculatively executed"
+        },
+        {
+            "code": 32987,
+            "refs": [
+                0
+            ],
+            "name": "LDST_FIXED_BYTES_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Non-scalable load/store bytes speculatively executed"
+        },
+        {
+            "code": 32988,
+            "refs": [
+                0
+            ],
+            "name": "LD_SCALE_BYTES_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Scalable load bytes speculatively executed"
+        },
+        {
+            "code": 32989,
+            "refs": [
+                0
+            ],
+            "name": "LD_FIXED_BYTES_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Non-scalable load bytes speculatively executed"
+        },
+        {
+            "code": 32990,
+            "refs": [
+                0
+            ],
+            "name": "ST_SCALE_BYTES_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Scalable store bytes speculatively executed"
+        },
+        {
+            "code": 32991,
+            "refs": [
+                0
+            ],
+            "name": "ST_FIXED_BYTES_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Non-scalable store bytes speculatively executed"
+        },
+        {
+            "code": 32993,
+            "refs": [
+                0
+            ],
+            "name": "ASE_INT8_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Advanced SIMD 8-bit integer operations speculatively executed"
+        },
+        {
+            "code": 32994,
+            "refs": [
+                0
+            ],
+            "name": "SVE_INT8_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE 8-bit integer operations speculatively executed"
+        },
+        {
+            "code": 32995,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_INT8_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Advanced SIMD and SVE 8-bit integer operations speculatively executed"
+        },
+        {
+            "code": 32997,
+            "refs": [
+                0
+            ],
+            "name": "ASE_INT16_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Advanced SIMD 16-bit integer operations speculatively executed"
+        },
+        {
+            "code": 32998,
+            "refs": [
+                0
+            ],
+            "name": "SVE_INT16_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE 16-bit integer operations speculatively executed"
+        },
+        {
+            "code": 32999,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_INT16_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Advanced SIMD and SVE 16-bit integer operations speculatively executed"
+        },
+        {
+            "code": 33001,
+            "refs": [
+                0
+            ],
+            "name": "ASE_INT32_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Advanced SIMD 32-bit integer operations speculatively executed"
+        },
+        {
+            "code": 33002,
+            "refs": [
+                0
+            ],
+            "name": "SVE_INT32_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE 32-bit integer operations speculatively executed"
+        },
+        {
+            "code": 33003,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_INT32_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Advanced SIMD and SVE 32-bit integer operations speculatively executed"
+        },
+        {
+            "code": 33005,
+            "refs": [
+                0
+            ],
+            "name": "ASE_INT64_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Advanced SIMD 64-bit integer operations speculatively executed"
+        },
+        {
+            "code": 33006,
+            "refs": [
+                0
+            ],
+            "name": "SVE_INT64_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE 64-bit integer operations speculatively executed"
+        },
+        {
+            "code": 33007,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_INT64_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Advanced SIMD and SVE 64-bit integer operations speculatively executed"
+        },
+        {
+            "code": 33009,
+            "refs": [
+                0
+            ],
+            "name": "ASE_FP_DOT_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Advanced SIMD floating-point dot-product operations speculatively executed"
+        },
+        {
+            "code": 33010,
+            "refs": [
+                0
+            ],
+            "name": "SVE_FP_DOT_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE floating-point dot-product operations speculatively executed"
+        },
+        {
+            "code": 33011,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_FP_DOT_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Advanced SIMD and SVE floating-point dot-product operations speculatively executed"
+        },
+        {
+            "code": 33013,
+            "refs": [
+                0
+            ],
+            "name": "ASE_FP_MMLA_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Advanced SIMD floating-point matrix multiply operations speculatively executed"
+        },
+        {
+            "code": 33014,
+            "refs": [
+                0
+            ],
+            "name": "SVE_FP_MMLA_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE floating-point matrix multiply operations speculatively executed"
+        },
+        {
+            "code": 33015,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_FP_MMLA_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Advanced SIMD and SVE floating-point matrix multiply operations speculatively executed"
+        },
+        {
+            "code": 33017,
+            "refs": [
+                0
+            ],
+            "name": "ASE_INT_DOT_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Advanced SIMD integer dot-product operations speculatively executed"
+        },
+        {
+            "code": 33018,
+            "refs": [
+                0
+            ],
+            "name": "SVE_INT_DOT_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE integer dot-product operations speculatively executed"
+        },
+        {
+            "code": 33019,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_INT_DOT_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Advanced SIMD and SVE integer dot-product operations speculatively executed"
+        },
+        {
+            "code": 33021,
+            "refs": [
+                0
+            ],
+            "name": "ASE_INT_MMLA_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Advanced SIMD integer matrix multiply operations speculatively executed"
+        },
+        {
+            "code": 33022,
+            "refs": [
+                0
+            ],
+            "name": "SVE_INT_MMLA_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "SVE integer matrix multiply operations speculatively executed"
+        },
+        {
+            "code": 33023,
+            "refs": [
+                0
+            ],
+            "name": "ASE_SVE_INT_MMLA_SPEC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Advanced SIMD and SVE integer matrix multiply operations speculatively executed"
+        },
+        {
+            "code": 33031,
+            "refs": [
+                0
+            ],
+            "name": "BR_SKIP_RETIRED",
+            "architectural": true,
+            "type": "INS",
+            "description": "Instruction architecturally executed, branch not taken"
+        },
+        {
+            "code": 33032,
+            "refs": [
+                0
+            ],
+            "name": "BR_IMMED_TAKEN_RETIRED",
+            "architectural": true,
+            "type": "INS",
+            "description": "Instruction architecturally executed, immediate branch taken"
+        },
+        {
+            "code": 33033,
+            "refs": [
+                0
+            ],
+            "name": "BR_IMMED_SKIP_RETIRED",
+            "architectural": true,
+            "type": "INS",
+            "description": "Instruction architecturally executed, immediate branch not taken"
+        },
+        {
+            "code": 33034,
+            "refs": [
+                0
+            ],
+            "name": "BR_IND_TAKEN_RETIRED",
+            "architectural": true,
+            "type": "INS",
+            "description": "Instruction architecturally executed, indirect branch taken"
+        },
+        {
+            "code": 33035,
+            "refs": [
+                0
+            ],
+            "name": "BR_IND_SKIP_RETIRED",
+            "architectural": true,
+            "type": "INS",
+            "description": "Instruction architecturally executed, indirect branch not taken"
+        },
+        {
+            "code": 33036,
+            "refs": [
+                0
+            ],
+            "name": "BR_INDNR_TAKEN_RETIRED",
+            "architectural": true,
+            "type": "INS",
+            "description": "Instruction architecturally executed, indirect branch taken excluding returns"
+        },
+        {
+            "code": 33037,
+            "refs": [
+                0
+            ],
+            "name": "BR_INDNR_SKIP_RETIRED",
+            "architectural": true,
+            "type": "INS",
+            "description": "Instruction architecturally executed, indirect branch not taken excluding returns"
+        },
+        {
+            "code": 33038,
+            "refs": [
+                0
+            ],
+            "name": "BR_RETURN_ANY_RETIRED",
+            "architectural": true,
+            "type": "INS",
+            "description": "Instruction architecturally executed, procedure return"
+        },
+        {
+            "code": 33039,
+            "refs": [
+                0
+            ],
+            "name": "BR_RETURN_SKIP_RETIRED",
+            "architectural": true,
+            "type": "INS",
+            "description": "Instruction architecturally executed, procedure return not taken"
+        },
+        {
+            "code": 33040,
+            "refs": [
+                0
+            ],
+            "name": "BR_IMMED_PRED_RETIRED",
+            "architectural": false,
+            "type": "UEVT",
+            "component": "BPU",
+            "description": "Instruction architecturally executed, predicted immediate branch"
+        },
+        {
+            "code": 33041,
+            "refs": [
+                0
+            ],
+            "name": "BR_IMMED_MIS_PRED_RETIRED",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "MISPREDICT",
+            "component": "BPU",
+            "description": "Instruction architecturally executed, mispredicted immediate branch"
+        },
+        {
+            "code": 33042,
+            "refs": [
+                0
+            ],
+            "name": "BR_IND_PRED_RETIRED",
+            "architectural": false,
+            "type": "UEVT",
+            "component": "BPU",
+            "description": "Instruction architecturally executed, predicted indirect branch"
+        },
+        {
+            "code": 33043,
+            "refs": [
+                0
+            ],
+            "name": "BR_IND_MIS_PRED_RETIRED",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "MISPREDICT",
+            "component": "BPU",
+            "description": "Instruction architecturally executed, mispredicted indirect branch"
+        },
+        {
+            "code": 33044,
+            "refs": [
+                0
+            ],
+            "name": "BR_RETURN_PRED_RETIRED",
+            "architectural": false,
+            "type": "UEVT",
+            "component": "BPU",
+            "description": "Instruction architecturally executed, predicted procedure return"
+        },
+        {
+            "code": 33045,
+            "refs": [
+                0
+            ],
+            "name": "BR_RETURN_MIS_PRED_RETIRED",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "MISPREDICT",
+            "component": "BPU",
+            "description": "Instruction architecturally executed, mispredicted procedure return"
+        },
+        {
+            "code": 33046,
+            "refs": [
+                0
+            ],
+            "name": "BR_INDNR_PRED_RETIRED",
+            "architectural": false,
+            "type": "UEVT",
+            "component": "BPU",
+            "description": "Instruction architecturally executed, predicted indirect branch, excluding return"
+        },
+        {
+            "code": 33047,
+            "refs": [
+                0
+            ],
+            "name": "BR_INDNR_MIS_PRED_RETIRED",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "MISPREDICT",
+            "component": "BPU",
+            "description": "Instruction architecturally executed, mispredicted indirect branch, excluding return"
+        },
+        {
+            "code": 33048,
+            "refs": [
+                0
+            ],
+            "name": "BR_TAKEN_PRED_RETIRED",
+            "architectural": false,
+            "type": "UEVT",
+            "component": "BPU",
+            "description": "Instruction architecturally executed, predicted branch, taken"
+        },
+        {
+            "code": 33049,
+            "refs": [
+                0
+            ],
+            "name": "BR_TAKEN_MIS_PRED_RETIRED",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "MISPREDICT",
+            "component": "BPU",
+            "description": "Instruction architecturally executed, mispredicted branch, taken"
+        },
+        {
+            "code": 33050,
+            "refs": [
+                0
+            ],
+            "name": "BR_SKIP_PRED_RETIRED",
+            "architectural": false,
+            "type": "UEVT",
+            "component": "BPU",
+            "description": "Instruction architecturally executed, predicted branch, not taken"
+        },
+        {
+            "code": 33051,
+            "refs": [
+                0
+            ],
+            "name": "BR_SKIP_MIS_PRED_RETIRED",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "MISPREDICT",
+            "component": "BPU",
+            "description": "Instruction architecturally executed, mispredicted branch, not taken"
+        },
+        {
+            "code": 33052,
+            "refs": [
+                0
+            ],
+            "name": "BR_PRED_RETIRED",
+            "architectural": false,
+            "type": "UEVT",
+            "component": "BPU",
+            "description": "Instruction architecturally excecuted, predicted branch"
+        },
+        {
+            "code": 33053,
+            "refs": [
+                0
+            ],
+            "name": "BR_IND_RETIRED",
+            "architectural": true,
+            "type": "INS",
+            "description": "Instruction architecturally executed, indirect branch"
+        },
+        {
+            "code": 33054,
+            "refs": [
+                0
+            ],
+            "name": "BR_INDNR_RETIRED",
+            "architectural": true,
+            "type": "INS",
+            "description": "Instruction architecturally executed, indirect branch excluding procedure return"
+        },
+        {
+            "code": 33055,
+            "refs": [
+                1
+            ],
+            "name": "BRB_FILTRATE",
+            "architectural": true,
+            "type": "UEVT",
+            "description": "Branch Record captured"
+        },
+        {
+            "code": 33056,
+            "refs": [
+                0
+            ],
+            "name": "INST_FETCH_PERCYC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Event in progress, INST_FETCH"
+        },
+        {
+            "code": 33057,
+            "refs": [
+                0
+            ],
+            "name": "MEM_ACCESS_RD_PERCYC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Event in progress, MEM_ACCESS_RD"
+        },
+        {
+            "code": 33058,
+            "refs": [
+                0
+            ],
+            "name": "MEM_ACCESS_WR_PERCYC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Event in progress, MEM_ACCESS_WR"
+        },
+        {
+            "code": 33059,
+            "refs": [
+                0
+            ],
+            "name": "MEM_ACCESS_PERCYC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Event in progress, MEM_ACCESS"
+        },
+        {
+            "code": 33060,
+            "refs": [
+                0
+            ],
+            "name": "INST_FETCH",
+            "architectural": false,
+            "type": "INS",
+            "description": "Instruction memory access"
+        },
+        {
+            "code": 33064,
+            "refs": [
+                0
+            ],
+            "name": "DTLB_WALK_PERCYC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Event in progress, DTLB_WALK"
+        },
+        {
+            "code": 33065,
+            "refs": [
+                0
+            ],
+            "name": "ITLB_WALK_PERCYC",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Event in progress, ITLB_WALK"
+        },
+        {
+            "code": 33066,
+            "refs": [
+                0
+            ],
+            "name": "SAMPLE_FEED_BR",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Statistical profiling sample taken, branch"
+        },
+        {
+            "code": 33067,
+            "refs": [
+                0
+            ],
+            "name": "SAMPLE_FEED_LD",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Statistical profiling sample taken, load"
+        },
+        {
+            "code": 33068,
+            "refs": [
+                0
+            ],
+            "name": "SAMPLE_FEED_ST",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Statistical profiling sample taken, store"
+        },
+        {
+            "code": 33069,
+            "refs": [
+                0
+            ],
+            "name": "SAMPLE_FEED_OP",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Statistical profiling sample taken, matching operation type"
+        },
+        {
+            "code": 33070,
+            "refs": [
+                0
+            ],
+            "name": "SAMPLE_FEED_EVENT",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Statistical profiling sample taken, matching events"
+        },
+        {
+            "code": 33071,
+            "refs": [
+                0
+            ],
+            "name": "SAMPLE_FEED_LAT",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Statistical profiling sample taken, exceeding minimum latency"
+        },
+        {
+            "code": 33072,
+            "refs": [
+                0
+            ],
+            "name": "L1D_TLB_RW",
+            "architectural": false,
+            "type": "UEVT",
+            "component": "L1DTLB",
+            "description": "Level 1 data or unified TLB demand access"
+        },
+        {
+            "code": 33073,
+            "refs": [
+                0
+            ],
+            "name": "L1I_TLB_RD",
+            "architectural": false,
+            "type": "UEVT",
+            "component": "L1ITLB",
+            "description": "Level 1 instruction TLB demand access"
+        },
+        {
+            "code": 33074,
+            "refs": [
+                0
+            ],
+            "name": "L1D_TLB_PRFM",
+            "architectural": false,
+            "type": "UEVT",
+            "component": "L1DTLB",
+            "description": "Level 1 data or unified TLB preload or prefetch"
+        },
+        {
+            "code": 33075,
+            "refs": [
+                0
+            ],
+            "name": "L1I_TLB_PRFM",
+            "architectural": false,
+            "type": "UEVT",
+            "component": "L1ITLB",
+            "description": "Level 1 instruction TLB preload or prefetch"
+        },
+        {
+            "code": 33076,
+            "refs": [
+                0
+            ],
+            "name": "DTLB_HWUPD",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Data TLB hardware update of translation table"
+        },
+        {
+            "code": 33077,
+            "refs": [
+                0
+            ],
+            "name": "ITLB_HWUPD",
+            "architectural": false,
+            "type": "INS",
+            "description": "Instruction TLB hardware update of translation table"
+        },
+        {
+            "code": 33078,
+            "refs": [
+                0
+            ],
+            "name": "DTLB_STEP",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Data TLB translation table walk, step"
+        },
+        {
+            "code": 33079,
+            "refs": [
+                0
+            ],
+            "name": "ITLB_STEP",
+            "architectural": false,
+            "type": "INS",
+            "description": "Instruction TLB translation table walk, step"
+        },
+        {
+            "code": 33080,
+            "refs": [
+                0
+            ],
+            "name": "DTLB_WALK_LARGE",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Data TLB large page translation table walk"
+        },
+        {
+            "code": 33081,
+            "refs": [
+                0
+            ],
+            "name": "ITLB_WALK_LARGE",
+            "architectural": false,
+            "type": "INS",
+            "description": "Instruction TLB large page translation table walk"
+        },
+        {
+            "code": 33082,
+            "refs": [
+                0
+            ],
+            "name": "DTLB_WALK_SMALL",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Data TLB small page translation table walk"
+        },
+        {
+            "code": 33083,
+            "refs": [
+                0
+            ],
+            "name": "ITLB_WALK_SMALL",
+            "architectural": false,
+            "type": "INS",
+            "description": "Instruction TLB small page translation table walk"
+        },
+        {
+            "code": 33084,
+            "refs": [
+                0
+            ],
+            "name": "DTLB_WALK_RW",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Data TLB demand access with at least one translation table walk"
+        },
+        {
+            "code": 33085,
+            "refs": [
+                0
+            ],
+            "name": "ITLB_WALK_RD",
+            "architectural": false,
+            "type": "INS",
+            "description": "Instruction TLB demand access with at least one translation table walk"
+        },
+        {
+            "code": 33086,
+            "refs": [
+                0
+            ],
+            "name": "DTLB_WALK_PRFM",
+            "architectural": false,
+            "type": "UEVT",
+            "description": "Data TLB preload or prefetch with at least one translation table walk"
+        },
+        {
+            "code": 33087,
+            "refs": [
+                0
+            ],
+            "name": "ITLB_WALK_PRFM",
+            "architectural": false,
+            "type": "INS",
+            "description": "Instruction TLB preload or prefetch with at least one translation table walk"
+        },
+        {
+            "code": 33088,
+            "refs": [
+                0
+            ],
+            "name": "L1D_CACHE_RW",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "ACCESS",
+            "component": "L1D",
+            "description": "Level 1 data or unified cache demand access"
+        },
+        {
+            "code": 33089,
+            "refs": [
+                0
+            ],
+            "name": "L1I_CACHE_RD",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "ACCESS",
+            "component": "L1I",
+            "description": "Level 1 instruction cache demand access"
+        },
+        {
+            "code": 33090,
+            "refs": [
+                0
+            ],
+            "name": "L1D_CACHE_PRFM",
+            "architectural": false,
+            "type": "UEVT",
+            "component": "L1D",
+            "description": "Level 1 data or unified cache preload or prefetch"
+        },
+        {
+            "code": 33091,
+            "refs": [
+                0
+            ],
+            "name": "L1I_CACHE_PRFM",
+            "architectural": false,
+            "type": "UEVT",
+            "component": "L1I",
+            "description": "Level 1 instruction cache preload or prefetch"
+        },
+        {
+            "code": 33092,
+            "refs": [
+                0
+            ],
+            "name": "L1D_CACHE_MISS",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "ACCESS",
+            "component": "L1D",
+            "description": "Level 1 data or unified cache demand access miss"
+        },
+        {
+            "code": 33093,
+            "refs": [
+                0
+            ],
+            "name": "L1I_CACHE_HWPRF",
+            "architectural": false,
+            "type": "UEVT",
+            "component": "L1I",
+            "description": "Level 1 instruction cache hardware prefetch"
+        },
+        {
+            "code": 33094,
+            "refs": [
+                0
+            ],
+            "name": "L1D_CACHE_REFILL_PRFM",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "REFILL",
+            "component": "L1D",
+            "description": "Level 1 data or unified cache refill, preload or prefetch"
+        },
+        {
+            "code": 33095,
+            "refs": [
+                0
+            ],
+            "name": "L1I_CACHE_REFILL_PRFM",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "REFILL",
+            "component": "L1I",
+            "description": "Level 1 instruction cache refill, preload or prefetch"
+        },
+        {
+            "code": 33096,
+            "refs": [
+                0
+            ],
+            "name": "L2D_CACHE_RW",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "ACCESS",
+            "component": "L2",
+            "description": "Level 2 data or unified cache demand access"
+        },
+        {
+            "code": 33097,
+            "refs": [
+                0
+            ],
+            "name": "L2I_CACHE_RD",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "ACCESS",
+            "component": "L2",
+            "description": "Level 2 instruction cache demand access"
+        },
+        {
+            "code": 33098,
+            "refs": [
+                0
+            ],
+            "name": "L2D_CACHE_PRFM",
+            "architectural": false,
+            "type": "UEVT",
+            "component": "L2",
+            "description": "Level 2 data or unified cache preload or prefetch"
+        },
+        {
+            "code": 33099,
+            "refs": [
+                0
+            ],
+            "name": "L2I_CACHE_PRFM",
+            "architectural": false,
+            "type": "UEVT",
+            "component": "L2",
+            "description": "Level 2 instruction cache preload or prefetch"
+        },
+        {
+            "code": 33100,
+            "refs": [
+                0
+            ],
+            "name": "L2D_CACHE_MISS",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "ACCESS",
+            "component": "L2",
+            "description": "Level 2 data or unified cache demand access miss"
+        },
+        {
+            "code": 33101,
+            "refs": [
+                0
+            ],
+            "name": "L2I_CACHE_HWPRF",
+            "architectural": false,
+            "type": "UEVT",
+            "component": "L2",
+            "description": "Level 2 instruction cache hardware prefetch"
+        },
+        {
+            "code": 33102,
+            "refs": [
+                0
+            ],
+            "name": "L2D_CACHE_REFILL_PRFM",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "REFILL",
+            "component": "L2",
+            "description": "Level 2 data or unified cache refill, preload or prefetch"
+        },
+        {
+            "code": 33103,
+            "refs": [
+                0
+            ],
+            "name": "L2I_CACHE_REFILL_PRFM",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "REFILL",
+            "component": "L2",
+            "description": "Level 2 instruction cache refill, preload or prefetch"
+        },
+        {
+            "code": 33104,
+            "refs": [
+                0
+            ],
+            "name": "L3D_CACHE_RW",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "ACCESS",
+            "component": "L3",
+            "description": "Level 3 data or unified cache demand access"
+        },
+        {
+            "code": 33105,
+            "refs": [
+                0
+            ],
+            "name": "L3D_CACHE_PRFM",
+            "architectural": false,
+            "type": "UEVT",
+            "component": "L3",
+            "description": "Level 3 data or unified cache preload or prefetch"
+        },
+        {
+            "code": 33106,
+            "refs": [
+                0
+            ],
+            "name": "L3D_CACHE_MISS",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "ACCESS",
+            "component": "L3",
+            "description": "Level 3 data or unified cache demand access miss"
+        },
+        {
+            "code": 33107,
+            "refs": [
+                0
+            ],
+            "name": "L3D_CACHE_REFILL_PRFM",
+            "architectural": false,
+            "type": "UEVT",
+            "subtype": "REFILL",
+            "component": "L3",
+            "description": "Level 3 data or unified cache refill, preload or prefetch"
+        },
+        {
+            "code": 33108,
+            "refs": [
+                0
+            ],
+            "name": "L1D_CACHE_HWPRF",
+            "architectural": false,
+            "type": "UEVT",
+            "component": "L1D",
+            "description": "Level 1 data cache hardware prefetch"
+        },
+        {
+            "code": 33109,
+            "refs": [
+                0
+            ],
+            "name": "L2D_CACHE_HWPRF",
+            "architectural": false,
+            "type": "UEVT",
+            "component": "L2",
+            "description": "Level 2 data cache hardware prefetch"
+        },
+        {
+            "code": 33110,
+            "refs": [
+                0
+            ],
+            "name": "L3D_CACHE_HWPRF",
+            "architectural": false,
+            "type": "UEVT",
+            "component": "L3",
+            "description": "Level 3 data cache hardware prefetch"
+        },
+        {
+            "code": 33112,
+            "refs": [
+                0
+            ],
+            "name": "STALL_FRONTEND_MEMBOUND",
+            "architectural": false,
+            "type": "CYCLE",
+            "description": "Frontend stall cycles, memory bound"
+        },
+        {
+            "code": 33113,
+            "refs": [
+                0
+            ],
+            "name": "STALL_FRONTEND_L1I",
+            "architectural": false,
+            "type": "CYCLE",
+            "component": "L1I",
+            "description": "Frontend stall cycles, level 1 instruction cache"
+        },
+        {
+            "code": 33114,
+            "refs": [
+                0
+            ],
+            "name": "STALL_FRONTEND_L2I",
+            "architectural": false,
+            "type": "CYCLE",
+            "component": "L2",
+            "description": "Frontend stall cycles, level 2 instruction or unified cache"
+        },
+        {
+            "code": 33115,
+            "refs": [
+                0
+            ],
+            "name": "STALL_FRONTEND_MEM",
+            "architectural": false,
+            "type": "CYCLE",
+            "description": "Frontend stall cycles, last level PE cache or memory"
+        },
+        {
+            "code": 33116,
+            "refs": [
+                0
+            ],
+            "name": "STALL_FRONTEND_TLB",
+            "architectural": false,
+            "type": "CYCLE",
+            "description": "Frontend stall cycles, TLB"
+        },
+        {
+            "code": 33120,
+            "refs": [
+                0
+            ],
+            "name": "STALL_FRONTEND_CPUBOUND",
+            "architectural": false,
+            "type": "CYCLE",
+            "description": "Frontend stall cycles, processor bound"
+        },
+        {
+            "code": 33121,
+            "refs": [
+                0
+            ],
+            "name": "STALL_FRONTEND_FLOW",
+            "architectural": false,
+            "type": "CYCLE",
+            "description": "Frontend stall cycles, flow control"
+        },
+        {
+            "code": 33122,
+            "refs": [
+                0
+            ],
+            "name": "STALL_FRONTEND_FLUSH",
+            "architectural": false,
+            "type": "CYCLE",
+            "description": "Frontend stall cycles, flush recovery"
+        },
+        {
+            "code": 33123,
+            "refs": [
+                0
+            ],
+            "name": "STALL_FRONTEND_RENAME",
+            "architectural": false,
+            "type": "CYCLE",
+            "description": "Frontend stall cycles, rename full"
+        },
+        {
+            "code": 33124,
+            "refs": [
+                0
+            ],
+            "name": "STALL_BACKEND_MEMBOUND",
+            "architectural": false,
+            "type": "CYCLE",
+            "description": "Backend stall cycles, memory bound"
+        },
+        {
+            "code": 33125,
+            "refs": [
+                0
+            ],
+            "name": "STALL_BACKEND_L1D",
+            "architectural": false,
+            "type": "CYCLE",
+            "component": "L1D",
+            "description": "Backend stall cycles, level 1 data cache"
+        },
+        {
+            "code": 33126,
+            "refs": [
+                0
+            ],
+            "name": "STALL_BACKEND_L2D",
+            "architectural": false,
+            "type": "CYCLE",
+            "component": "L2",
+            "description": "Backend stall cycles, level 2 data or unified cache"
+        },
+        {
+            "code": 33127,
+            "refs": [
+                0
+            ],
+            "name": "STALL_BACKEND_TLB",
+            "architectural": false,
+            "type": "CYCLE",
+            "description": "Backend stall cycles, TLB"
+        },
+        {
+            "code": 33128,
+            "refs": [
+                0
+            ],
+            "name": "STALL_BACKEND_ST",
+            "architectural": false,
+            "type": "CYCLE",
+            "description": "Backend stall cycles, store"
+        },
+        {
+            "code": 33130,
+            "refs": [
+                0
+            ],
+            "name": "STALL_BACKEND_CPUBOUND",
+            "architectural": false,
+            "type": "CYCLE",
+            "description": "Backend stall cycles, processor bound"
+        },
+        {
+            "code": 33131,
+            "refs": [
+                0
+            ],
+            "name": "STALL_BACKEND_BUSY",
+            "architectural": false,
+            "type": "CYCLE",
+            "description": "Backend stall cycles, backend busy"
+        },
+        {
+            "code": 33132,
+            "refs": [
+                0
+            ],
+            "name": "STALL_BACKEND_ILOCK",
+            "architectural": false,
+            "type": "CYCLE",
+            "description": "Backend stall cycles, input dependency"
+        },
+        {
+            "code": 33133,
+            "refs": [
+                0
+            ],
+            "name": "STALL_BACKEND_RENAME",
+            "architectural": false,
+            "type": "CYCLE",
+            "description": "Backend stall cycles, rename full"
+        }
+    ]
+}

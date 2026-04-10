@@ -700,13 +700,15 @@ Current: 71 registers across 8 components (ETM, CTI, STM, ITM, TPIU, CSTF, CSRT,
 
 ### EX-2b — PMU: 40+ CPU profiles
 
-Current: 36 CPUs with 5,014 events
+Current: 38 entries (36 CPU profiles + 2 architectural baselines) with 5,953 events
 
 - [x] Expanded from 8 to 36 CPUs (2026-04-06)
-- [ ] Add Cortex-A520AE, Cortex-A720AE (automotive variants)
-- [ ] Add Cortex-X925AE (automotive variant, when available)
+- [x] Added common_armv8 (463 architectural events) and common_armv9 (476 architectural events) baselines from ARM-software/data (2026-04-11)
+- [ ] Add Cortex-A520AE, Cortex-A720AE (automotive variants — not yet in upstream)
+- [ ] Add Cortex-X925AE (automotive variant — not yet in upstream)
+- [ ] Add Cortex-A730, Cortex-A530 (announced in Rockchip RK3668 — no PMU data upstream yet)
 - [ ] Track ARM-software/data for new CPU profile additions
-- [ ] Target: 40+ CPUs
+- [ ] Target: 40+ CPUs (38/40 — remaining blocked on upstream data availability)
 
 ### EX-2c — GIC: 50+ registers including GICv4.1 features ✅
 
@@ -724,13 +726,14 @@ Current: 52 registers across 3 blocks (GICD 19, GICR 25, GITS 8)
 
 ### EX-2d — Eval suite: 450+ tests ✅
 
-Current: 453 tests (100% pass)
+Current: 461 tests (100% pass)
 
 - [x] Grew from 137 (EX completion) to 423 (2026-04-09)
 - [x] Added 18 GIC tests for new registers (pending/active, LPI, GICv4 vPE) → 441 (2026-04-10)
 - [x] CSTF/CSRT tests already added in 2026-04-09 session
 - [x] Added 6 ETM sequencer tests + 3 GIC search tests + 3 PMU search tests → 453 (2026-04-11)
-- [x] Target met: 453 tests ≥ 450
+- [x] Added 8 common_armv8/common_armv9 PMU baseline tests → 461 (2026-04-11)
+- [x] Target met: 461 tests ≥ 450
 
 **Exit criteria:** CoreSight ≥ 70 registers across ≥ 8 components. PMU ≥ 40 CPUs. GIC ≥ 50 registers. Eval ≥ 450 tests, 100% pass rate.
 

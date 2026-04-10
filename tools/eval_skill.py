@@ -1670,15 +1670,57 @@ PMU_TESTS = [
         [exit_ok(), stdout_contains('17 (0x011)')],
     ),
     (
-        '--list shows 36 CPUs total',
+        '--list shows 38 CPUs total (36 CPU profiles + 2 common baselines)',
         [QUERY_PMU, '--list'],
         [exit_ok(), stdout_contains('cortex-a34'), stdout_contains('cortex-a76ae'),
-         stdout_contains('rainier')],
+         stdout_contains('rainier'), stdout_contains('common-armv8-0'),
+         stdout_contains('common-armv9-0')],
     ),
     (
         '--search L1D_CACHE_REFILL finds new CPUs too',
         [QUERY_PMU, '--search', 'L1D_CACHE_REFILL'],
         [exit_ok(), stdout_contains('cortex-a57'), stdout_contains('cortex-a78')],
+    ),
+    # -- Common architectural baselines (research session 2026-04-11) ---------
+    (
+        'common-armv8-0 is present in the PMU cache',
+        [QUERY_PMU, 'common-armv8-0'],
+        [exit_ok(), stdout_contains('common ARMv8.0')],
+    ),
+    (
+        'common-armv8-0 architecture is armv8-a',
+        [QUERY_PMU, 'common-armv8-0'],
+        [exit_ok(), stdout_contains('armv8-a')],
+    ),
+    (
+        'common-armv8-0 CPU_CYCLES code is 17 (0x011)',
+        [QUERY_PMU, 'common-armv8-0', 'CPU_CYCLES'],
+        [exit_ok(), stdout_contains('17 (0x011)')],
+    ),
+    (
+        'common-armv8-0 SW_INCR code is 0 (0x000)',
+        [QUERY_PMU, 'common-armv8-0', 'SW_INCR'],
+        [exit_ok(), stdout_contains('0 (0x000)')],
+    ),
+    (
+        'common-armv9-0 is present in the PMU cache',
+        [QUERY_PMU, 'common-armv9-0'],
+        [exit_ok(), stdout_contains('common ARMv9.0')],
+    ),
+    (
+        'common-armv9-0 architecture is armv9-a',
+        [QUERY_PMU, 'common-armv9-0'],
+        [exit_ok(), stdout_contains('armv9-a')],
+    ),
+    (
+        'common-armv9-0 SVE_INST_RETIRED event is present',
+        [QUERY_PMU, 'common-armv9-0', 'SVE_INST_RETIRED'],
+        [exit_ok(), stdout_contains('SVE_INST_RETIRED')],
+    ),
+    (
+        'common-armv9-0 has 476 events',
+        [QUERY_PMU, 'common-armv9-0'],
+        [exit_ok(), stdout_contains('476')],
     ),
     # -- Hallucination guard -------------------------------------------------
     (
