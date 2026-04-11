@@ -1423,6 +1423,143 @@ CORESIGHT_TESTS = [
         [QUERY_CS, 'etm', 'TRCSEQRSTEVR', 'RST_EVENT'],
         [exit_ok(), stdout_contains('RW')],
     ),
+    # ETM expanded registers (2026-04-12) — stall, branch broadcast, trace ID, counters, resource selectors, address comparators, ID, OS lock, power
+    (
+        'ETM TRCSTALLCTLR lookup succeeds',
+        [QUERY_CS, 'etm', 'TRCSTALLCTLR'],
+        [exit_ok(), stdout_contains('Stall Control')],
+    ),
+    (
+        'ETM TRCSTALLCTLR ISTALL field at bit [8]',
+        [QUERY_CS, 'etm', 'TRCSTALLCTLR', 'ISTALL'],
+        [exit_ok(), stdout_contains('[8]')],
+    ),
+    (
+        'ETM TRCBBCTLR lookup succeeds',
+        [QUERY_CS, 'etm', 'TRCBBCTLR'],
+        [exit_ok(), stdout_contains('Branch Broadcast')],
+    ),
+    (
+        'ETM TRCTRACEIDR lookup succeeds',
+        [QUERY_CS, 'etm', 'TRCTRACEIDR'],
+        [exit_ok(), stdout_contains('Trace ID')],
+    ),
+    (
+        'ETM TRCTRACEIDR TRACEID field at bits [6:0]',
+        [QUERY_CS, 'etm', 'TRCTRACEIDR', 'TRACEID'],
+        [exit_ok(), stdout_contains('[6:0]')],
+    ),
+    (
+        'ETM TRCSEQSTR sequencer state register lookup',
+        [QUERY_CS, 'etm', 'TRCSEQSTR'],
+        [exit_ok(), stdout_contains('Sequencer State')],
+    ),
+    (
+        'ETM TRCCNTRLDVR counter reload value register lookup',
+        [QUERY_CS, 'etm', 'TRCCNTRLDVR'],
+        [exit_ok(), stdout_contains('Counter Reload Value')],
+    ),
+    (
+        'ETM TRCCNTCTLR counter control register lookup',
+        [QUERY_CS, 'etm', 'TRCCNTCTLR'],
+        [exit_ok(), stdout_contains('Counter Control')],
+    ),
+    (
+        'ETM TRCCNTCTLR CNTEVENT field at bits [7:0]',
+        [QUERY_CS, 'etm', 'TRCCNTCTLR', 'CNTEVENT'],
+        [exit_ok(), stdout_contains('[7:0]')],
+    ),
+    (
+        'ETM TRCCNTVR counter value register lookup',
+        [QUERY_CS, 'etm', 'TRCCNTVR'],
+        [exit_ok(), stdout_contains('Counter Value')],
+    ),
+    (
+        'ETM TRCRSCTLR resource selector register lookup',
+        [QUERY_CS, 'etm', 'TRCRSCTLR'],
+        [exit_ok(), stdout_contains('Resource Selector')],
+    ),
+    (
+        'ETM TRCRSCTLR GROUP field at bits [19:16]',
+        [QUERY_CS, 'etm', 'TRCRSCTLR', 'GROUP'],
+        [exit_ok(), stdout_contains('[19:16]')],
+    ),
+    (
+        'ETM TRCACVR address comparator value register lookup',
+        [QUERY_CS, 'etm', 'TRCACVR'],
+        [exit_ok(), stdout_contains('Address Comparator Value')],
+    ),
+    (
+        'ETM TRCACATR address comparator access type register lookup',
+        [QUERY_CS, 'etm', 'TRCACATR'],
+        [exit_ok(), stdout_contains('Address Comparator Access Type')],
+    ),
+    (
+        'ETM TRCACATR TYPE field at bits [1:0]',
+        [QUERY_CS, 'etm', 'TRCACATR', 'TYPE'],
+        [exit_ok(), stdout_contains('[1:0]')],
+    ),
+    (
+        'ETM TRCIDR1 lookup succeeds',
+        [QUERY_CS, 'etm', 'TRCIDR1'],
+        [exit_ok(), stdout_contains('ID Register 1')],
+    ),
+    (
+        'ETM TRCIDR1 ARCHMAJ field is RO',
+        [QUERY_CS, 'etm', 'TRCIDR1', 'ARCHMAJ'],
+        [exit_ok(), stdout_contains('RO')],
+    ),
+    (
+        'ETM TRCOSLAR OS lock register lookup',
+        [QUERY_CS, 'etm', 'TRCOSLAR'],
+        [exit_ok(), stdout_contains('OS Lock')],
+    ),
+    (
+        'ETM TRCPDCR power down control register lookup',
+        [QUERY_CS, 'etm', 'TRCPDCR'],
+        [exit_ok(), stdout_contains('Power Down')],
+    ),
+    (
+        'ETM TRCPDCR PU field at bit [3]',
+        [QUERY_CS, 'etm', 'TRCPDCR', 'PU'],
+        [exit_ok(), stdout_contains('[3]')],
+    ),
+    # CTI expanded registers (2026-04-12) — device control, affinity, lock
+    (
+        'CTI CTIDEVCTL device control register lookup',
+        [QUERY_CS, 'cti', 'CTIDEVCTL'],
+        [exit_ok(), stdout_contains('Device Control')],
+    ),
+    (
+        'CTI CTIDEVCTL PWRON field at bit [0]',
+        [QUERY_CS, 'cti', 'CTIDEVCTL', 'PWRON'],
+        [exit_ok(), stdout_contains('[0]')],
+    ),
+    (
+        'CTI CTIDEVAFF0 device affinity register 0 lookup',
+        [QUERY_CS, 'cti', 'CTIDEVAFF0'],
+        [exit_ok(), stdout_contains('Device Affinity')],
+    ),
+    (
+        'CTI CTIDEVAFF1 device affinity register 1 lookup',
+        [QUERY_CS, 'cti', 'CTIDEVAFF1'],
+        [exit_ok(), stdout_contains('Device Affinity')],
+    ),
+    (
+        'CTI CTILAR lock access register lookup',
+        [QUERY_CS, 'cti', 'CTILAR'],
+        [exit_ok(), stdout_contains('Lock Access')],
+    ),
+    (
+        'CTI CTILSR lock status register lookup',
+        [QUERY_CS, 'cti', 'CTILSR'],
+        [exit_ok(), stdout_contains('Lock Status')],
+    ),
+    (
+        'CTI CTILSR SLK field at bit [1]',
+        [QUERY_CS, 'cti', 'CTILSR', 'SLK'],
+        [exit_ok(), stdout_contains('[1]')],
+    ),
     # Hallucination guard
     (
         'Hallucinated register TRCFAKECTRL not found (exit non-zero)',

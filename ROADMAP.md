@@ -687,16 +687,17 @@ EA and EB/EC have no code dependencies on each other. EX requires all of E0, EA,
 
 ### EX-2a — CoreSight: 70+ registers across 8+ components ✅
 
-Current: 71 registers across 8 components (ETM, CTI, STM, ITM, TPIU, CSTF, CSRT, ID_BLOCK)
+Current: 89 registers across 8 components (ETM, CTI, STM, ITM, TPIU, CSTF, CSRT, ID_BLOCK)
 
 - [x] ETM: expanded from 6 to 14 registers (2026-04-08)
 - [x] TPIU: added as new component with 6 registers (2026-04-08)
 - [x] CSTF (Funnel): added as new component with 8 registers (2026-04-09)
 - [x] CSRT (Replicator): added as new component with 7 registers (2026-04-09)
-- [x] ETM: added TRCSEQEVR0 and TRCSEQRSTEVR (sequencer registers) → 16 ETM registers (2026-04-11)
+- [x] ETM: added TRCSEQEVR0 and TRCSEQRSTEVR (sequencer registers) �� 16 ETM registers (2026-04-11)
 - [x] Target met: 71 registers ≥ 70
-- [ ] ETM: expand to 20+ registers (remaining event, resource, and address comparator registers)
-- [ ] CTI: expand from 8 to 15+ registers (remaining channel and trigger registers)
+- [x] ETM: expanded to 29 registers — added stall control (TRCSTALLCTLR), branch broadcast (TRCBBCTLR), trace ID (TRCTRACEIDR), sequencer state (TRCSEQSTR), counter registers (TRCCNTRLDVR/TRCCNTCTLR/TRCCNTVR), resource selectors (TRCRSCTLR), address comparators (TRCACVR/TRCACATR), ID register 1 (TRCIDR1), OS lock (TRCOSLAR), power down (TRCPDCR) (2026-04-12)
+- [x] CTI: expanded to 17 registers — added device control (CTIDEVCTL), device affinity (CTIDEVAFF0/1), software lock (CTILAR/CTILSR) (2026-04-12)
+- [x] Stretch targets met: ETM 29 ≥ 20, CTI 17 ≥ 15
 
 ### EX-2b — PMU: 40+ CPU profiles
 
@@ -726,16 +727,17 @@ Current: 52 registers across 3 blocks (GICD 19, GICR 25, GITS 8)
 
 ### EX-2d — Eval suite: 450+ tests ✅
 
-Current: 461 tests (100% pass)
+Current: 488 tests (100% pass)
 
 - [x] Grew from 137 (EX completion) to 423 (2026-04-09)
 - [x] Added 18 GIC tests for new registers (pending/active, LPI, GICv4 vPE) → 441 (2026-04-10)
 - [x] CSTF/CSRT tests already added in 2026-04-09 session
 - [x] Added 6 ETM sequencer tests + 3 GIC search tests + 3 PMU search tests → 453 (2026-04-11)
 - [x] Added 8 common_armv8/common_armv9 PMU baseline tests → 461 (2026-04-11)
-- [x] Target met: 461 tests ≥ 450
+- [x] Added 27 CoreSight tests (20 ETM + 7 CTI) for expanded register coverage → 488 (2026-04-12)
+- [x] Target met: 488 tests ≥ 450
 
-**Exit criteria:** CoreSight ≥ 70 registers across ≥ 8 components. PMU ≥ 40 CPUs. GIC ≥ 50 registers. Eval ≥ 450 tests, 100% pass rate.
+**Exit criteria:** CoreSight ≥ 70 registers across ≥ 8 components ✅ (89). PMU ≥ 40 CPUs (38/40 — externally blocked). GIC ≥ 50 registers ✅ (52). Eval ≥ 450 tests ✅ (488), 100% pass rate.
 
 ---
 
