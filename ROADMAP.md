@@ -29,6 +29,7 @@
 | H7 | Linter-in-the-loop (VIXL) | ✅ Complete |
 | H8 | Multi-agent orchestration | ✅ Complete |
 | EX-2 | Comprehensive data coverage (CoreSight/PMU/GIC/Eval) | ✅ Complete (EX-2b at 36/40 — externally blocked) |
+| EX-3 | Architecture evolution tracking (MRS refresh, Armv9.7, GICv5 prep) | 🔲 Planned (EX-3a/3b human-gated; EX-3d ongoing) |
 
 ---
 
@@ -738,6 +739,58 @@ Current: 488 tests (100% pass)
 - [x] Target met: 488 tests ≥ 450
 
 **Exit criteria:** CoreSight ≥ 70 registers across ≥ 8 components ✅ (89). PMU ≥ 40 CPUs (38/40 — externally blocked). GIC ≥ 50 registers ✅ (52). Eval ≥ 450 tests ✅ (488), 100% pass rate.
+
+---
+
+## Milestone EX-3 — Architecture Evolution Tracking 🔲
+
+**Goal:** Prepare the project for incoming ARM architecture generations: newer MRS builds
+(v9.6-A features), Armv9.7-A extensions, GICv5 architecture, and new PMU CPU profiles.
+
+**Status:** Planned — EX-3a/3b require human action (MRS download); EX-3c blocked on spec
+stability; EX-3d (PMU monitoring) is ongoing.
+
+### EX-3a — Newer MRS Build Integration
+
+- [ ] **EX-3a-1** Human: check https://developer.arm.com/architectures/cpu-architecture/a-profile/exploration-tools for AARCHMRS builds newer than Build 445 (March 2025)
+- [ ] **EX-3a-2** If newer build available (September 2025 build confirmed to exist): replace `Features.json`, `Instructions.json`, `Registers.json`
+- [ ] **EX-3a-3** Rebuild all caches: `build_index.py`, `build_arm_arm_index.py`, `build_gic_index.py`, `build_coresight_index.py`, `build_pmu_index.py`
+- [ ] **EX-3a-4** Run `python3 tools/eval_skill.py` — confirm all tests pass against new data
+- [ ] **EX-3a-5** Update `CLAUDE.md` metadata (architecture version, build number, date)
+- **Blocked**: Requires human to download and replace source JSON files
+
+### EX-3b — Armv9.7-A Feature Tracking
+
+- [x] **EX-3b-1** Documented Armv9.7-A feature set in steering notes (2026-04-11):
+  SVE/SME 6-bit types (OCP MXFP6), domain-based TLB invalidation, MPAMv2,
+  video codec instructions (SABAL/UABAL/SQRSHRN/UQRSHRN/ADDQP), LOR extended to Realms,
+  separate kernel/user PAC controls, nested hypervisor optimizations
+- [x] **EX-3b-2** Confirmed 3 new Armv9.7-A FEAT_* identifiers: FEAT_EAESR, FEAT_FDIT, FEAT_PAuth_EnhCtl
+- [ ] **EX-3b-3** When v9Ap7 MRS data becomes available: extend `query_feature.py --version v9Ap7` support
+- [ ] **EX-3b-4** Add eval tests for v9Ap7 feature presence (after MRS data available)
+- **Waiting**: ARM has not yet published a v9Ap7 MRS build
+
+### EX-3c — GICv5 Data Preparation
+
+- [x] **EX-3c-1** Documented GICv5 architecture in steering notes (2026-04-11):
+  GICD/GICR replaced by Interrupt Routing Service (IRS), new IWB for wired signals,
+  GIC Stream protocol, no limit on wired interrupt count, direct Realm interrupt injection
+- [ ] **EX-3c-2** When GICv5 spec stabilises: create `gicv5/GICv5.json` and `gicv5/GICv5_meta.json`
+- [ ] **EX-3c-3** Write `tools/build_gicv5_index.py` following same pattern as `build_gic_index.py`
+- [ ] **EX-3c-4** Write `tools/query_gicv5.py` and `.claude/skills/arm-gicv5.md`
+- **Blocked**: GICv5 specification in beta (not yet stable for data extraction)
+
+### EX-3d — PMU Profile Monitoring (Ongoing)
+
+- [x] **EX-3d-1** Confirmed 36 CPU profiles + 2 architectural baselines in place (2026-04-11)
+- [ ] **EX-3d-2** Monitor https://github.com/ARM-software/data/tree/master/pmu for new CPU additions
+  - Pending: Cortex-A520AE, Cortex-A720AE, Cortex-X925AE (automotive variants)
+  - Pending: Cortex-A730, Cortex-A530 (announced for Rockchip RK3668, no PMU data upstream yet)
+- [ ] **EX-3d-3** When new profiles appear upstream: add JSON files to `pmu/`, rebuild cache, add eval tests
+
+**Exit criteria:** EX-3a complete when `python3 tools/eval_skill.py` passes against v9.6+ MRS data.
+EX-3c complete when GICv5 spec is stable and `query_gicv5.py` returns correct register data.
+EX-3d is ongoing (no fixed exit criterion; track upstream repo periodically).
 
 ---
 

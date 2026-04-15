@@ -445,6 +445,34 @@ REG_TESTS = [
         [QUERY_REG, 'SCTLR_EL1'],
         [exit_ok(), stdout_contains('not available in the BSD MRS release')],
     ),
+    # ------------------------------------------------------------------ #
+    # Additional register coverage (2026-04-16)                           #
+    # ------------------------------------------------------------------ #
+    (
+        'MAIR_EL1 exists in AArch64 state',
+        [QUERY_REG, 'MAIR_EL1'],
+        [exit_ok(), stdout_contains('MAIR_EL1'), stdout_contains('AArch64')],
+    ),
+    (
+        'HCR_EL2 TWI field is at bit [13]',
+        [QUERY_REG, 'HCR_EL2', 'TWI'],
+        [exit_ok(), stdout_contains('[13]')],
+    ),
+    (
+        'ESR_EL2 EC field is at bits [31:26]',
+        [QUERY_REG, 'ESR_EL2', 'EC'],
+        [exit_ok(), stdout_contains('[31:26]')],
+    ),
+    (
+        'ESR_EL2 EC field has 47 defined values',
+        [QUERY_REG, 'ESR_EL2', 'EC'],
+        [exit_ok(), stdout_contains('47')],
+    ),
+    (
+        'SPSR_EL3 has SystemAccessor A64.MRS with op1=110',
+        [QUERY_REG, 'SPSR_EL3', '--access'],
+        [exit_ok(), stdout_contains('A64.MRS'), stdout_contains("op1='110'")],
+    ),
 ]
 
 SEARCH_TESTS = [
@@ -481,6 +509,29 @@ SEARCH_TESTS = [
         'search with no matches exits non-zero',
         [QUERY_SRCH, 'ZZZNOMATCH_FAKE_XYZ'],
         [exit_nonzero()],
+    ),
+    # ------------------------------------------------------------------ #
+    # Additional search coverage (2026-04-16)                             #
+    # ------------------------------------------------------------------ #
+    (
+        'MAIR search returns MAIR_EL1 in results',
+        [QUERY_SRCH, 'MAIR'],
+        [exit_ok(), stdout_contains('MAIR_EL1')],
+    ),
+    (
+        '--op STR finds store operation results',
+        [QUERY_SRCH, '--op', 'STR'],
+        [exit_ok(), stdout_contains('STR')],
+    ),
+    (
+        '--reg ESR --state AArch64 finds ESR exception registers',
+        [QUERY_SRCH, '--reg', 'ESR', '--state', 'AArch64'],
+        [exit_ok(), stdout_contains('ESR_EL1')],
+    ),
+    (
+        '--op LDR returns LDR operation in results',
+        [QUERY_SRCH, '--op', 'LDR'],
+        [exit_ok(), stdout_contains('LDR')],
     ),
 ]
 
@@ -750,6 +801,22 @@ SEARCH_T32_TESTS = [
     (
         'search --op B --isa a32 finds A32 branch',
         [QUERY_SRCH, '--op', 'B', '--isa', 'a32'],
+        [exit_ok(), stdout_contains('A32')],
+    ),
+    # Additional T32/A32 search coverage (2026-04-16)
+    (
+        'search --op MOV --isa t32 finds T32 MOV variant',
+        [QUERY_SRCH, '--op', 'MOV', '--isa', 't32'],
+        [exit_ok(), stdout_contains('MOV')],
+    ),
+    (
+        'search --op MUL --isa t32 finds T32 multiply',
+        [QUERY_SRCH, '--op', 'MUL', '--isa', 't32'],
+        [exit_ok(), stdout_contains('MUL')],
+    ),
+    (
+        'search --op STR --isa a32 finds A32 store instruction',
+        [QUERY_SRCH, '--op', 'STR', '--isa', 'a32'],
         [exit_ok(), stdout_contains('A32')],
     ),
 ]
@@ -1093,6 +1160,22 @@ GIC_SEARCH_TESTS = [
         'search --spec gic PIDR2 finds GICD and GICR variants',
         [QUERY_SRCH, '--spec', 'gic', 'PIDR2'],
         [exit_ok(), stdout_contains('PIDR2')],
+    ),
+    # Additional GIC search coverage (2026-04-16)
+    (
+        'search --spec gic GICR finds redistributor registers',
+        [QUERY_SRCH, '--spec', 'gic', 'GICR'],
+        [exit_ok(), stdout_contains('GICR_CTLR')],
+    ),
+    (
+        'search --spec gic GITS finds ITS registers',
+        [QUERY_SRCH, '--spec', 'gic', 'GITS'],
+        [exit_ok(), stdout_contains('GITS_CTLR')],
+    ),
+    (
+        'search --spec gic INVLPIR finds GICR invalidation register',
+        [QUERY_SRCH, '--spec', 'gic', 'INVLPIR'],
+        [exit_ok(), stdout_contains('GICR_INVLPIR')],
     ),
 ]
 
@@ -1595,6 +1678,22 @@ CORESIGHT_SEARCH_TESTS = [
         [QUERY_SRCH, '--spec', 'coresight', 'FAKECTRL_ZZZZ'],
         [exit_nonzero()],
     ),
+    # Additional CoreSight search coverage (2026-04-16)
+    (
+        'search --spec coresight CTI finds CTI trigger registers',
+        [QUERY_SRCH, '--spec', 'coresight', 'CTI'],
+        [exit_ok(), stdout_contains('CTICONTROL')],
+    ),
+    (
+        'search --spec coresight CSTF finds funnel control register',
+        [QUERY_SRCH, '--spec', 'coresight', 'CSTF'],
+        [exit_ok(), stdout_contains('CSTF_FUNNEL_CTRL')],
+    ),
+    (
+        'search --spec coresight IDFILTER finds CSRT replicator registers',
+        [QUERY_SRCH, '--spec', 'coresight', 'IDFILTER'],
+        [exit_ok(), stdout_contains('CSRT_IDFILTER0')],
+    ),
 ]
 
 # ---------------------------------------------------------------------------
@@ -1869,6 +1968,17 @@ PMU_TESTS = [
         'cortex-a710 FAKE_EVENT_ZZZZ is not found (hallucination guard)',
         [QUERY_PMU, 'cortex-a710', 'FAKE_EVENT_ZZZZ'],
         [exit_nonzero()],
+    ),
+    # Additional PMU coverage (2026-04-16)
+    (
+        'neoverse-v2 CPU_CYCLES returns code 17 (0x011)',
+        [QUERY_PMU, 'neoverse-v2', 'CPU_CYCLES'],
+        [exit_ok(), stdout_contains('CPU_CYCLES'), stdout_contains('17 (0x011)')],
+    ),
+    (
+        '--search STALL finds stall events across CPUs',
+        [QUERY_PMU, '--search', 'STALL'],
+        [exit_ok(), stdout_contains('STALL')],
     ),
 ]
 
