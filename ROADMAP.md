@@ -752,8 +752,12 @@ stability; EX-3d (PMU monitoring) is ongoing.
 
 ### EX-3a — Newer MRS Build Integration
 
-- [ ] **EX-3a-1** Human: check https://developer.arm.com/architectures/cpu-architecture/a-profile/exploration-tools for AARCHMRS builds newer than Build 445 (March 2025)
-- [ ] **EX-3a-2** If newer build available (September 2025 build confirmed to exist): replace `Features.json`, `Instructions.json`, `Registers.json`
+- [ ] **EX-3a-1** Human: download September 2025 BSD build (confirmed to exist):
+  `AARCHMRS_OPENSOURCE_A_profile_FAT-2025-09_ASL0.tar.gz`
+  from https://developer.arm.com/downloads/-/exploration-tools (A-Profile Architecture section).
+  Includes Armv9.6-A features (FEAT_FPRCVT, FEAT_LSFE, FEAT_F8F32MM, FEAT_SME2p2, etc.)
+  Expected to be newer than Build 445 (March 2025).
+- [ ] **EX-3a-2** Replace `Features.json`, `Instructions.json`, `Registers.json` with new build
 - [ ] **EX-3a-3** Rebuild all caches: `build_index.py`, `build_arm_arm_index.py`, `build_gic_index.py`, `build_coresight_index.py`, `build_pmu_index.py`
 - [ ] **EX-3a-4** Run `python3 tools/eval_skill.py` — confirm all tests pass against new data
 - [ ] **EX-3a-5** Update `CLAUDE.md` metadata (architecture version, build number, date)
@@ -766,26 +770,36 @@ stability; EX-3d (PMU monitoring) is ongoing.
   video codec instructions (SABAL/UABAL/SQRSHRN/UQRSHRN/ADDQP), LOR extended to Realms,
   separate kernel/user PAC controls, nested hypervisor optimizations
 - [x] **EX-3b-2** Confirmed 3 new Armv9.7-A FEAT_* identifiers: FEAT_EAESR, FEAT_FDIT, FEAT_PAuth_EnhCtl
-- [ ] **EX-3b-3** When v9Ap7 MRS data becomes available: extend `query_feature.py --version v9Ap7` support
-- [ ] **EX-3b-4** Add eval tests for v9Ap7 feature presence (after MRS data available)
-- **Waiting**: ARM has not yet published a v9Ap7 MRS build
+- [x] **EX-3b-3** Confirmed additional Armv9.6-A FEAT_* identifiers (2026-04-16):
+  FEAT_BTIE (Enhanced BTI), FEAT_CMPBR (Compare and Branch), FEAT_F16MM (FP16 matrix multiply),
+  FEAT_MTETC (MTE tag cache store/zero) — adds to the 18 previously documented
+- [ ] **EX-3b-4** When v9Ap7 MRS data becomes available: extend `query_feature.py --version v9Ap7` support
+- [ ] **EX-3b-5** Add eval tests for v9Ap7 feature presence (after MRS data available)
+- **Waiting**: ARM has not yet published a v9Ap7 MRS build; September 2025 build (EX-3a) likely includes v9.6 data
 
 ### EX-3c — GICv5 Data Preparation
 
 - [x] **EX-3c-1** Documented GICv5 architecture in steering notes (2026-04-11):
   GICD/GICR replaced by Interrupt Routing Service (IRS), new IWB for wired signals,
   GIC Stream protocol, no limit on wired interrupt count, direct Realm interrupt injection
+- [x] **EX-3c-1b** GICv5 development status update (2026-04-16):
+  Linux kernel driver v7 patches posted July 2025 (Lorenzo Pieralisi); QEMU emulation
+  patches underway (65-patch series); spec at https://developer.arm.com/documentation/aes0070
+  (document ID AES0070, currently 00EAC0 revision). Active development — not yet stable.
 - [ ] **EX-3c-2** When GICv5 spec stabilises: create `gicv5/GICv5.json` and `gicv5/GICv5_meta.json`
 - [ ] **EX-3c-3** Write `tools/build_gicv5_index.py` following same pattern as `build_gic_index.py`
 - [ ] **EX-3c-4** Write `tools/query_gicv5.py` and `.claude/skills/arm-gicv5.md`
-- **Blocked**: GICv5 specification in beta (not yet stable for data extraction)
+- **Blocked**: GICv5 specification in active development (kernel driver v7 July 2025; spec revision 00EAC0)
 
 ### EX-3d — PMU Profile Monitoring (Ongoing)
 
 - [x] **EX-3d-1** Confirmed 36 CPU profiles + 2 architectural baselines in place (2026-04-11)
-- [ ] **EX-3d-2** Monitor https://github.com/ARM-software/data/tree/master/pmu for new CPU additions
-  - Pending: Cortex-A520AE, Cortex-A720AE, Cortex-X925AE (automotive variants)
-  - Pending: Cortex-A730, Cortex-A530 (announced for Rockchip RK3668, no PMU data upstream yet)
+- [x] **EX-3d-2** Verified upstream ARM-software/data status (2026-04-16): we have all relevant
+  AArch64 profiles from the upstream repo. Confirmed not yet upstream:
+  - Cortex-A520AE, Cortex-A720AE, Cortex-X925AE (automotive variants — not yet in upstream)
+  - Cortex-A730, Cortex-A530 (silicon confirmed in Rockchip RK3668 announced 2025-07; no PMU data upstream yet)
+  - Cortex-X5 (codenamed Logan; new µarch; no upstream profile yet)
+  - Upstream has older Cortex-R, Cortex-M, ARMv7 profiles which are out of scope for AArch64 focus
 - [ ] **EX-3d-3** When new profiles appear upstream: add JSON files to `pmu/`, rebuild cache, add eval tests
 
 **Exit criteria:** EX-3a complete when `python3 tools/eval_skill.py` passes against v9.6+ MRS data.
@@ -801,7 +815,7 @@ EX-3d is ongoing (no fixed exit criterion; track upstream repo periodically).
 | GICv5 | GICv5 architecture support (new data directory, new skill) | 🔲 Blocked: spec in beta, not yet stable |
 | SMMU | SMMU (IHI0070) register coverage | 🔲 Planned: logical extension of GIC/CoreSight |
 | CI/CD | Automated cache rebuild and eval on commit | 🔲 Planned |
-| MRS Refresh | Ingest new MRS builds (v9Ap7+) when released | 🔲 Waiting: no new build available |
+| MRS Refresh | Ingest new MRS builds (v9Ap7+) when released | 🔲 September 2025 BSD build confirmed (see EX-3a); human download required |
 
 ---
 
