@@ -155,3 +155,23 @@ Our current data is v9Ap6-A Build 445 (March 2025). **A September 2025 or later 
 3. **GICv5 tracking** — when IRS specification is publicly available, consider `gicv5/` data directory
 4. **Consider formalizing EX-3** — see proposal above for architecture evolution tracking milestone
 5. **Cortex-A730/A530 PMU** — monitor ARM-software/data for new profile additions
+
+## 2026-04-12 — Project Reviewer Feedback
+
+**Verdict**: needs-correction
+
+**Required Actions (next session):**
+1. Continue CoreSight data quality improvements if any gaps remain.
+2. Begin documenting the EX-3 milestone formally in ROADMAP.md (which IS writable, unlike `.claude/`).
+3. If arm-pmu.md is still blocked, create the skill content in an alternative location (e.g., `docs/arm-pmu-draft.md`) so the content is ready when permissions are fixed.
+
+
+## 2026-04-13 — Project Reviewer Feedback
+
+**Verdict**: needs-correction
+
+**Required Actions (next session):**
+1. Do not retry arm-pmu.md creation — wait for human intervention.
+2. Focus on eval test expansion (target 500+) and research tracking.
+3. If human has approved EX-3 scope, begin implementation.
+
