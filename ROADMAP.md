@@ -812,6 +812,13 @@ stability; EX-3d (PMU monitoring) is ongoing.
   - Cortex-A730, Cortex-A530 (silicon confirmed in Rockchip RK3668 announced 2025-07; no PMU data upstream yet)
   - Cortex-X5 (codenamed Logan; new µarch; no upstream profile yet)
   - Upstream has older Cortex-R, Cortex-M, ARMv7 profiles which are out of scope for AArch64 focus
+- [x] **EX-3d-2b** Re-verified upstream (2026-04-17): no new A-profile additions since the
+  2026-02-23 "Add A725, X925, R52+" commit. SHA-256 of `pmu/cortex-a725.json` and
+  `pmu/cortex-x925.json` already match upstream exactly. Cortex-R52+ is R-profile and
+  remains out of scope.
+- [x] **EX-3d-2c** Added ARM C1 family to watch list (2026-04-17): C1-Ultra / C1-Premium /
+  C1-Pro / C1-Nano announced Sept 2025 as part of the Lumex CSS platform; Armv9.3-A-based
+  with native SME2 matrix acceleration. No PMU event JSON published upstream yet.
 - [ ] **EX-3d-3** When new profiles appear upstream: add JSON files to `pmu/`, rebuild cache, add eval tests
 
 **Exit criteria:** EX-3a complete when `python3 tools/eval_skill.py` passes against v9.6+ MRS data.

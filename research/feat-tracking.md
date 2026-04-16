@@ -55,31 +55,41 @@ absent** (expected to arrive in a later MRS build).
 | Identifier    | Expected role |
 |---------------|---------------|
 | FEAT_BTIE     | Enhanced Branch Target Identification |
-| FEAT_F16MM    | FP16 matrix multiply (non-SVE) |
-| FEAT_MTETC    | MTE tag cache store/zero |
-| FEAT_TMOP     | (TBD — absent from current data) |
+| FEAT_F16MM    | Half-precision floating-point matrix multiply-accumulate (non-SVE) |
+| FEAT_MTETC    | MTE tag cache store and zero instructions |
+| FEAT_TMOP     | SME TMOP (outer-product) instructions |
 
 **Impact**: Queries to `arm-feat FEAT_BTIE/F16MM/MTETC/TMOP` return
 "feature not found" today. Skills correctly refuse to synthesise
 descriptions; this is spec-grounded behaviour.
 
+Cross-reference: `arm-cpusysregs/docs/features.md` (revision 2025-12, 412
+features total in that catalogue) independently confirms all four as
+Armv9.6-A additions.
+
 ---
 
 ## Armv9.7-A FEAT_* Identifiers
 
-Per public ARM announcements, the following Armv9.7-A additions are known:
+Per public ARM announcements, the following Armv9.7-A additions are known.
+The "Optional in" column reflects when the feature first became available
+optionally; Armv9.7-A makes each of these mandatory.
 
-| Identifier              | Status in Build 445 |
-|-------------------------|---------------------|
-| FEAT_EAESR              | Absent              |
-| FEAT_FDIT               | Absent              |
-| FEAT_PAuth_EnhCtl       | Absent              |
+| Identifier        | Optional in | Description (per features.md rev 2025-12)                |
+|-------------------|-------------|----------------------------------------------------------|
+| FEAT_EAESR        | Armv9.0     | Enable Abort Exception System Registers                  |
+| FEAT_FDIT         | Armv9.4     | Force Data Independent Timing                            |
+| FEAT_PAuth_EnhCtl | Armv9.6     | Enhanced controls for pointer authentication             |
 
 All three are absent from Build 445, which is expected (v9Ap6-A does not
 include v9.7 features). A v9Ap7 MRS build has not yet been published by
 ARM as of this log entry. The September 2025 BSD build
 (`AARCHMRS_OPENSOURCE_A_profile_FAT-2025-09_ASL0.tar.gz`) likely still
 tops out at v9.6.
+
+Source: `arm-cpusysregs/docs/features.md` (lelegard/arm-cpusysregs, rev
+2025-12) enumerates exactly three Armv9.7-A mandatory features. No further
+FEAT_* identifiers have been publicly disclosed for Armv9.7-A beyond these.
 
 ### Documented Armv9.7-A additions beyond FEAT_* parameters
 
@@ -129,4 +139,39 @@ Expected output: `present in cache: 18`
 
 ---
 
-Last updated: 2026-04-17 (arm-mrs-steward session)
+## PMU Upstream Monitoring (2026-04-17)
+
+Direct listing of `github.com/ARM-software/data/pmu/` confirms no new
+A-profile or Neoverse CPU profiles have been added since our last sync.
+
+- Our 38-entry AArch64 set is complete against upstream's A-profile AArch64
+  subset.
+- Upstream commit 2026-02-23 ("Add A725, X925, R52+") refreshed existing
+  a725/x925 entries plus added cortex-r52+ (R-profile — out of scope).
+  SHA-256 of `pmu/cortex-a725.json` and `pmu/cortex-x925.json` match
+  upstream exactly; no refresh needed.
+- Still absent upstream: Cortex-A730, Cortex-A530, Cortex-X5, and the
+  automotive ...AE variants (A520AE, A720AE, X925AE). Silicon exists
+  (Rockchip RK3668 uses A730/A530; Cortex-X5 codenamed Logan is in
+  2026-generation SoCs), but ARM has not published PMU event lists yet.
+
+## ARM C1 Family — PMU Data Not Yet Published (2026-04-17)
+
+ARM announced the new **C1 CPU cluster** in September 2025 as part of the
+Lumex Compute Subsystem (CSS) platform. Four variants are Armv9.3-A-based
+with native SME2 hardware matrix acceleration:
+
+| Variant      | Role                       | Prior-gen analogue |
+|--------------|----------------------------|--------------------|
+| C1-Ultra     | Flagship big core          | Cortex-X925        |
+| C1-Premium   | Sub-flagship big core      | (new tier)         |
+| C1-Pro       | Mid-tier big core          | Cortex-A725        |
+| C1-Nano      | Efficiency / LITTLE core   | Cortex-A520        |
+
+**Impact on project**: Consumer devices launched Q1–Q2 2026, but no PMU
+event JSON for any C1 variant exists upstream yet. Add to EX-3d watch
+list; if/when upstream publishes, integrate via `build_pmu_index.py`.
+
+---
+
+Last updated: 2026-04-17 (arm-mrs-steward session — research pass)
