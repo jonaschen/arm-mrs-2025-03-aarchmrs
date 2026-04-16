@@ -358,6 +358,119 @@ FEAT_TESTS = [
         [QUERY_FEAT, 'FEAT_SVE'],
         [exit_ok(), stdout_contains('not available in the BSD MRS release')],
     ),
+    # ------------------------------------------------------------------ #
+    # Armv9.6-A FEAT_* presence in Build 445 (research/feat-tracking.md)  #
+    # 18 of 22 publicly-documented v9.6-A identifiers ship in Build 445    #
+    # ------------------------------------------------------------------ #
+    (
+        'FEAT_CMPBR (v9.6 Compare and Branch) present, min_version v9Ap5',
+        [QUERY_FEAT, 'FEAT_CMPBR'],
+        [exit_ok(), field_value('Min version', 'v9Ap5')],
+    ),
+    (
+        'FEAT_FPRCVT (v9.6 FP register convert) present, min_version v9Ap5',
+        [QUERY_FEAT, 'FEAT_FPRCVT'],
+        [exit_ok(), field_value('Min version', 'v9Ap5')],
+    ),
+    (
+        'FEAT_SME2p2 (v9.6 SME2.2) present, min_version v9Ap5',
+        [QUERY_FEAT, 'FEAT_SME2p2'],
+        [exit_ok(), field_value('Min version', 'v9Ap5')],
+    ),
+    (
+        'FEAT_SVE2p2 (v9.6 SVE2.2) present, min_version v9Ap5',
+        [QUERY_FEAT, 'FEAT_SVE2p2'],
+        [exit_ok(), field_value('Min version', 'v9Ap5')],
+    ),
+    (
+        'FEAT_SVE_AES2 (v9.6 SVE AES variant 2) present, min_version v9Ap5',
+        [QUERY_FEAT, 'FEAT_SVE_AES2'],
+        [exit_ok(), field_value('Min version', 'v9Ap5')],
+    ),
+    (
+        'FEAT_F8F32MM (v9.6 FP8-to-FP32 matmul) present, min_version v9Ap2',
+        [QUERY_FEAT, 'FEAT_F8F32MM'],
+        [exit_ok(), field_value('Min version', 'v9Ap2')],
+    ),
+    (
+        'FEAT_F8F16MM (v9.6 FP8-to-FP16 matmul) present, min_version v9Ap2',
+        [QUERY_FEAT, 'FEAT_F8F16MM'],
+        [exit_ok(), field_value('Min version', 'v9Ap2')],
+    ),
+    (
+        'FEAT_SME_MOP4 (v9.6 SME MOP4 outer product) present, min_version v9Ap4',
+        [QUERY_FEAT, 'FEAT_SME_MOP4'],
+        [exit_ok(), field_value('Min version', 'v9Ap4')],
+    ),
+    (
+        'FEAT_LSFE (v9.6 Large System FP Extensions) present, min_version v9Ap3',
+        [QUERY_FEAT, 'FEAT_LSFE'],
+        [exit_ok(), field_value('Min version', 'v9Ap3')],
+    ),
+    (
+        'FEAT_PoPS (v9.6 Point of Physical Storage) present, min_version v9Ap5',
+        [QUERY_FEAT, 'FEAT_PoPS'],
+        [exit_ok(), field_value('Min version', 'v9Ap5')],
+    ),
+    # ------------------------------------------------------------------ #
+    # Armv9.6-A FEAT_* absent from Build 445 — hallucination guards       #
+    # These arrive in a newer MRS build (see ROADMAP EX-3a).              #
+    # ------------------------------------------------------------------ #
+    (
+        'FEAT_BTIE (Enhanced BTI) NOT in Build 445 — expected in newer MRS',
+        [QUERY_FEAT, 'FEAT_BTIE'],
+        [exit_nonzero()],
+    ),
+    (
+        'FEAT_F16MM (FP16 matmul non-SVE) NOT in Build 445',
+        [QUERY_FEAT, 'FEAT_F16MM'],
+        [exit_nonzero()],
+    ),
+    (
+        'FEAT_MTETC (MTE tag cache store/zero) NOT in Build 445',
+        [QUERY_FEAT, 'FEAT_MTETC'],
+        [exit_nonzero()],
+    ),
+    (
+        'FEAT_TMOP NOT in Build 445 — expected in newer MRS',
+        [QUERY_FEAT, 'FEAT_TMOP'],
+        [exit_nonzero()],
+    ),
+    # ------------------------------------------------------------------ #
+    # Armv9.7-A FEAT_* absent from Build 445 — hallucination guards       #
+    # ------------------------------------------------------------------ #
+    (
+        'FEAT_EAESR (v9.7 Armv9.7-A) NOT in Build 445 (v9Ap6-A)',
+        [QUERY_FEAT, 'FEAT_EAESR'],
+        [exit_nonzero()],
+    ),
+    (
+        'FEAT_FDIT (v9.7 Armv9.7-A) NOT in Build 445 (v9Ap6-A)',
+        [QUERY_FEAT, 'FEAT_FDIT'],
+        [exit_nonzero()],
+    ),
+    (
+        'FEAT_PAuth_EnhCtl (v9.7 separate kernel/user PAC) NOT in Build 445',
+        [QUERY_FEAT, 'FEAT_PAuth_EnhCtl'],
+        [exit_nonzero()],
+    ),
+    # ------------------------------------------------------------------ #
+    # --list pattern discovery for v9.6 feature families                   #
+    # ------------------------------------------------------------------ #
+    (
+        '--list SSVE includes FEAT_SSVE_AES (v9.6 streaming SVE AES)',
+        [QUERY_FEAT, '--list', 'SSVE'],
+        [exit_ok(), stdout_contains('FEAT_SSVE_AES')],
+    ),
+    (
+        '--list F8 discovers both FP8 matmul variants',
+        [QUERY_FEAT, '--list', 'F8'],
+        [
+            exit_ok(),
+            stdout_contains('FEAT_F8F16MM'),
+            stdout_contains('FEAT_F8F32MM'),
+        ],
+    ),
 ]
 
 REG_TESTS = [

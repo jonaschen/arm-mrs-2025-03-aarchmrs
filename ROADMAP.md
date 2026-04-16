@@ -728,7 +728,7 @@ Current: 52 registers across 3 blocks (GICD 19, GICR 25, GITS 8)
 
 ### EX-2d — Eval suite: 450+ tests ✅
 
-Current: 488 tests (100% pass)
+Current: 527 tests (100% pass)
 
 - [x] Grew from 137 (EX completion) to 423 (2026-04-09)
 - [x] Added 18 GIC tests for new registers (pending/active, LPI, GICv4 vPE) → 441 (2026-04-10)
@@ -736,9 +736,11 @@ Current: 488 tests (100% pass)
 - [x] Added 6 ETM sequencer tests + 3 GIC search tests + 3 PMU search tests → 453 (2026-04-11)
 - [x] Added 8 common_armv8/common_armv9 PMU baseline tests → 461 (2026-04-11)
 - [x] Added 27 CoreSight tests (20 ETM + 7 CTI) for expanded register coverage → 488 (2026-04-12)
-- [x] Target met: 488 tests ≥ 450
+- [x] Added 20 tests (arm-reg/search/search_t32/gic_search/coresight_search/pmu) → 508 (2026-04-16)
+- [x] Added 19 FEAT_* tracking tests (10 v9.6 presence + 7 absence/v9.7 guards + 2 list-pattern) → 527 (2026-04-17)
+- [x] Target met: 527 tests ≥ 450
 
-**Exit criteria:** CoreSight ≥ 70 registers across ≥ 8 components ✅ (89). PMU ≥ 40 CPUs (38/40 — externally blocked). GIC ≥ 50 registers ✅ (52). Eval ≥ 450 tests ✅ (488), 100% pass rate.
+**Exit criteria:** CoreSight ≥ 70 registers across ≥ 8 components ✅ (89). PMU ≥ 40 CPUs (38/40 — externally blocked). GIC ≥ 50 registers ✅ (52). Eval ≥ 450 tests ✅ (527), 100% pass rate.
 
 ---
 
@@ -773,9 +775,19 @@ stability; EX-3d (PMU monitoring) is ongoing.
 - [x] **EX-3b-3** Confirmed additional Armv9.6-A FEAT_* identifiers (2026-04-16):
   FEAT_BTIE (Enhanced BTI), FEAT_CMPBR (Compare and Branch), FEAT_F16MM (FP16 matrix multiply),
   FEAT_MTETC (MTE tag cache store/zero) — adds to the 18 previously documented
+- [x] **EX-3b-3b** Cross-checked v9.6-A identifiers against Build 445 `Features.json` (2026-04-17):
+  18 of 22 publicly-announced v9.6-A `FEAT_*` are ALREADY present in Build 445 (CMPBR at v9Ap5,
+  F8F16MM/F8F32MM/SVE_BFSCALE/SVE_F16F32MM at v9Ap2, LSFE at v9Ap3, SME_MOP4/SSVE_BitPerm/SSVE_FEXPA
+  at v9Ap4, CMPBR/FPRCVT/LSUI/OCCMO/PoPS/SME2p2/SSVE_AES/SVE2p2/SVE_AES2 at v9Ap5, PCDPHINT at v9Ap0).
+  Only 4 remain absent: FEAT_BTIE, FEAT_F16MM, FEAT_MTETC, FEAT_TMOP — these are expected to
+  land in the September 2025 MRS build (see EX-3a). Full log at `research/feat-tracking.md`.
+- [x] **EX-3b-3c** Added 19 eval tests (2026-04-17): 10 v9.6 presence + min_version tests for
+  present features, 4 hallucination guards for absent v9.6 features, 3 hallucination guards for
+  absent v9.7 features, 2 --list pattern tests covering SSVE/F8 families.
 - [ ] **EX-3b-4** When v9Ap7 MRS data becomes available: extend `query_feature.py --version v9Ap7` support
 - [ ] **EX-3b-5** Add eval tests for v9Ap7 feature presence (after MRS data available)
-- **Waiting**: ARM has not yet published a v9Ap7 MRS build; September 2025 build (EX-3a) likely includes v9.6 data
+- **Waiting**: ARM has not yet published a v9Ap7 MRS build; September 2025 build (EX-3a) likely
+  delivers the remaining 4 absent v9.6 features but not v9.7 content.
 
 ### EX-3c — GICv5 Data Preparation
 

@@ -175,3 +175,13 @@ Our current data is v9Ap6-A Build 445 (March 2025). **A September 2025 or later 
 2. Focus on eval test expansion (target 500+) and research tracking.
 3. If human has approved EX-3 scope, begin implementation.
 
+
+## 2026-04-16 — Project Reviewer Feedback
+
+**Verdict**: needs-correction
+
+**Required Actions (next session):**
+1. Do not retry arm-pmu.md — document in session summary that human action is required.
+2. Delete `note.txt`; add it to `.gitignore`.
+3. Proceed with EX-3b (Armv9.7-A) and additional FEAT_* documentation.
+
